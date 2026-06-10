@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shapers — Zephyr Surf Go</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+ <link rel="stylesheet" href="../CSS/estilosShapers.css">
+</head>
+<body>
+
+  
+<!-- NAVBAR -->
+ <nav id="navbar">
+    <a href="#" class="nav-logo">ZEPHYR <span>SURF</span> GO</a>
+    <ul class="nav-links d-none d-md-flex">
+      <li><a href="Home.html">Home</a></li>
+      <li><a href="#tablas">Tablas</a></li>
+      <li><a href="shapers.html">Shapers</a></li>
+      <li><a href="#about">Nosotros</a></li>
+      <li><a href="Dealers.html">Dealers</a></li>
+      <li><a href="#tablasDestacadas">Tablas destacadas</a></li>
+    </ul>
+ <div class="nav-actions">
+
+  <a href="login.html" class="btn-login" id="navLoginBtn">
+    <svg width="15" height="15" viewBox="0 0 24 24"
+      fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+
+    <span id="navLoginText">Ingresar</span>
+  </a>
+
+ <div class="util-dropdown">
+
+  <button class="dropdown-toggle">
+    🌎 Marcas
+  </button>
+
+  <div class="marcas-menu">
+
+    <a href="#">
+      <img src="https://flagcdn.com/w20/ar.png" alt="">
+      AR
+    </a>
+
+    <a href="#">
+      <img src="https://flagcdn.com/w20/br.png" alt="">
+      BR
+    </a>
+
+    <div class="dropdown-submenu">
+
+      <a href="#">
+        <img src="https://flagcdn.com/w20/uy.png" alt="">
+        UY ▸
+      </a>
+
+      <div class="submenu">
+        <a href="master.html">Master</a>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+  <a href="carrito.html" class="btn-cart-nav" id="btnCartNav">
+
+    <svg width="15" height="15" viewBox="0 0 24 24"
+      fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="9" cy="21" r="1"/>
+      <circle cx="20" cy="21" r="1"/>
+      <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61H19a2 2 0 001.99-1.79L22 7H6"/>
+    </svg>
+
+    <span>Carrito</span>
+
+    <span id="cartBadge" class="cart-badge">0</span>
+
+  </a>
+
+</div>
+
+   
+
+
+
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <span class="hero-eyebrow">Los artesanos detrás de cada ola</span>
+      <h1 class="hero-title">CONOCÉ A LOS <em>SHAPERS</em></h1>
+      <p class="hero-sub">Cada tabla tiene una historia. Detrás de cada curva hay años de experiencia, pasión y olas surfidas. Estos son los maestros.</p>
+      <div class="hero-stats">
+        <div>
+          <div class="hstat-num">20+</div>
+          <div class="hstat-label">Shapers activos</div>
+        </div>
+        <div>
+          <div class="hstat-num">3</div>
+          <div class="hstat-label">Países</div>
+        </div>
+        <div>
+          <div class="hstat-num">15+</div>
+          <div class="hstat-label">Años promedio</div>
+        </div>
+        <div>
+          <div class="hstat-num">100%</div>
+          <div class="hstat-label">Artesanal</div>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ── FILTER BAR ── -->
+  <div class="filter-bar">
+    <span class="filter-label">Filtrar por</span>
+    <div class="filter-chips">
+      <button class="chip active" data-filter="all">Todos</button>
+      <button class="chip" data-filter="AR">🇦🇷 Argentina</button>
+      <button class="chip" data-filter="BR">🇧🇷 Brasil</button>
+      <button class="chip" data-filter="UY">🇺🇾 Uruguay</button>
+      <button class="chip" data-filter="shortboard">Shortboard</button>
+      <button class="chip" data-filter="longboard">Longboard</button>
+      <button class="chip" data-filter="gun">Gun / Big Wave</button>
+    </div>
+    <div class="filter-search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Buscar shaper…" />
+    </div>
+  </div>
+
+  <!-- ── SHAPERS GRID ── -->
+  <section id="shapers">
+    <p class="section-label reveal">Nuestros artesanos</p>
+    <h2 class="section-title reveal">Los shapers de la región</h2>
+    <p class="section-sub reveal">Maestros del foam y la fibra que dan vida a las mejores olas de Argentina, Brasil y Uruguay.</p>
+
+    <div class="shapers-grid" id="shapersGrid">
+
+      <!-- FEATURED -->
+      <div class="featured-shaper reveal" data-country="UY" data-styles="longboard shortboard" data-name="diego rocca" onclick="openModal('rocca')">
+        <div class="featured-portrait">
+          <svg viewBox="0 0 340 360" xmlns="http://www.w3.org/2000/svg">
+            <rect width="340" height="360" fill="#063f4a"/>
+            <ellipse cx="170" cy="140" rx="70" ry="78" fill="#0a5566"/>
+            <rect x="100" y="205" width="140" height="155" rx="12" fill="#0a5566"/>
+            <!-- board shape in bg -->
+            <ellipse cx="290" cy="200" rx="30" ry="110" fill="rgba(67,148,224,.08)" transform="rotate(-15 290 200)"/>
+            <ellipse cx="60" cy="100" rx="20" ry="70" fill="rgba(67,148,224,.05)" transform="rotate(20 60 100)"/>
+            <!-- wave texture lines -->
+            <path d="M0 300 Q85 280 170 300 Q255 320 340 300" stroke="rgba(255,255,255,.06)" stroke-width="1.5" fill="none"/>
+            <path d="M0 320 Q85 300 170 320 Q255 340 340 320" stroke="rgba(255,255,255,.04)" stroke-width="1" fill="none"/>
+          </svg>
+          <span class="featured-badge">⭐ Shaper destacado</span>
+        </div>
+        <div class="featured-body">
+          <p class="shaper-origin">🇺🇾 Punta del Este, Uruguay</p>
+          <p class="shaper-name">Diego Rocca</p>
+          <p class="shaper-years">28 años de experiencia</p>
+          <p class="shaper-bio">El referente del surf uruguayo. Diego comenzó a shapear en 1996 y hoy es el nombre más respetado de la región rioplatense. Sus longboards son reconocidos por su equilibrio perfecto entre performance y fluidez.</p>
+          <div class="shaper-stats">
+            <div class="sstat"><div class="sstat-num">340+</div><div class="sstat-label">Tablas</div></div>
+            <div class="sstat"><div class="sstat-num">28</div><div class="sstat-label">Años</div></div>
+            <div class="sstat"><div class="sstat-num">4</div><div class="sstat-label">Modelos</div></div>
+          </div>
+          <div class="shaper-styles">
+            <span class="style-tag">Longboard</span>
+            <span class="style-tag">Shortboard</span>
+            <span class="style-tag">Mid-length</span>
+            <span class="style-tag">Custom</span>
+          </div>
+          <div class="shaper-cta">
+            <a href="#" class="cta-link" onclick="event.stopPropagation(); openModal('rocca')">
+              Ver perfil completo
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+            <span class="cta-boards">4 tablas disponibles</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 1 -->
+      <div class="shaper-card reveal" data-country="AR" data-styles="shortboard" data-name="marcos villalba" onclick="openModal('villalba')">
+        <div class="shaper-portrait">
+          <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="400" fill="#0d2d45"/>
+            <ellipse cx="150" cy="155" rx="62" ry="68" fill="#1a4060"/>
+            <rect x="88" y="210" width="124" height="190" rx="10" fill="#1a4060"/>
+            <ellipse cx="260" cy="180" rx="25" ry="95" fill="rgba(67,148,224,.07)" transform="rotate(-10 260 180)"/>
+            <path d="M0 350 Q75 330 150 350 Q225 370 300 350" stroke="rgba(255,255,255,.07)" stroke-width="1.5" fill="none"/>
+          </svg>
+          <span class="shaper-flag">🇦🇷 Mar del Plata</span>
+          <span class="shaper-specialty">Shortboard</span>
+          <span class="shaper-portrait-name">Villalba</span>
+        </div>
+        <div class="shaper-info">
+          <p class="shaper-origin">🇦🇷 Mar del Plata, Argentina</p>
+          <p class="shaper-name">Marcos Villalba</p>
+          <p class="shaper-years">17 años de experiencia</p>
+          <p class="shaper-bio">Especialista en shortboards de alta performance para las olas frías del Atlántico. Sus diseños son reconocidos por la rapidez en el take-off.</p>
+          <div class="shaper-stats">
+            <div class="sstat"><div class="sstat-num">180+</div><div class="sstat-label">Tablas</div></div>
+            <div class="sstat"><div class="sstat-num">17</div><div class="sstat-label">Años</div></div>
+          </div>
+          <div class="shaper-styles">
+            <span class="style-tag">Shortboard</span>
+            <span class="style-tag">Fish</span>
+            <span class="style-tag">Step-up</span>
+          </div>
+          <div class="shaper-cta">
+            <a href="#" class="cta-link" onclick="event.stopPropagation(); openModal('villalba')">Ver perfil <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+            <span class="cta-boards">3 tablas</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2 -->
+      <div class="shaper-card reveal" data-country="BR" data-styles="longboard shortboard" data-name="felipe nunes" onclick="openModal('nunes')">
+        <div class="shaper-portrait">
+          <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="400" fill="#1a3a20"/>
+            <ellipse cx="150" cy="155" rx="62" ry="68" fill="#2a5030"/>
+            <rect x="88" y="210" width="124" height="190" rx="10" fill="#2a5030"/>
+            <ellipse cx="40" cy="220" rx="22" ry="90" fill="rgba(67,148,224,.06)" transform="rotate(12 40 220)"/>
+            <path d="M0 360 Q75 340 150 360 Q225 380 300 360" stroke="rgba(255,255,255,.06)" stroke-width="1.5" fill="none"/>
+          </svg>
+          <span class="shaper-flag">🇧🇷 Florianópolis</span>
+          <span class="shaper-specialty">Funboard</span>
+          <span class="shaper-portrait-name">Nunes</span>
+        </div>
+        <div class="shaper-info">
+          <p class="shaper-origin">🇧🇷 Florianópolis, Brasil</p>
+          <p class="shaper-name">Felipe Nunes</p>
+          <p class="shaper-years">12 años de experiencia</p>
+          <p class="shaper-bio">Crecido en Floripa, Felipe aprendió a surfear antes que a caminar. Sus funboards son ideales para principiantes sin perder carácter.</p>
+          <div class="shaper-stats">
+            <div class="sstat"><div class="sstat-num">110+</div><div class="sstat-label">Tablas</div></div>
+            <div class="sstat"><div class="sstat-num">12</div><div class="sstat-label">Años</div></div>
+          </div>
+          <div class="shaper-styles">
+            <span class="style-tag">Funboard</span>
+            <span class="style-tag">Mini-mal</span>
+            <span class="style-tag">Longboard</span>
+          </div>
+          <div class="shaper-cta">
+            <a href="#" class="cta-link" onclick="event.stopPropagation(); openModal('nunes')">Ver perfil <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+            <span class="cta-boards">2 tablas</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3 -->
+      <div class="shaper-card reveal" data-country="AR" data-styles="longboard" data-name="pablo sosa" onclick="openModal('sosa')">
+        <div class="shaper-portrait">
+          <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="400" fill="#2a1a38"/>
+            <ellipse cx="150" cy="155" rx="62" ry="68" fill="#3d2652"/>
+            <rect x="88" y="210" width="124" height="190" rx="10" fill="#3d2652"/>
+            <ellipse cx="270" cy="120" rx="18" ry="80" fill="rgba(67,148,224,.08)" transform="rotate(-20 270 120)"/>
+            <path d="M0 340 Q75 320 150 340 Q225 360 300 340" stroke="rgba(255,255,255,.05)" stroke-width="1.5" fill="none"/>
+          </svg>
+          <span class="shaper-flag">🇦🇷 Miramar</span>
+          <span class="shaper-specialty">Longboard</span>
+          <span class="shaper-portrait-name">Sosa</span>
+        </div>
+        <div class="shaper-info">
+          <p class="shaper-origin">🇦🇷 Miramar, Argentina</p>
+          <p class="shaper-name">Pablo Sosa</p>
+          <p class="shaper-years">22 años de experiencia</p>
+          <p class="shaper-bio">El maestro del longboard clásico. Pablo combina técnicas tradicionales hawaianas con madera autóctona argentina para resultados únicos.</p>
+          <div class="shaper-stats">
+            <div class="sstat"><div class="sstat-num">250+</div><div class="sstat-label">Tablas</div></div>
+            <div class="sstat"><div class="sstat-num">22</div><div class="sstat-label">Años</div></div>
+          </div>
+          <div class="shaper-styles">
+            <span class="style-tag">Longboard</span>
+            <span class="style-tag">Noserider</span>
+            <span class="style-tag">Classic</span>
+          </div>
+          <div class="shaper-cta">
+            <a href="#" class="cta-link" onclick="event.stopPropagation(); openModal('sosa')">Ver perfil <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+            <span class="cta-boards">5 tablas</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 4 -->
+      <div class="shaper-card reveal" data-country="BR" data-styles="gun shortboard" data-name="rui ferreira" onclick="openModal('ferreira')">
+        <div class="shaper-portrait">
+          <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="400" fill="#1a2a3a"/>
+            <ellipse cx="150" cy="155" rx="62" ry="68" fill="#253d55"/>
+            <rect x="88" y="210" width="124" height="190" rx="10" fill="#253d55"/>
+            <ellipse cx="150" cy="200" rx="15" ry="160" fill="rgba(67,148,224,.06)" transform="rotate(5 150 200)"/>
+            <path d="M0 370 Q75 350 150 370 Q225 390 300 370" stroke="rgba(255,255,255,.07)" stroke-width="1.5" fill="none"/>
+          </svg>
+          <span class="shaper-flag">🇧🇷 Río de Janeiro</span>
+          <span class="shaper-specialty">Big Wave</span>
+          <span class="shaper-portrait-name">Ferreira</span>
+        </div>
+        <div class="shaper-info">
+          <p class="shaper-origin">🇧🇷 Río de Janeiro, Brasil</p>
+          <p class="shaper-name">Rui Ferreira</p>
+          <p class="shaper-years">19 años de experiencia</p>
+          <p class="shaper-bio">Ex competidor profesional reconvertido en shaper. Rui diseña las guns más respetadas de Sudamérica, probadas en Nazaré y Pipeline.</p>
+          <div class="shaper-stats">
+            <div class="sstat"><div class="sstat-num">130+</div><div class="sstat-label">Tablas</div></div>
+            <div class="sstat"><div class="sstat-num">19</div><div class="sstat-label">Años</div></div>
+          </div>
+          <div class="shaper-styles">
+            <span class="style-tag">Gun</span>
+            <span class="style-tag">Big Wave</span>
+            <span class="style-tag">Shortboard</span>
+          </div>
+          <div class="shaper-cta">
+            <a href="#" class="cta-link" onclick="event.stopPropagation(); openModal('ferreira')">Ver perfil <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+            <span class="cta-boards">2 tablas</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 5 -->
+      <div class="shaper-card reveal" data-country="UY" data-styles="shortboard fish" data-name="valentina suárez" onclick="openModal('suarez')">
+        <div class="shaper-portrait">
+          <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="400" fill="#1a2030"/>
+            <ellipse cx="150" cy="155" rx="62" ry="68" fill="#283050"/>
+            <rect x="88" y="210" width="124" height="190" rx="10" fill="#283050"/>
+            <ellipse cx="30" cy="160" rx="14" ry="65" fill="rgba(67,148,224,.09)" transform="rotate(-8 30 160)"/>
+            <path d="M0 355 Q75 335 150 355 Q225 375 300 355" stroke="rgba(255,255,255,.06)" stroke-width="1.5" fill="none"/>
+          </svg>
+          <span class="shaper-flag">🇺🇾 Montevideo</span>
+          <span class="shaper-specialty">Fish / Twin</span>
+          <span class="shaper-portrait-name">Suárez</span>
+        </div>
+        <div class="shaper-info">
+          <p class="shaper-origin">🇺🇾 Montevideo, Uruguay</p>
+          <p class="shaper-name">Valentina Suárez</p>
+          <p class="shaper-years">9 años de experiencia</p>
+          <p class="shaper-bio">La única shaper mujer de la región y una de las más innovadoras. Sus fish twins con canales laterales son el secreto mejor guardado de Punta del Este.</p>
+          <div class="shaper-stats">
+            <div class="sstat"><div class="sstat-num">80+</div><div class="sstat-label">Tablas</div></div>
+            <div class="sstat"><div class="sstat-num">9</div><div class="sstat-label">Años</div></div>
+          </div>
+          <div class="shaper-styles">
+            <span class="style-tag">Fish</span>
+            <span class="style-tag">Twin-fin</span>
+            <span class="style-tag">Egg</span>
+          </div>
+          <div class="shaper-cta">
+            <a href="#" class="cta-link" onclick="event.stopPropagation(); openModal('suarez')">Ver perfil <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+            <span class="cta-boards">3 tablas</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- empty state -->
+    <div id="emptyState" style="display:none; text-align:center; padding:4rem 0; color:var(--muted);">
+      <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" style="margin:0 auto 1rem;display:block;opacity:.3">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <p style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--ocean);letter-spacing:.04em;">Sin resultados</p>
+      <p style="font-size:.88rem;">Probá con otros filtros o buscá otro nombre.</p>
+    </div>
+  </section>
+
+  <!-- ── PROCESO ── -->
+  <section id="proceso">
+    <p class="section-label reveal">El arte de shapear</p>
+    <h2 class="section-title reveal">Del foam a la ola</h2>
+    <p class="section-sub reveal">Cada tabla pasa por un proceso artesanal de más de 40 horas antes de llegar a tus manos.</p>
+    <div class="steps-grid">
+      <div class="step-item reveal">
+        <span class="step-num">01</span>
+        <div class="step-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+        </div>
+        <p class="step-title">Diseño & Template</p>
+        <p class="step-desc">El shaper analiza el rider — su peso, nivel, tipo de ola y estilo — y dibuja el template a mano sobre papel kraft.</p>
+      </div>
+      <div class="step-item reveal">
+        <span class="step-num">02</span>
+        <div class="step-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+          </svg>
+        </div>
+        <p class="step-title">Corte del blank</p>
+        <p class="step-desc">Se selecciona el blank de poliuretano de la densidad adecuada y se corta en sierra siguiendo el template diseñado.</p>
+      </div>
+      <div class="step-item reveal">
+        <span class="step-num">03</span>
+        <div class="step-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3"/>
+          </svg>
+        </div>
+        <p class="step-title">Shaping</p>
+        <p class="step-desc">Con planer y cepillos manuales, el shaper da forma a los raíles, cóncavos y rocker. Las manos hacen lo que la máquina no puede.</p>
+      </div>
+      <div class="step-item reveal">
+        <span class="step-num">04</span>
+        <div class="step-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <p class="step-title">Laminado & Acabado</p>
+        <p class="step-desc">Se aplican capas de fibra de vidrio y resina epoxi, se instalan el leash plug y las cajas de quillas, y se pule hasta lograr el acabado perfecto.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── UNIRSE ── -->
+  <section id="unirse">
+    <div class="join-box reveal">
+      <div>
+        <p class="join-eyebrow">¿Sos shaper?</p>
+        <h2 class="join-title">Sumá tus tablas<br>a la plataforma</h2>
+        <p class="join-text">Buscamos artesanos apasionados de Argentina, Brasil y Uruguay que quieran mostrar su trabajo al mundo. Sin comisiones ocultas, sin burocracia.</p>
+      </div>
+      <div class="join-actions">
+        <a href="index.html#contacto" class="btn-primary-custom">Quiero unirme</a>
+        <a href="index.html#contacto" class="btn-outline-white">Ver requisitos</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MODAL ── -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-panel" id="modalPanel">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- ── TOAST ── -->
+  <div class="zsg-toast-container" id="toastContainer"></div>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <div class="footer-logo">ZEPHYR <span>SURF</span> GO</div>
+        <div class="footer-tagline">Tablas de autor. Olas latinoamericanas.</div>
+      </div>
+      <ul class="footer-links">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="index.html#tablas">Tablas</a></li>
+        <li><a href="shapers.html">Shapers</a></li>
+        <li><a href="index2.html">Dealers</a></li>
+        <li><a href="index.html#contacto">Contacto</a></li>
+      </ul>
+      <div style="font-size:.75rem;letter-spacing:.08em;">
+        <p style="color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.12em;font-size:.65rem;margin-bottom:.6rem;">Regiones</p>
+        <p>🇦🇷 Argentina</p><p style="margin-top:.35rem">🇧🇷 Brasil</p><p style="margin-top:.35rem">🇺🇾 Uruguay</p>
+      </div>
+    </div>
+    <p class="footer-copy">© 2025 Zephyr Surf Go — Todos los derechos reservados.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+      <script src="../JS/shapers.js"></script>
+</body>
+</html>
