@@ -1,0 +1,294 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "login";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acceder — MASTER Surf</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../CSS/estilosLogin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+    <div class="page-bg"></div>
+
+    <!-- ── NAVBAR ── -->
+    <nav id="navbar">
+        <a href="Home.html" class="nav-logo">ZEPHYR <span>SURF</span> GO</a>
+        <div class="lang-switcher" id="langSwitcher">
+            <div class="lang-current" onclick="toggleLangDropdown()">
+                <span class="lang-flag" id="langFlag">🇺🇾</span>
+                <span id="langCode">ES</span>
+                <svg class="lang-chevron" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <polyline points="1,3 5,7 9,3" />
+                </svg>
+            </div>
+            <div class="lang-dropdown">
+                <button class="lang-option active" onclick="setLang('es')" data-lang="es">
+                    <span class="lang-flag">🇺🇾</span> Español
+                </button>
+                <button class="lang-option" onclick="setLang('en')" data-lang="en">
+                    <span class="lang-flag">🇬🇧</span> English
+                </button>
+                <button class="lang-option" onclick="setLang('pt')" data-lang="pt">
+                    <span class="lang-flag">🇧🇷</span> Português
+                </button>
+            </div>
+        </div>
+        <a href="Home.html" class="nav-back" id="nav-back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 5l-7 7 7 7" />
+            </svg>
+            <span data-i18n="navBack">Volver al inicio</span>
+        </a>
+    </nav>
+
+    <!-- ── MAIN ── -->
+    <div class="auth-wrapper">
+
+        <!-- Visual left -->
+        <div class="auth-visual">
+            <div class="auth-visual-img"></div>
+            <div class="auth-visual-overlay"></div>
+            <div class="auth-visual-content">
+                <p class="auth-visual-eyebrow">Bienvenido a Master Surf</p>
+                <h2 class="auth-visual-title">
+                    Tu tabla.<br>
+                    <em>Tu ola.</em>
+                </h2>
+                <p class="auth-visual-sub">
+                    Conectamos surfers con los mejores shapers de Latinoamérica. Accedé para descubrir, personalizar y comprar tu próxima tabla de autor.
+                </p>
+                <div class="auth-visual-badges">
+                    <span class="auth-badge">🇦🇷 Argentina</span>
+                    <span class="auth-badge">🇧🇷 Brasil</span>
+                    <span class="auth-badge">🇺🇾 Uruguay</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form right -->
+        <div class="auth-form-panel">
+            <div class="auth-card">
+
+                <!-- Tabs -->
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchTab('login')" data-i18n="tabLogin">Iniciar sesión</button>
+                    <button class="auth-tab" onclick="switchTab('register')" data-i18n="tabRegister">Crear cuenta</button>
+                </div>
+
+                <!-- Alert global -->
+                <div class="auth-alert" id="authAlert"></div>
+
+                <!-- ══ PANEL LOGIN ══ -->
+                <div class="auth-panel" id="panelLogin">
+                    <div class="form-heading">
+                        <h2 data-i18n="loginTitle">Bienvenido de nuevo</h2>
+                        <p data-i18n="loginSub">Ingresá con tu cuenta para acceder al catálogo completo y realizar compras.</p>
+                    </div>
+
+                    <div class="field-group">
+                        <div class="field" id="f-login-email">
+                            <label data-i18n="fieldEmail">Correo electrónico</label>
+                            <div class="field-input-wrap">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                    <polyline points="22,6 12,12 2,6" />
+                                </svg>
+                                <input type="email" id="loginEmail" data-i18n-ph="phEmail" placeholder="tu@email.com" autocomplete="email" />
+                                <div class="field-focus-bar"></div>
+                            </div>
+                            <span class="field-error">Ingresá un email válido.</span>
+                        </div>
+
+                        <div class="field" id="f-login-pwd">
+                            <label data-i18n="fieldPwd">Contraseña</label>
+                            <div class="field-input-wrap">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                    <path d="M7 11V7a5 5 0 0110 0v4" />
+                                </svg>
+                                <input type="password" id="loginPwd" data-i18n-ph="phPwd" placeholder="Tu contraseña" autocomplete="current-password" />
+                                <div class="field-focus-bar"></div>
+                                <button class="pwd-toggle" type="button" onclick="togglePwd('loginPwd', this)" title="Ver contraseña">
+                                    <svg id="eye-login" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <span class="field-error">Ingresá tu contraseña.</span>
+                        </div>
+                    </div>
+
+                    <div class="field-extras">
+                        <a href="#" class="link-muted" data-i18n="forgotPwd">¿Olvidaste tu contraseña?</a>
+                    </div>
+
+                    <button class="btn-auth" onclick="handleLogin()">
+                        <span data-i18n="btnLogin">Iniciar sesión</span>
+                    </button>
+
+                    <div class="auth-divider"><span data-i18n="orWith">o continuá con</span></div>
+
+                    <div class="social-btns">
+                        <a href="#" class="btn-social">
+                            <svg width="18" height="18" viewBox="0 0 24 24">
+                                <path fill="#EA4335" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                <path fill="#4285F4" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                <path fill="#34A853" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                            </svg>
+                            Google
+                        </a>
+                        <a href="#" class="btn-social">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                            </svg>
+                            Facebook
+                        </a>
+                    </div>
+
+                    <p class="auth-switch">
+                        <span data-i18n="noAccount">¿No tenés cuenta?</span>
+                        <a onclick="switchTab('register')" data-i18n="registerLink">Registrate gratis</a>
+                    </p>
+                </div>
+
+                <!-- ══ PANEL REGISTRO ══ -->
+                <div class="auth-panel hidden" id="panelRegister">
+                    <div class="form-heading">
+                        <h2 data-i18n="regTitle">Creá tu cuenta</h2>
+                        <p data-i18n="regSub">Unite a la comunidad de surfers de Latinoamérica. Registro gratuito, sin compromiso.</p>
+                    </div>
+
+                    <div class="field-group">
+                        <div class="fields-row">
+                            <div class="field" id="f-reg-nombre">
+                                <label data-i18n="fieldNombre">Nombre</label>
+                                <div class="field-input-wrap">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                    <input type="text" id="regNombre" data-i18n-ph="phNombre" placeholder="Nombre" autocomplete="given-name" />
+                                    <div class="field-focus-bar"></div>
+                                </div>
+                                <span class="field-error">Ingresá tu nombre.</span>
+                            </div>
+                            <div class="field" id="f-reg-apellido">
+                                <label data-i18n="fieldApellido">Apellido</label>
+                                <div class="field-input-wrap">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                    <input type="text" id="regApellido" data-i18n-ph="phApellido" placeholder="Apellido" autocomplete="family-name" />
+                                    <div class="field-focus-bar"></div>
+                                </div>
+                                <span class="field-error">Ingresá tu apellido.</span>
+                            </div>
+                        </div>
+
+                        <div class="field" id="f-reg-email">
+                            <label data-i18n="fieldEmail">Correo electrónico</label>
+                            <div class="field-input-wrap">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                    <polyline points="22,6 12,12 2,6" />
+                                </svg>
+                                <input type="email" id="regEmail" placeholder="tu@email.com" autocomplete="email" />
+                                <div class="field-focus-bar"></div>
+                            </div>
+                            <span class="field-error">Ingresá un email válido.</span>
+                        </div>
+
+                        <div class="field" id="f-reg-pais">
+                            <label data-i18n="fieldPais">País</label>
+                            <div class="field-input-wrap">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="2" y1="12" x2="22" y2="12" />
+                                    <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+                                </svg>
+                                <input type="text" id="regPais" data-i18n-ph="phPais" placeholder="Argentina, Brasil, Uruguay..." autocomplete="country-name" style="padding-left:2.8rem" />
+                                <div class="field-focus-bar"></div>
+                            </div>
+                        </div>
+
+                        <div class="field" id="f-reg-pwd">
+                            <label data-i18n="fieldPwd">Contraseña</label>
+                            <div class="field-input-wrap">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                    <path d="M7 11V7a5 5 0 0110 0v4" />
+                                </svg>
+                                <input type="password" id="regPwd" data-i18n-ph="phPwdMin" placeholder="Mínimo 8 caracteres" autocomplete="new-password" oninput="checkStrength(this.value)" />
+                                <div class="field-focus-bar"></div>
+                                <button class="pwd-toggle" type="button" onclick="togglePwd('regPwd', this)" title="Ver contraseña">
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <span class="field-error">La contraseña debe tener al menos 8 caracteres.</span>
+                            <!-- Strength bar -->
+                            <div id="strengthWrap" style="margin-top:.4rem;display:none">
+                                <div style="height:3px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden">
+                                    <div id="strengthBar" style="height:100%;width:0;transition:width .3s,background .3s;border-radius:99px"></div>
+                                </div>
+                                <span id="strengthLabel" style="font-size:.65rem;color:rgba(255,255,255,.3);margin-top:.25rem;display:block"></span>
+                            </div>
+                        </div>
+
+                        <div class="field" id="f-reg-pwd2">
+                            <label data-i18n="fieldPwd2">Confirmá la contraseña</label>
+                            <div class="field-input-wrap">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                    <path d="M7 11V7a5 5 0 0110 0v4" />
+                                </svg>
+                                <input type="password" id="regPwd2" data-i18n-ph="phPwd2" placeholder="Repetí tu contraseña" autocomplete="new-password" />
+                                <div class="field-focus-bar"></div>
+                                <button class="pwd-toggle" type="button" onclick="togglePwd('regPwd2', this)" title="Ver contraseña">
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <span class="field-error">Las contraseñas no coinciden.</span>
+                        </div>
+
+                        <label class="check-field">
+                            <input type="checkbox" id="regTerms" />
+                            <span>
+                                <span data-i18n="termsText">Acepto los</span> <a href="#" data-i18n="termsLink">Términos y Condiciones</a> <span data-i18n="termsAnd">y la</span>
+                                <a href="#" data-i18n="privacyLink">Política de Privacidad</a> <span data-i18n="termsBrand">de Master Surf.</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <button class="btn-auth" onclick="handleRegister()">
+                        <span data-i18n="btnRegister">Crear cuenta gratis</span>
+                    </button>
+
+                    <p class="auth-switch" style="margin-top:1.5rem">
+                        <span data-i18n="hasAccount">¿Ya tenés cuenta?</span>
+                        <a onclick="switchTab('login')" data-i18n="loginLink">Iniciá sesión</a>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <script src="../JS/Login.js"></script>
+
+</body>
+</html>

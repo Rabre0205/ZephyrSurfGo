@@ -1,0 +1,189 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Carrito";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carrito — Zephyr Surf Go</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../CSS/estilosCarrito.css">
+</head>
+<body>
+
+    <!-- ── NAVBAR ── -->
+    <nav id="navbar">
+        <a href="Home.html" class="nav-logo">ZEPHYR <span>SURF</span> GO</a>
+        <ul class="nav-links d-none d-md-flex">
+            <li><a href="Home.html">Home</a></li>
+            <li><a href="#tablas">Tablas</a></li>
+            <li><a href="shapers.html">Shapers</a></li>
+            <li><a href="#about">Nosotros</a></li>
+            <li><a href="Dealers.html">Dealers</a></li>
+            <li><a href="#tablasDestacadas">Tablas destacadas</a></li>
+        </ul>
+        <div class="nav-actions">
+
+            <a href="login.html" class="btn-login">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg>
+                <span>Ingresar</span>
+            </a>
+            <button class="btn-cart-nav" onclick="location.href='carrito.html'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="21" r="1" />
+                    <circle cx="20" cy="21" r="1" />
+                    <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61H19a2 2 0 001.99-1.79L22 7H6" />
+                </svg>
+                Carrito
+                <span class="cart-badge" id="navBadge">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ── PAGE HEADER ── -->
+    <div class="page-header">
+        <p class="section-label">Tu selección</p>
+        <h1>Carrito de compras</h1>
+    </div>
+
+    <!-- ── MAIN CONTENT ── -->
+    <div class="cart-wrapper" id="cartWrapper">
+        <!-- filled by JS -->
+    </div>
+
+
+    <!-- ── ORDER FORM MODAL ── -->
+    <div class="order-modal-overlay" id="orderModal">
+        <div class="order-modal">
+            <button class="order-modal-close" onclick="closeOrderForm()">✕</button>
+            <h3>Finalizá tu pedido</h3>
+            <p class="order-modal-sub">Dejanos tus datos y Francisco se comunica en 24hs para confirmar medidas finales y tiempo de entrega.</p>
+
+            <p class="modal-section-title">Tus datos</p>
+            <div class="modal-form-row">
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Nombre</label>
+                    <input class="modal-form-control" type="text" placeholder="Nombre" id="fname" />
+                </div>
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Apellido</label>
+                    <input class="modal-form-control" type="text" placeholder="Apellido" id="lname" />
+                </div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">Email</label>
+                <input class="modal-form-control" type="email" placeholder="tu@email.com" id="femail" />
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">Teléfono / WhatsApp</label>
+                <input class="modal-form-control" type="tel" placeholder="+598 99 xxx xxx" id="fphone" />
+            </div>
+            <div class="modal-form-row">
+                <div class="modal-form-group">
+                    <label class="modal-form-label">País</label>
+                    <select class="modal-form-control" id="fcountry">
+                        <option>Uruguay</option>
+                        <option>Argentina</option>
+                        <option>Brasil</option>
+                        <option>Otro</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Ciudad</label>
+                    <input class="modal-form-control" type="text" placeholder="Punta del Este" id="fcity" />
+                </div>
+            </div>
+
+            <p class="modal-section-title">Datos de surf</p>
+            <div class="modal-form-row">
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Altura (cm)</label>
+                    <input class="modal-form-control" type="number" placeholder="175" id="fheight" />
+                </div>
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Peso (kg)</label>
+                    <input class="modal-form-control" type="number" placeholder="72" id="fweight" />
+                </div>
+            </div>
+            <div class="modal-form-row">
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Calzado (EU)</label>
+                    <input class="modal-form-control" type="number" placeholder="42" id="fshoesize" />
+                </div>
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Stance</label>
+                    <select class="modal-form-control" id="fstance">
+                        <option>Regular</option>
+                        <option>Goofy</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-form-row">
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Pierna dominante</label>
+                    <select class="modal-form-control" id="fleg">
+                        <option>Diestro/a</option>
+                        <option>Zurdo/a</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Nivel (1–5)</label>
+                    <select class="modal-form-control" id="flevel">
+                        <option value="1">1 – Principiante</option>
+                        <option value="2">2 – Básico</option>
+                        <option value="3" selected>3 – Intermedio</option>
+                        <option value="4">4 – Avanzado</option>
+                        <option value="5">5 – Experto</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">Tabla que usás hoy (marca / modelo / medidas)</label>
+                <input class="modal-form-control" type="text" placeholder="Ej: Channel Islands 6'1 Fever…" id="fcurrent" />
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">¿Qué querés mejorar de tu surf?</label>
+                <textarea class="modal-form-control" rows="2" placeholder="Ej: quiero surfear más suelto, mejorar backside…" id="fimprove"></textarea>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">Tipo de olas que surfeás generalmente</label>
+                <input class="modal-form-control" type="text" placeholder="Ej: olas chicas, playas cerradas, reef…" id="fwaves" />
+            </div>
+
+            <button class="btn-confirm-order" onclick="submitOrder()">Confirmar pedido →</button>
+            <p style="font-size:.72rem;color:rgba(255,255,255,.2);text-align:center;margin-top:.75rem;line-height:1.6;">
+                Francisco te contacta en 24hs para confirmar detalles y tiempo de entrega.
+            </p>
+        </div>
+    </div>
+
+    <!-- ── TOAST ── -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+        <div class="footer-inner">
+            <div>
+                <div class="footer-logo">ZEPHYR <span>SURF</span> GO</div>
+                <div class="footer-tagline">Tablas de autor. Olas latinoamericanas.</div>
+            </div>
+            <ul class="footer-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="index.html#tablas">Tablas</a></li>
+                <li><a href="index2.html">Dealers</a></li>
+                <li><a href="index.html#contacto">Contacto</a></li>
+            </ul>
+        </div>
+        <p class="footer-copy">© 2025 Zephyr Surf Go — Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="../JS/carrito.js"></script>
+
+</body>
+</html>

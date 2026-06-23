@@ -1,0 +1,523 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Master";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Master Surfboards — The Shaper | Zephyr Surf Go</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../CSS/estilosMaster.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+
+</head>
+<body>
+
+    <!-- ── NAVBAR ── -->
+    <nav id="navbar">
+        <a href="index.html" class="nav-logo">
+
+            <img src="../IMG/LogoDeMarca.png" alt="Surf Logo" class="logo-surf">
+        </a>
+        <ul class="nav-links d-none d-md-flex">
+            <li><a href="Home.html">Home</a></li>
+            <li><a href="#tablas">Tablas</a></li>
+            <li><a href="shapers.html">Shapers</a></li>
+            <li><a href="#about">Nosotros</a></li>
+            <li><a href="Dealers.html">Dealers</a></li>
+            <li><a href="#tablasDestacadas">Tablas destacadas</a></li>
+        </ul>
+        <div class="nav-actions">
+
+            <a href="login.html" class="btn-login">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                <span>Ingresar</span>
+            </a>
+            <a href="carrito.html" class="btn-cart-nav">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61H19a2 2 0 001.99-1.79L22 7H6" /></svg>
+                Carrito
+                <span class="cart-badge" id="cartBadge">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ── HERO ── -->
+    <section id="hero">
+        <div class="hero-bg-grad"></div>
+        <div class="hero-lines">
+            <div class="hero-line"></div>
+            <div class="hero-line"></div>
+            <div class="hero-line"></div>
+        </div>
+        <!-- Floating board shapes -->
+        <svg class="hero-board" viewBox="0 0 80 300" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <path d="M40 4 C65 40, 72 100, 72 160 C72 220, 65 265, 40 296 C15 265, 8 220, 8 160 C8 100, 15 40, 40 4Z" fill="white" />
+        </svg>
+        <svg class="hero-board-2" viewBox="0 0 60 220" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <path d="M30 3 C48 28, 55 75, 55 120 C55 165, 48 198, 30 217 C12 198, 5 165, 5 120 C5 75, 12 28, 30 3Z" fill="white" />
+        </svg>
+
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="breadcrumb-nav">
+                <a href="index2.html">Dealers</a>
+                <span class="sep">›</span>
+                <a href="#">Uruguay</a>
+                <span class="sep">›</span>
+                <span class="current">Master Surfboards</span>
+            </div>
+            <span class="hero-badge">🇺🇾 Marca uruguaya</span>
+            <p class="hero-eyebrow">The Shaper</p>
+            <h1 class="hero-title">
+                MASTER<br>
+                <em class="thin">Surfboards</em>
+            </h1>
+            <p class="hero-sub">Hechas a mano en Uruguay desde 1998. Cada tabla es una conversación entre el shaper, el océano y vos.</p>
+            <div class="hero-cta-row">
+                <a href="#recomendador" class="btn-gold">Encontrá tu tabla ideal</a>
+                <a href="#tablas" class="btn-ghost-white">Ver catálogo</a>
+            </div>
+            <div class="hero-stats">
+                <div class="hstat"><div class="hstat-num">26</div><div class="hstat-label">Años de oficio</div></div>
+                <div class="hstat"><div class="hstat-num">400+</div><div class="hstat-label">Tablas entregadas</div></div>
+                <div class="hstat"><div class="hstat-num">100%</div><div class="hstat-label">Artesanal</div></div>
+                <div class="hstat"><div class="hstat-num">UY</div><div class="hstat-label">Origen</div></div>
+            </div>
+        </div>
+        <div class="scroll-hint">
+            <div class="scroll-line"></div>
+            <span>Scroll</span>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── TABLAS DESTACADAS ── -->
+    <section id="tablas">
+        <p class="section-eyebrow reveal">Catálogo selecto</p>
+        <h2 class="section-title reveal">Tablas Master</h2>
+        <p class="section-sub reveal">Los modelos más pedidos de la temporada. Cada una con su propia personalidad, pensada para un tipo de surfer y un tipo de ola.</p>
+
+        <div class="boards-grid">
+
+            <!-- Featured board -->
+            <div class="board-card featured reveal" onclick="selectBoard('gaucho')">
+                <div class="board-visual" style="background: linear-gradient(135deg, #0a1828, #0d2040);">
+                    <div class="board-bg-circle"></div>
+                    <div class="board-shape-wrap">
+                        <svg width="100" height="360" viewBox="0 0 100 360" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="boardGold" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#8a6a2a;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#c9a84c;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#8a6a2a;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M50 6 C72 40, 80 100, 80 185 C80 265, 72 325, 50 354 C28 325, 20 265, 20 185 C20 100, 28 40, 50 6Z" fill="url(#boardGold)" opacity=".9" />
+                            <!-- stringer -->
+                            <line x1="50" y1="8" x2="50" y2="352" stroke="rgba(255,255,255,.2)" stroke-width="1" />
+                            <!-- logo area -->
+                            <ellipse cx="50" cy="120" rx="20" ry="28" fill="rgba(255,255,255,.07)" stroke="rgba(255,255,255,.15)" stroke-width=".5" />
+                            <text x="50" y="118" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="9" fill="rgba(255,255,255,.6)" letter-spacing="1">MASTER</text>
+                            <!-- fins -->
+                            <path d="M35 305 L25 340 L38 330Z" fill="rgba(255,255,255,.2)" />
+                            <path d="M65 305 L75 340 L62 330Z" fill="rgba(255,255,255,.2)" />
+                            <path d="M50 310 L50 345 L44 335 L56 335Z" fill="rgba(255,255,255,.2)" />
+                        </svg>
+                    </div>
+                    <span class="board-badge">⭐ Best Seller</span>
+                </div>
+                <div class="board-info">
+                    <p class="board-cat">Shortboard · Performance</p>
+                    <p class="board-name">El Gaucho</p>
+                    <p class="board-spec">6'2" × 18¾" × 2⅜" · 28.5L · Thruster</p>
+                    <p class="board-desc">La tabla emblema de Master. Diseñada para olas de 2 a 6 pies con power, el Gaucho combina un rocker medio con raíles medios-bajos que permiten surfear suelto y agresivo. El modelo favorito de los surfistas locales avanzados.</p>
+                    <div class="board-footer">
+                        <span class="board-price">USD 780</span>
+                        <button class="btn-add-small" onclick="event.stopPropagation(); addToCart('gaucho', 'El Gaucho', 780)">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                            Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Board 2 -->
+            <div class="board-card reveal" onclick="selectBoard('pampeano')">
+                <div class="board-visual" style="background: linear-gradient(135deg, #0a1a28, #0d2235);">
+                    <div class="board-bg-circle"></div>
+                    <div class="board-shape-wrap">
+                        <svg width="90" height="340" viewBox="0 0 90 340" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="boardBlue" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#1a3a6a;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#4394e0;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#1a3a6a;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M45 5 C60 30, 68 80, 68 170 C68 245, 60 305, 45 332 C30 305, 22 245, 22 170 C22 80, 30 30, 45 5Z" fill="url(#boardBlue)" opacity=".9" />
+                            <line x1="45" y1="7" x2="45" y2="330" stroke="rgba(255,255,255,.15)" stroke-width="1" />
+                            <ellipse cx="45" cy="110" rx="17" ry="22" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.12)" stroke-width=".5" />
+                            <text x="45" y="108" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="8" fill="rgba(255,255,255,.5)" letter-spacing="1">MASTER</text>
+                            <path d="M32 290 L22 320 L34 312Z" fill="rgba(255,255,255,.2)" />
+                            <path d="M58 290 L68 320 L56 312Z" fill="rgba(255,255,255,.2)" />
+                            <path d="M45 294 L45 325 L39 318 L51 318Z" fill="rgba(255,255,255,.2)" />
+                        </svg>
+                    </div>
+                    <span class="board-badge new">Nuevo</span>
+                </div>
+                <div class="board-info">
+                    <p class="board-cat">Mid-Length · Versátil</p>
+                    <p class="board-name">El Pampeano</p>
+                    <p class="board-spec">7'0" × 20½" × 2¾" · 42L · 2+1</p>
+                    <p class="board-desc">La transición perfecta. Para el que viene del longboard y quiere más movilidad, o el shortboarder que quiere disfrutar olas más chicas sin resignar estilo.</p>
+                    <div class="board-footer">
+                        <span class="board-price">USD 660</span>
+                        <button class="btn-add-small" onclick="event.stopPropagation(); addToCart('pampeano', 'El Pampeano', 660)">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                            Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Board 3 -->
+            <div class="board-card reveal" onclick="selectBoard('charrua')">
+                <div class="board-visual" style="background: linear-gradient(135deg, #0e1a10, #152218);">
+                    <div class="board-bg-circle" style="background: radial-gradient(circle, rgba(46,194,126,.06) 0%, transparent 70%);"></div>
+                    <div class="board-shape-wrap">
+                        <svg width="110" height="300" viewBox="0 0 110 300" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="boardGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#1a4a25;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#2ec27e;stop-opacity:.8" />
+                                    <stop offset="100%" style="stop-color:#1a4a25;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <!-- wider longboard shape -->
+                            <path d="M55 6 C78 30, 88 75, 88 140 C88 200, 80 256, 55 291 C30 256, 22 200, 22 140 C22 75, 32 30, 55 6Z" fill="url(#boardGreen)" opacity=".85" />
+                            <line x1="55" y1="8" x2="55" y2="289" stroke="rgba(255,255,255,.12)" stroke-width="1" />
+                            <ellipse cx="55" cy="95" rx="22" ry="30" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.1)" stroke-width=".5" />
+                            <text x="55" y="93" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="8" fill="rgba(255,255,255,.45)" letter-spacing="1">MASTER</text>
+                            <!-- single fin -->
+                            <path d="M55 258 L48 290 L55 280 L62 290Z" fill="rgba(255,255,255,.25)" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="board-info">
+                    <p class="board-cat">Longboard · Clásico</p>
+                    <p class="board-name">El Charrúa</p>
+                    <p class="board-spec">9'2" × 22½" × 3" · 75L · Single-fin</p>
+                    <p class="board-desc">Noseriding clásico. Madera de cedro en el stringer, canales laterales únicos y el rocker que convirtió a Master en referente del longboard rioplatense.</p>
+                    <div class="board-footer">
+                        <span class="board-price">USD 950</span>
+                        <button class="btn-add-small" onclick="event.stopPropagation(); addToCart('charrua', 'El Charrúa', 950)">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                            Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Board 4 -->
+            <div class="board-card reveal" onclick="selectBoard('playero')">
+                <div class="board-visual" style="background: linear-gradient(135deg, #1a1018, #241528);">
+                    <div class="board-bg-circle" style="background: radial-gradient(circle, rgba(180,100,220,.06) 0%, transparent 70%);"></div>
+                    <div class="board-shape-wrap">
+                        <svg width="120" height="240" viewBox="0 0 120 240" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="boardPurp" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#4a1a6a;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#9060c8;stop-opacity:.9" />
+                                    <stop offset="100%" style="stop-color:#4a1a6a;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <!-- fish / wide shape -->
+                            <path d="M60 8 C85 28, 95 70, 95 118 C95 160, 88 195, 72 218 L60 232 L48 218 C32 195, 25 160, 25 118 C25 70, 35 28, 60 8Z" fill="url(#boardPurp)" opacity=".85" />
+                            <line x1="60" y1="10" x2="60" y2="225" stroke="rgba(255,255,255,.1)" stroke-width="1" />
+                            <ellipse cx="60" cy="80" rx="22" ry="26" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.1)" stroke-width=".5" />
+                            <text x="60" y="78" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="8" fill="rgba(255,255,255,.4)" letter-spacing="1">MASTER</text>
+                            <!-- twin fins -->
+                            <path d="M42 200 L32 228 L44 222Z" fill="rgba(255,255,255,.2)" />
+                            <path d="M78 200 L88 228 L76 222Z" fill="rgba(255,255,255,.2)" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="board-info">
+                    <p class="board-cat">Fish · Retro</p>
+                    <p class="board-name">El Playero</p>
+                    <p class="board-spec">5'10" × 20¾" × 2½" · 35L · Twin-fin</p>
+                    <p class="board-desc">Para las olas chatas y sin fuerza del Río de la Plata. El fish twin-fin con el que Master se divertía antes de que existiera la Punta. Suelta, veloz y adictiva.</p>
+                    <div class="board-footer">
+                        <span class="board-price">USD 590</span>
+                        <button class="btn-add-small" onclick="event.stopPropagation(); addToCart('playero', 'El Playero', 590)">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                            Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── RECOMENDADOR ── -->
+    <section id="recomendador">
+        <div class="rec-intro reveal">
+            <p class="section-eyebrow">Personalizá tu experiencia</p>
+            <h2 class="section-title">Creá tu tabla ideal</h2>
+            <p class="section-sub">Respondé unas preguntas y el sistema de Master te recomienda la tabla perfecta para tu nivel, físico y tipo de ola.</p>
+        </div>
+
+        <!-- Progress dots -->
+        <div class="rec-progress" id="recProgress">
+            <div class="rec-step-dot active" data-step="0">1</div>
+            <div class="rec-step-line"></div>
+            <div class="rec-step-dot" data-step="1">2</div>
+            <div class="rec-step-line"></div>
+            <div class="rec-step-dot" data-step="2">3</div>
+            <div class="rec-step-line"></div>
+            <div class="rec-step-dot" data-step="3">4</div>
+            <div class="rec-step-line"></div>
+            <div class="rec-step-dot" data-step="4">5</div>
+            <div class="rec-step-line"></div>
+            <div class="rec-step-dot" data-step="5">6</div>
+        </div>
+
+        <div class="rec-panel">
+            <!-- Question form -->
+            <div id="rec-form">
+                <div class="rec-question-card" id="recCard"></div>
+            </div>
+
+            <!-- Result -->
+            <div id="rec-result">
+                <div class="result-header reveal">
+                    <div class="rec-tag">✓ Análisis completado</div>
+                    <h3 id="resultTitle">Tu tabla ideal es...</h3>
+                    <p id="resultSub">Basado en tus respuestas, Master recomienda:</p>
+                </div>
+                <div class="result-card">
+                    <div class="result-visual">
+                        <div id="resultBoardSvg"></div>
+                    </div>
+                    <div class="result-body">
+                        <span class="result-match">98% de compatibilidad</span>
+                        <p class="result-board-cat" id="resultCat"></p>
+                        <p class="result-board-name" id="resultName"></p>
+                        <p class="result-board-spec" id="resultSpec"></p>
+                        <div class="result-board-why" id="resultWhy"></div>
+                        <div class="result-specs" id="resultSpecStats"></div>
+                        <p class="result-price" id="resultPrice"></p>
+                        <div class="result-actions">
+                            <button class="btn-gold" onclick="addResultToCart()">Agregar al carrito</button>
+                            <a href="#customizador" class="btn-ghost-white" onclick="applyRecommendedBoard()">Customizar esta tabla</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="result-actions-row">
+                    <button class="btn-ghost-white" onclick="restartRec()">↩ Hacer de nuevo</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── CUSTOMIZADOR ── -->
+    <section id="customizador">
+        <div class="custom-intro reveal">
+            <p class="section-eyebrow">Tu identidad en el agua</p>
+            <h2 class="section-title">Customizá tu tabla</h2>
+            <p class="section-sub">Elegí el diseño, los colores y los detalles. Master la hace a mano según tus especificaciones.</p>
+        </div>
+
+        <div class="custom-layout">
+
+            <!-- Controls side -->
+            <div class="custom-controls reveal">
+
+                <!-- Model selector -->
+                <div class="ctrl-group">
+                    <p class="ctrl-group-label">Modelo base</p>
+                    <div class="toggle-row" id="modelSelector">
+                        <button class="toggle-btn active" data-model="gaucho" onclick="selectModel(this)">El Gaucho</button>
+                        <button class="toggle-btn" data-model="pampeano" onclick="selectModel(this)">El Pampeano</button>
+                        <button class="toggle-btn" data-model="charrua" onclick="selectModel(this)">El Charrúa</button>
+                        <button class="toggle-btn" data-model="playero" onclick="selectModel(this)">El Playero</button>
+                    </div>
+                </div>
+
+                <!-- Design picker — 15 designs -->
+                <div class="ctrl-group">
+                    <p class="ctrl-group-label">Diseño de laminado (15 opciones)</p>
+                    <div class="design-grid" id="designGrid">
+                        <!-- filled by JS -->
+                    </div>
+                </div>
+
+                <!-- Color picker -->
+                <div class="ctrl-group">
+                    <p class="ctrl-group-label">Color principal</p>
+                    <div class="color-row" id="colorRow">
+                        <!-- filled by JS -->
+                    </div>
+                </div>
+
+                <!-- Tail shape -->
+                <div class="ctrl-group">
+                    <p class="ctrl-group-label">Forma del tail</p>
+                    <div class="toggle-row" id="tailSelector">
+                        <button class="toggle-btn active" data-tail="squash" onclick="selectTail(this)">Squash</button>
+                        <button class="toggle-btn" data-tail="round" onclick="selectTail(this)">Round</button>
+                        <button class="toggle-btn" data-tail="swallow" onclick="selectTail(this)">Swallow</button>
+                        <button class="toggle-btn" data-tail="pin" onclick="selectTail(this)">Pin</button>
+                        <button class="toggle-btn" data-tail="bat" onclick="selectTail(this)">Bat</button>
+                    </div>
+                </div>
+
+                <!-- Fin setup -->
+                <div class="ctrl-group">
+                    <p class="ctrl-group-label">Sistema de quillas</p>
+                    <div class="fin-grid" id="finGrid">
+                        <div class="fin-option active" onclick="selectFin(this, 'thruster')">
+                            <svg width="28" height="40" viewBox="0 0 28 40"><path d="M14 4 L22 36 L14 30 L6 36Z" fill="rgba(201,168,76,.7)" /><path d="M4 20 L14 38 L10 28Z" fill="rgba(201,168,76,.4)" /><path d="M24 20 L14 38 L18 28Z" fill="rgba(201,168,76,.4)" /></svg>
+                            <span class="fin-label">Thruster</span>
+                        </div>
+                        <div class="fin-option" onclick="selectFin(this, 'twin')">
+                            <svg width="28" height="40" viewBox="0 0 28 40"><path d="M6 15 L16 38 L12 28Z" fill="rgba(201,168,76,.6)" /><path d="M22 15 L12 38 L16 28Z" fill="rgba(201,168,76,.6)" /></svg>
+                            <span class="fin-label">Twin-fin</span>
+                        </div>
+                        <div class="fin-option" onclick="selectFin(this, '2+1')">
+                            <svg width="28" height="40" viewBox="0 0 28 40"><path d="M14 5 L20 34 L14 28 L8 34Z" fill="rgba(201,168,76,.7)" /><path d="M3 22 L11 38 L8 30Z" fill="rgba(201,168,76,.35)" /><path d="M25 22 L17 38 L20 30Z" fill="rgba(201,168,76,.35)" /></svg>
+                            <span class="fin-label">2+1</span>
+                        </div>
+                        <div class="fin-option" onclick="selectFin(this, 'quad')">
+                            <svg width="28" height="40" viewBox="0 0 28 40"><path d="M6 12 L14 32 L10 24Z" fill="rgba(201,168,76,.6)" /><path d="M22 12 L14 32 L18 24Z" fill="rgba(201,168,76,.6)" /><path d="M4 25 L12 40 L9 33Z" fill="rgba(201,168,76,.4)" /><path d="M24 25 L16 40 L19 33Z" fill="rgba(201,168,76,.4)" /></svg>
+                            <span class="fin-label">Quad</span>
+                        </div>
+                        <div class="fin-option" onclick="selectFin(this, 'single')">
+                            <svg width="28" height="40" viewBox="0 0 28 40"><path d="M14 6 L22 38 L14 32 L6 38Z" fill="rgba(201,168,76,.8)" /></svg>
+                            <span class="fin-label">Single</span>
+                        </div>
+                        <div class="fin-option" onclick="selectFin(this, 'five')">
+                            <svg width="28" height="40" viewBox="0 0 28 40"><path d="M14 4 L20 30 L14 25 L8 30Z" fill="rgba(201,168,76,.7)" /><path d="M3 18 L11 34 L8 26Z" fill="rgba(201,168,76,.35)" /><path d="M25 18 L17 34 L20 26Z" fill="rgba(201,168,76,.35)" /><path d="M2 27 L10 40 L7 34Z" fill="rgba(201,168,76,.25)" /><path d="M26 27 L18 40 L21 34Z" fill="rgba(201,168,76,.25)" /></svg>
+                            <span class="fin-label">Five-fin</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leash plug + logo -->
+                <div class="ctrl-group">
+                    <p class="ctrl-group-label">Detalles adicionales</p>
+                    <div class="toggle-row">
+                        <button class="toggle-btn active" onclick="this.classList.toggle('active')">Logo Master</button>
+                        <button class="toggle-btn active" onclick="this.classList.toggle('active')">Plug de leash</button>
+                        <button class="toggle-btn" onclick="this.classList.toggle('active')">Grip pad</button>
+                        <button class="toggle-btn" onclick="this.classList.toggle('active')">Número serial</button>
+                        <button class="toggle-btn" onclick="this.classList.toggle('active')">Caja FCS II</button>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="ctrl-group">
+                    <p class="ctrl-group-label">Notas para el shaper (opcional)</p>
+                    <textarea class="rec-input" rows="3" placeholder="Ej: Quiero el stringer de cedro, raíles un poco más llenos en el tail, sin pintura en el deck…" id="shaperNotes"></textarea>
+                </div>
+
+                <!-- Add to cart from customizer -->
+                <button class="btn-gold" style="width:100%; padding:1.1rem; font-size:.9rem; letter-spacing:.09em; border-radius:2px;" onclick="addCustomToCart()">
+                    Agregar tabla customizada al carrito →
+                </button>
+            </div>
+
+            <!-- Board preview -->
+            <div class="board-preview-wrap reveal">
+                <p class="board-preview-title">Vista previa en tiempo real</p>
+                <canvas id="boardCanvas" width="240" height="500"></canvas>
+                <div class="board-preview-specs">
+                    <div class="preview-spec-row">
+                        <span class="preview-spec-label">Modelo</span>
+                        <span class="preview-spec-value" id="previewModel">El Gaucho</span>
+                    </div>
+                    <div class="preview-spec-row">
+                        <span class="preview-spec-label">Medidas</span>
+                        <span class="preview-spec-value" id="previewSize">6'2" × 18¾" × 2⅜"</span>
+                    </div>
+                    <div class="preview-spec-row">
+                        <span class="preview-spec-label">Volumen</span>
+                        <span class="preview-spec-value" id="previewVol">28.5L</span>
+                    </div>
+                    <div class="preview-spec-row">
+                        <span class="preview-spec-label">Quillas</span>
+                        <span class="preview-spec-value" id="previewFin">Thruster</span>
+                    </div>
+                    <div class="preview-spec-row">
+                        <span class="preview-spec-label">Diseño</span>
+                        <span class="preview-spec-value" id="previewDesign">Sol Pampeano</span>
+                    </div>
+                    <div class="preview-spec-row" style="padding-top: .75rem; margin-top: .25rem; border-top: 1px solid rgba(255,255,255,.08);">
+                        <span class="preview-spec-label">Precio estimado</span>
+                        <span class="preview-spec-value" id="previewPrice" style="font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:.04em;">USD 780</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <div class="section-divider"></div>
+
+    <!-- ── CTA CARRITO ── -->
+    <section id="compra" style="padding:5rem 3rem;text-align:center;background:var(--master-mid);position:relative;">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.25),transparent);"></div>
+        <div class="reveal" style="max-width:560px;margin:0 auto;">
+            <p style="font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:.75rem;">Último paso</p>
+            <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,5vw,4.5rem);color:#fff;line-height:1;margin-bottom:1rem;">Listo para pedir?</h2>
+            <p style="font-size:.95rem;color:rgba(255,255,255,.4);line-height:1.8;font-weight:300;margin-bottom:2.5rem;">Revisá tu selección, completá tus datos de surf y confirmá el pedido. Francisco se comunica en 24hs para cerrar los detalles.</p>
+            <a href="carrito.html" class="btn-gold" style="display:inline-block;padding:1.1rem 3rem;font-size:.92rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-decoration:none;">
+                Ir al carrito y confirmar pedido →
+            </a>
+            <p style="font-size:.72rem;color:rgba(255,255,255,.2);margin-top:1.5rem;letter-spacing:.04em;">Cada tabla se hace a mano, a tu medida.</p>
+        </div>
+    </section>
+
+  
+    <!-- ── TOAST ── -->
+    <div class="zsg-toast-container" id="toastContainer"></div>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+        <div class="footer-inner">
+            <div>
+                <div class="footer-logo">ZEPHYR <span>SURF</span> GO <span class="master-tag">× Master</span></div>
+                <div class="footer-tagline">Tablas de autor. Olas uruguayas.</div>
+            </div>
+            <ul class="footer-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="#tablas">Catálogo Master</a></li>
+                <li><a href="#recomendador">Recomendador</a></li>
+                <li><a href="#customizador">Customizador</a></li>
+                <li><a href="index2.html">Dealers</a></li>
+            </ul>
+            <div style="font-size:.75rem;letter-spacing:.08em;">
+                <p style="color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.12em;font-size:.65rem;margin-bottom:.6rem;">Contacto</p>
+                <p>🇺🇾 Punta del Este, Uruguay</p>
+                <p style="margin-top:.35rem;color:var(--gold);"></p>
+            </div>
+        </div>
+        <p class="footer-copy">© 2025 Master Surfboards · Zephyr Surf Go — Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../JS/master.js"></script>
+
+</body>
+</html>
