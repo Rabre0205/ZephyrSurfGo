@@ -427,16 +427,3 @@ const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
     navbar.classList.toggle('scrolled', window.scrollY > 60);
 });
-
-const dropdown = document.querySelector(".util-dropdown");
-const toggle = document.querySelector(".dropdown-toggle");
-
-toggle.addEventListener("click", (e) => {
-    e.stopPropagation();
-    dropdown.classList.toggle("active");
-});
-
-document.addEventListener("click", () => {
-    dropdown.classList.remove("active");
-});
-

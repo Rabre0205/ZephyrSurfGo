@@ -10,25 +10,52 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Zephyr Surf Go</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="~/CSS/estilosHome.css" asp-append-version="true">
-         
+    <link rel="stylesheet" href="~/css/estilosHome.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
 </head>
 <body>
 
     <!-- NAVBAR -->
     <nav id="navbar">
-        <a href="#" class="nav-logo">ZEPHYR <span>SURF</span> GO</a>
+        <a asp-controller="Surf" asp-action="Home" class="nav-logo">
+            ZEPHYR <span>SURF</span> GO
+        </a>
+
         <ul class="nav-links d-none d-md-flex">
-            <li><a href="">Home</a></li>
-            <li><a href="#tablas">Tablas</a></li>
-            <li><a href="shapers.html">Shapers</a></li>
-            <li><a href="#about">Nosotros</a></li>
-            <li><a href="Dealers.html">Dealers</a></li>
-            <li><a href="#tablasDestacadas">Tablas destacadas</a></li>
+            <li>
+                <a asp-controller="Surf" asp-action="Home">Home</a>
+            </li>
+
+            <li>
+                <a asp-controller="Surf" asp-action="Home" asp-fragment="tablas">Tablas</a>
+            </li>
+
+            <li>
+                <a asp-controller="Surf" asp-action="shapers">Shapers</a>
+            </li>
+
+            <li>
+                <a asp-controller="Surf" asp-action="Home" asp-fragment="about">Nosotros</a>
+            </li>
+
+            <li>
+                <a asp-controller="Surf" asp-action="Dealers">Dealers</a>
+            </li>
+
+            <li>
+                <a asp-controller="Surf" asp-action="Home" asp-fragment="tablasDestacadas">
+                    Tablas destacadas
+                </a>
+            </li>
         </ul>
+
         <div class="nav-actions">
 
-            <a href="login.html" class="btn-login" id="navLoginBtn">
+            <a asp-controller="Surf"
+               asp-action="login"
+               class="btn-login"
+               id="navLoginBtn">
+
                 <svg width="15" height="15" viewBox="0 0 24 24"
                      fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
@@ -42,6 +69,10 @@
 
                 <button class="dropdown-toggle">
                     🌎 Marcas
+                    <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
                 </button>
 
                 <div class="marcas-menu">
@@ -64,7 +95,7 @@
                         </a>
 
                         <div class="submenu">
-                            <a href="master.html">Master</a>
+                            <a asp-controller="Surf" asp-action="master">Master</a>
                         </div>
 
                     </div>
@@ -73,7 +104,10 @@
 
             </div>
 
-            <a href="carrito.html" class="btn-cart-nav" id="btnCartNav">
+            <a asp-controller="Surf"
+               asp-action="carrito"
+               class="btn-cart-nav"
+               id="btnCartNav">
 
                 <svg width="15" height="15" viewBox="0 0 24 24"
                      fill="none" stroke="currentColor" stroke-width="2">
@@ -83,17 +117,11 @@
                 </svg>
 
                 <span>Carrito</span>
-
-                <span id="cartBadge" class="cart-badge">0</span>
+                <span class="cart-badge">0</span>
 
             </a>
 
         </div>
-
-   
-
-
-
     </nav>
 
     <!-- HERO -->
@@ -274,7 +302,7 @@
         <div class="boards-grid">
             <div class="board-card">
                 <div class="board-img">
-                    <img src="../IMG/tabla.png" alt="FAD3R">
+                    <img src="~/img/tabla.png" alt="FAD3R">
                     <ellipse cx="30" cy="90" rx="22" ry="82" fill="none" stroke="#1a4fc4" stroke-width="1.5" />
                     <ellipse cx="30" cy="90" rx="13" ry="68" fill="none" stroke="#1a4fc4" stroke-width=".7" />
                     <line x1="30" y1="8" x2="30" y2="172" stroke="#1a4fc4" stroke-width=".6" />
@@ -288,7 +316,7 @@
         </div>
         <div class="board-card">
             <div class="board-img">
-                <img src="../IMG/tabla.png" alt="FAD3R">
+                    <img src="~/img/tabla.png" alt="FAD3R">
                 <ellipse cx="40" cy="80" rx="32" ry="72" fill="none" stroke="#1a4fc4" stroke-width="1.5" />
                 <ellipse cx="40" cy="80" rx="19" ry="58" fill="none" stroke="#1a4fc4" stroke-width=".7" />
                 <line x1="40" y1="8" x2="40" y2="152" stroke="#1a4fc4" stroke-width=".6" />
@@ -302,7 +330,7 @@
     </div>
     <div class="board-card">
         <div class="board-img">
-            <img src="../IMG/tabla.png" alt="FAD3R">
+                    <img src="~/img/tabla.png" alt="FAD3R">
             <ellipse cx="25" cy="100" rx="18" ry="92" fill="none" stroke="#1a4fc4" stroke-width="1.5" />
             <ellipse cx="25" cy="100" rx="10" ry="76" fill="none" stroke="#1a4fc4" stroke-width=".7" />
             <line x1="25" y1="8" x2="25" y2="192" stroke="#1a4fc4" stroke-width=".6" />
@@ -430,5 +458,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/Home.js" asp-append-version="true"></script>
+    <script src="~/js/navbar.js" asp-append-version="true"></script>
 </body>
 </html>

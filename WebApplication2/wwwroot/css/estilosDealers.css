@@ -28,186 +28,8 @@ body {
     overflow-x: hidden;
 }
 
-/* ══════════════════════════════════
-       DOBLE NAVBAR
-    ══════════════════════════════════ */
-
-/* — Barra de utilidad — */
-#util-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 300;
-    background: var(--ocean);
-    height: var(--util-h);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 2rem;
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-}
-
-.util-links {
-    display: flex;
-    gap: 0;
-    list-style: none;
-    align-items: center;
-}
-
-    .util-links li {
-        display: flex;
-        align-items: center;
-    }
-
-    .util-links a {
-        color: rgba(255, 255, 255, 0.6);
-        text-decoration: none;
-        padding: 0 0.75rem;
-        transition: color 0.2s;
-    }
-
-        .util-links a:hover,
-        .util-links a.active {
-            color: #fff;
-        }
-
-        .util-links a.active {
-            color: var(--accent);
-        }
-
-.util-sep {
-    color: rgba(255, 255, 255, 0.18);
-    font-size: 0.8rem;
-}
 
 
-/* — Navbar principal — */
-#navbar {
-    position: fixed;
-    top: 0px;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.1rem 2.5rem;
-    transition: background 0.4s, padding 0.4s;
-}
-
-    #navbar.scrolled {
-        background: #0D1B3E;
-    }
-
-.nav-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    color: #fff;
-    letter-spacing: .12em;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-    .nav-logo span {
-        color: var(--accent);
-    }
-
-.nav-links {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    list-style: none;
-}
-
-    .nav-links a {
-        color: rgba(255,255,255,.75);
-        text-decoration: none;
-        font-size: .82rem;
-        letter-spacing: .08em;
-        text-transform: uppercase;
-        font-weight: 500;
-        transition: color .2s;
-    }
-
-        .nav-links a:hover {
-            color: var(--accent);
-        }
-
-        .nav-links a.active {
-            color: var(--accent);
-        }
-
-
-
-
-.util-dropdown {
-    position: relative;
-}
-
-.dropdown-toggle {
-    background: transparent;
-    border: 1px solid rgba(255,255,255,.12);
-    color: #fff;
-    padding: .65rem 1rem;
-    border-radius: 999px;
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    font-size: .78rem;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    cursor: pointer;
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: calc(100% + .6rem);
-    right: 0;
-    min-width: 190px;
-    background: #0d1b3e;
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 18px;
-    padding: .5rem;
-    display: none;
-    flex-direction: column;
-    z-index: 1000;
-}
-
-.util-dropdown.active .dropdown-menu {
-    display: flex;
-}
-
-.dropdown-menu a {
-    color: rgba(255,255,255,.75);
-    text-decoration: none;
-    padding: .8rem 1rem;
-    border-radius: 12px;
-    transition: .2s;
-    font-size: .82rem;
-}
-
-    .dropdown-menu a:hover {
-        background: rgba(255,255,255,.06);
-        color: #fff;
-    }
-
-
-.btn-nav {
-    background: var(--accent) !important;
-    color: #fff !important;
-    padding: 0.35rem 1rem;
-    border-radius: 2px;
-}
-
-    .btn-nav:hover {
-        background: #2c6fad !important;
-    }
 
 /* ══════════════════════════════════
        PAGE HEADER
@@ -768,7 +590,7 @@ footer {
         transform: translateY(-1px);
     }
 
-.dropdown-menu {
+.marcas-menu {
     position: absolute;
     top: calc(100% + .7rem);
     right: 0;
@@ -783,11 +605,11 @@ footer {
     z-index: 1000;
 }
 
-.util-dropdown:hover .dropdown-menu {
+.util-dropdown:hover .marcas-menu {
     display: flex;
 }
 
-.dropdown-menu a {
+.marcas-menu a {
     display: flex;
     align-items: center;
     gap: .7rem;

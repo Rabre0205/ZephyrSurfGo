@@ -23,30 +23,36 @@ body {
     background: var(--sand);
     color: var(--text);
     overflow-x: hidden;
-    padding-top: 72px;
+    padding-top: 0;
 }
 
-/* ── NAVBAR ── */
+
 #navbar {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 100;
+    z-index: 200;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 1rem 2.5rem;
     background: var(--ocean);
-    transition: padding .4s;
+    transition: none;
 }
+
+    #navbar.scrolled {
+        background: var(--ocean);
+        padding: 1rem 2.5rem;
+    }
 
 .nav-logo {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    color: #fff;
+    font-size: 1.55rem;
     letter-spacing: .12em;
+    color: #fff;
     text-decoration: none;
+    white-space: nowrap;
 }
 
     .nav-logo span {
@@ -55,101 +61,90 @@ body {
 
 .nav-links {
     display: flex;
-    gap: 2rem;
+    align-items: center;
+    gap: 1.8rem;
     list-style: none;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0;
 }
 
     .nav-links a {
         color: rgba(255,255,255,.75);
         text-decoration: none;
-        font-size: .82rem;
-        letter-spacing: .08em;
+        font-size: .72rem;
+        letter-spacing: .1em;
         text-transform: uppercase;
         font-weight: 500;
-        transition: color .2s;
     }
 
-        .nav-links a:hover {
-            color: var(--accent);
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #fff;
         }
 
 .nav-actions {
     display: flex;
     align-items: center;
-    gap: .9rem;
+    gap: .6rem;
 }
 
-.btn-login {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    height: 42px;
-    padding: 0 1.2rem;
-    background: rgba(255,255,255,.08);
-    border: 1px solid rgba(255,255,255,.12);
-    color: #fff;
-    text-decoration: none;
-    border-radius: 999px;
-    font-size: .74rem;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    font-weight: 500;
-    transition: background .2s, transform .15s;
-}
-
-    .btn-login:hover {
-        background: rgba(255,255,255,.16);
-        transform: translateY(-1px);
-        color: #fff;
-    }
-
-/* ── CART ICON IN NAV ── */
-.btn-cart-nav {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    height: 42px;
-    padding: 0 1.2rem;
-    background: var(--accent);
-    border: none;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 999px;
-    font-size: .74rem;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    font-weight: 500;
-    transition: background .2s, transform .15s;
-    cursor: pointer;
-}
-
-    .btn-cart-nav:hover {
-        background: #2c6fad;
-        transform: translateY(-1px);
-    }
-
-.cart-badge {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: #e63946;
-    color: #fff;
-    font-size: .6rem;
-    font-weight: 700;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
+.btn-login,
+.btn-cart-nav,
+.dropdown-toggle {
+    height: 34px;
+    padding: 0 .9rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: .5rem;
+    background: var(--accent);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 999px;
+    color: #fff;
+    text-decoration: none;
+    font-size: .70rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+    .btn-login:hover,
+    .btn-cart-nav:hover,
+    .dropdown-toggle:hover {
+        background: #2c6fad;
+        color: #fff;
+    }
+
+.btn-cart-nav {
+    position: relative;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    background: #e63946;
+    color: #fff;
+    border-radius: 999px;
     border: 2px solid var(--ocean);
+    font-size: .6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ── PAGE HEADER ── */
 .page-header {
     background: var(--ocean);
-    padding: 3rem 3rem 2.5rem;
+    padding: calc(72px + 3rem) 3rem 2.5rem;
     position: relative;
     overflow: hidden;
 }
@@ -269,7 +264,7 @@ body {
 .item-thumb {
     width: 80px;
     height: 110px;
-    background: var(--foam);
+    background: transparent;
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -281,6 +276,7 @@ body {
     .item-thumb svg {
         opacity: .25;
     }
+
 
 .item-body {
 }
@@ -1046,8 +1042,6 @@ footer {
 }
 
 .cart-item,
-.cart-item *,
-.cart-summary,
-.cart-summary * {
-    color: #222 !important;
+.cart-item * {
+    color: #222;
 }

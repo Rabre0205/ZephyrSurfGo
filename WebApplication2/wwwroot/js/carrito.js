@@ -1,5 +1,8 @@
 ﻿/* ── BOARD SVG helper ── */
-const boardSVG = `<div style="width:42px;height:90px;background:#f0f0ee;border-radius:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;"><img src="../IMG/tabla.png" alt="tabla" style="height:82px;width:auto;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.15));" /></div>`;
+const boardSVG = `
+<div style="width:42px;height:90px;background:transparent;display:flex;align-items:center;justify-content:center;overflow:visible;flex-shrink:0;">
+    <img src="/IMG/tabla.png?v=2" alt="tabla" style="height:82px;width:auto;object-fit:contain;display:block;" />
+</div>`;
 
 /* ── CATALOG (productos de referencia) ── */
 const CATALOG = [

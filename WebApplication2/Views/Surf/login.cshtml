@@ -9,42 +9,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Acceder — MASTER Surf</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../CSS/estilosLogin.css">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300";0,400;0,500;1,300&display="swap" rel="stylesheet" />
+     <link rel="stylesheet" href="~/css/estilosLogin.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
 </head>
-<body>
+<body class="login-page">
 
     <div class="page-bg"></div>
 
     <!-- ── NAVBAR ── -->
     <nav id="navbar">
-        <a href="Home.html" class="nav-logo">ZEPHYR <span>SURF</span> GO</a>
-        <div class="lang-switcher" id="langSwitcher">
-            <div class="lang-current" onclick="toggleLangDropdown()">
-                <span class="lang-flag" id="langFlag">🇺🇾</span>
-                <span id="langCode">ES</span>
-                <svg class="lang-chevron" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <polyline points="1,3 5,7 9,3" />
-                </svg>
-            </div>
-            <div class="lang-dropdown">
-                <button class="lang-option active" onclick="setLang('es')" data-lang="es">
-                    <span class="lang-flag">🇺🇾</span> Español
-                </button>
-                <button class="lang-option" onclick="setLang('en')" data-lang="en">
-                    <span class="lang-flag">🇬🇧</span> English
-                </button>
-                <button class="lang-option" onclick="setLang('pt')" data-lang="pt">
-                    <span class="lang-flag">🇧🇷</span> Português
-                </button>
-            </div>
-        </div>
-        <a href="Home.html" class="nav-back" id="nav-back-link">
+
+        <a asp-controller="Surf" asp-action="Home" class="nav-logo">
+            ZEPHYR <span>SURF</span> GO
+        </a>
+
+
+        <a asp-controller="Surf" asp-action="Home" class="nav-back" id="nav-back-link">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 12H5M12 5l-7 7 7 7" />
             </svg>
+
             <span data-i18n="navBack">Volver al inicio</span>
         </a>
+
     </nav>
 
     <!-- ── MAIN ── -->

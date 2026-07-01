@@ -26,12 +26,61 @@ body {
     overflow-x: hidden;
 }
 
+.nav-back {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    color: rgba(255,255,255,.75); /* Blanco semi-transparente */
+    text-decoration: none;
+    font-size: .72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    transition: color .25s ease;
+}
+
+    .nav-back:link,
+    .nav-back:visited {
+        color: rgba(255,255,255,.75);
+        text-decoration: none;
+    }
+
+    .nav-back:hover {
+        color: #fff;
+    }
+
+    .nav-back:active {
+        color: #fff;
+    }
+
+    .nav-back svg {
+        transition: transform .25s ease;
+    }
+
+    .nav-back:hover svg {
+        transform: translateX(-4px);
+    }
+
+.login-page #navbar {
+    background: rgba(20,32,46,.92);
+}
+
+    .login-page #navbar .lang-switcher {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .login-page #navbar .nav-back {
+        /* estilos */
+    }
+
 /* ── BG ── */
 .page-bg {
     position: fixed;
     inset: 0;
     z-index: 0;
-    background: url('../IMG/FondoLogin.jpg') center/cover no-repeat;
+    background: url('../img/FondoLogin.jpg') center/cover no-repeat;
 }
 
     .page-bg::before {
@@ -45,57 +94,6 @@ body {
         content: none;
     }
 
-/* ── NAVBAR ── */
-#navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.1rem 2.5rem;
-    background: rgba(7,18,32,.7);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,.06);
-}
-
-.nav-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    color: #fff;
-    letter-spacing: .12em;
-    text-decoration: none;
-}
-
-    .nav-logo span {
-        color: var(--accent);
-    }
-
-.nav-back {
-    font-size: .75rem;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,.5);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    transition: color .2s;
-}
-
-    .nav-back:hover {
-        color: var(--accent);
-    }
-
-    .nav-back svg {
-        transition: transform .2s;
-    }
-
-    .nav-back:hover svg {
-        transform: translateX(-3px);
-    }
 
 /* ── LAYOUT ── */
 .auth-wrapper {
