@@ -14,4 +14,8 @@
     <TypeScriptCompile Include="wwwroot\js\navbar.js" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Enums\" />
+  </ItemGroup>
+
 </Project>
