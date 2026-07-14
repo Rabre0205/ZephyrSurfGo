@@ -102,5 +102,35 @@ namespace ClassLibrary
 
             return resultado;
         }
+
+        /// <summary>
+        /// Autentica un usuario buscando por Email y Contraseña.
+        /// Retorna un Usuario o Shaper si las credenciales son correctas, null si no existe.
+        /// También establece UsuarioLogueado si el login es exitoso.
+        /// </summary>
+        public Usuario Login(string email, string contrasenia)
+        {
+            // Búsqueda sin LINQ: recorrido manual del diccionario en memoria
+            foreach (Usuario usuario in Usuarios)
+            {
+                if (usuario.Email == email && usuario.Contrasenia == contrasenia)
+                {
+                    // Login exitoso: establecer usuario logueado
+                    UsuarioLogueado = usuario;
+                    return usuario;
+                }
+            }
+
+            // No encontrado o contraseña incorrecta
+            return null;
+        }
+
+        /// <summary>
+        /// Cierra la sesión del usuario logueado.
+        /// </summary>
+        public void Logout()
+        {
+            UsuarioLogueado = null;
+        }
     }
 }

@@ -1,4 +1,4 @@
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 
 namespace ClassLibrary.Datos
 {
@@ -10,7 +10,7 @@ namespace ClassLibrary.Datos
     public static class Conexion
     {
         private static readonly string cadenaConexion =
-            "Server=localhost\\SQLEXPRESS;Database=Surf;Trusted_Connection=True;TrustServerCertificate=True;";
+            "Server=(localdb)\\MSSQLLocalDB;Database=SurfDB;Trusted_Connection=True;";
 
         public static SqlConnection ObtenerConexion()
         {
