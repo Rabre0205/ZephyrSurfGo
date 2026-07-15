@@ -20,7 +20,7 @@
     <nav id="navbar">
 
         <a asp-controller="Surf" asp-action="Home" class="nav-logo">
-            <img src="~/IMG/LogoDeMarca.png" alt="Surf Logo" class="logo-surf">
+            ZEPHYR <span>SURF</span> GO
         </a>
 
         <ul class="nav-links d-none d-md-flex">
@@ -283,150 +283,1107 @@
         </div>
     </section>
 
-    <div class="section-divider"></div>
-
-    <!-- ── CUSTOMIZADOR ── -->
+    <!-- ═══════════════════════════════════════════════════════
+     CUSTOM ORDER
+════════════════════════════════════════════════════════ -->
     <section id="customizador">
+
         <div class="custom-intro reveal">
-            <p class="section-eyebrow">Tu identidad en el agua</p>
+            <p class="section-eyebrow">Custom Order</p>
             <h2 class="section-title">Customizá tu tabla</h2>
-            <p class="section-sub">Elegí el diseño, los colores y los detalles. Master la hace a mano según tus especificaciones.</p>
+
+            <p class="section-sub">
+                Seleccioná el modelo, las medidas, la construcción,
+                las quillas y los detalles de tu nueva tabla Master.
+            </p>
         </div>
 
-        <div class="custom-layout">
+        <!-- TABLA + CARACTERÍSTICAS -->
+        <div class="custom-order-main">
 
-            <!-- Controls side -->
-            <div class="custom-controls reveal">
+            <!-- ─────────────────────────────
+             COLUMNA IZQUIERDA: TABLA
+        ────────────────────────────── -->
+            <aside class="custom-board-column">
 
-                <!-- Model selector -->
-                <div class="ctrl-group">
-                    <p class="ctrl-group-label">Modelo base</p>
-                    <div class="toggle-row" id="modelSelector">
-                        <button class="toggle-btn active" data-model="gaucho" onclick="selectModel(this)">El Gaucho</button>
-                        <button class="toggle-btn" data-model="pampeano" onclick="selectModel(this)">El Pampeano</button>
-                        <button class="toggle-btn" data-model="charrua" onclick="selectModel(this)">El Charrúa</button>
-                        <button class="toggle-btn" data-model="playero" onclick="selectModel(this)">El Playero</button>
+                <div class="board-view-tabs">
+                    <button type="button"
+                            class="board-view-tab active"
+                            data-board-view="deck"
+                            onclick="changeBoardView('deck', this)">
+                        Deck
+                    </button>
+
+                    <button type="button"
+                            class="board-view-tab"
+                            data-board-view="bottom"
+                            onclick="changeBoardView('bottom', this)">
+                        Bottom
+                    </button>
+                </div>
+
+                <!-- DECK -->
+                <div class="real-board-stage active"
+                     id="deckStage">
+
+                    <div id="deckPaint"
+                         class="board-paint-layer deck-paint-layer">
                     </div>
-                </div>
 
-                <!-- Design picker — 15 designs -->
-                <div class="ctrl-group">
-                    <p class="ctrl-group-label">Diseño de laminado (15 opciones)</p>
-                    <div class="design-grid" id="designGrid">
-                        <!-- filled by JS -->
+                    <img id="deckBase"
+                         class="board-image-layer board-base-layer"
+                         src="~/img/boards/deck-base.png"
+                         alt="Vista superior de la tabla">
+
+                    <img id="deckCarbon"
+                         class="board-accessory board-carbon"
+                         src="~/img/boards/carbon-patch.png"
+                         alt="Parche de carbono"
+                         hidden>
+
+                    <img id="deckGrip"
+                         class="board-accessory board-grip"
+                         src="~/img/boards/grip-black.png"
+                         alt="Grip"
+                         hidden>
+
+                    <div id="deckLogo"
+                         class="board-master-logo">
+                        MASTER
                     </div>
-                </div>
 
-                <!-- Color picker -->
-                <div class="ctrl-group">
-                    <p class="ctrl-group-label">Color principal</p>
-                    <div class="color-row" id="colorRow">
-                        <!-- filled by JS -->
+                    <div id="deckStringerName"
+                         class="board-stringer-name">
                     </div>
+
                 </div>
 
-                <!-- Tail shape -->
-                <div class="ctrl-group">
-                    <p class="ctrl-group-label">Forma del tail</p>
-                    <div class="toggle-row" id="tailSelector">
-                        <button class="toggle-btn active" data-tail="squash" onclick="selectTail(this)">Squash</button>
-                        <button class="toggle-btn" data-tail="round" onclick="selectTail(this)">Round</button>
-                        <button class="toggle-btn" data-tail="swallow" onclick="selectTail(this)">Swallow</button>
-                        <button class="toggle-btn" data-tail="pin" onclick="selectTail(this)">Pin</button>
-                        <button class="toggle-btn" data-tail="bat" onclick="selectTail(this)">Bat</button>
+                <!-- BOTTOM -->
+                <div class="real-board-stage"
+                     id="bottomStage"
+                     hidden>
+
+                    <div id="bottomPaint"
+                         class="board-paint-layer bottom-paint-layer">
                     </div>
+
+                    <img id="bottomBase"
+                         class="board-image-layer board-base-layer"
+                         src="~/img/boards/bottom-base.png"
+                         alt="Vista inferior de la tabla">
+
+                    <img id="bottomCarbon"
+                         class="board-accessory board-carbon bottom-carbon"
+                         src="~/img/boards/carbon-patch.png"
+                         alt="Parche de carbono"
+                         hidden>
+
+                    <img id="bottomFins"
+                         class="board-accessory board-fin-preview"
+                         src="~/img/boards/thruster.png"
+                         alt="Configuración de quillas">
+
                 </div>
 
-                <!-- Fin setup -->
-                <div class="ctrl-group">
-                    <p class="ctrl-group-label">Sistema de quillas</p>
-                    <div class="fin-grid" id="finGrid">
-                        <div class="fin-option active" onclick="selectFin(this, 'thruster')">
-                            <svg width="28" height="40" viewBox="0 0 28 40"><path d="M14 4 L22 36 L14 30 L6 36Z" fill="rgba(201,168,76,.7)" /><path d="M4 20 L14 38 L10 28Z" fill="rgba(201,168,76,.4)" /><path d="M24 20 L14 38 L18 28Z" fill="rgba(201,168,76,.4)" /></svg>
-                            <span class="fin-label">Thruster</span>
-                        </div>
-                        <div class="fin-option" onclick="selectFin(this, 'twin')">
-                            <svg width="28" height="40" viewBox="0 0 28 40"><path d="M6 15 L16 38 L12 28Z" fill="rgba(201,168,76,.6)" /><path d="M22 15 L12 38 L16 28Z" fill="rgba(201,168,76,.6)" /></svg>
-                            <span class="fin-label">Twin-fin</span>
-                        </div>
-                        <div class="fin-option" onclick="selectFin(this, '2+1')">
-                            <svg width="28" height="40" viewBox="0 0 28 40"><path d="M14 5 L20 34 L14 28 L8 34Z" fill="rgba(201,168,76,.7)" /><path d="M3 22 L11 38 L8 30Z" fill="rgba(201,168,76,.35)" /><path d="M25 22 L17 38 L20 30Z" fill="rgba(201,168,76,.35)" /></svg>
-                            <span class="fin-label">2+1</span>
-                        </div>
-                        <div class="fin-option" onclick="selectFin(this, 'quad')">
-                            <svg width="28" height="40" viewBox="0 0 28 40"><path d="M6 12 L14 32 L10 24Z" fill="rgba(201,168,76,.6)" /><path d="M22 12 L14 32 L18 24Z" fill="rgba(201,168,76,.6)" /><path d="M4 25 L12 40 L9 33Z" fill="rgba(201,168,76,.4)" /><path d="M24 25 L16 40 L19 33Z" fill="rgba(201,168,76,.4)" /></svg>
-                            <span class="fin-label">Quad</span>
-                        </div>
-                        <div class="fin-option" onclick="selectFin(this, 'single')">
-                            <svg width="28" height="40" viewBox="0 0 28 40"><path d="M14 6 L22 38 L14 32 L6 38Z" fill="rgba(201,168,76,.8)" /></svg>
-                            <span class="fin-label">Single</span>
-                        </div>
-                        <div class="fin-option" onclick="selectFin(this, 'five')">
-                            <svg width="28" height="40" viewBox="0 0 28 40"><path d="M14 4 L20 30 L14 25 L8 30Z" fill="rgba(201,168,76,.7)" /><path d="M3 18 L11 34 L8 26Z" fill="rgba(201,168,76,.35)" /><path d="M25 18 L17 34 L20 26Z" fill="rgba(201,168,76,.35)" /><path d="M2 27 L10 40 L7 34Z" fill="rgba(201,168,76,.25)" /><path d="M26 27 L18 40 L21 34Z" fill="rgba(201,168,76,.25)" /></svg>
-                            <span class="fin-label">Five-fin</span>
-                        </div>
+                <div class="board-current-specs">
+
+                    <div class="board-current-spec">
+                        <span>Modelo</span>
+                        <strong id="sidePreviewModel">El Gaucho</strong>
                     </div>
-                </div>
 
-                <!-- Leash plug + logo -->
-                <div class="ctrl-group">
-                    <p class="ctrl-group-label">Detalles adicionales</p>
-                    <div class="toggle-row">
-                        <button class="toggle-btn active" onclick="this.classList.toggle('active')">Logo Master</button>
-                        <button class="toggle-btn active" onclick="this.classList.toggle('active')">Plug de leash</button>
-                        <button class="toggle-btn" onclick="this.classList.toggle('active')">Grip pad</button>
-                        <button class="toggle-btn" onclick="this.classList.toggle('active')">Número serial</button>
-                        <button class="toggle-btn" onclick="this.classList.toggle('active')">Caja FCS II</button>
+                    <div class="board-current-spec">
+                        <span>Construcción</span>
+                        <strong id="sidePreviewConstruction">PU Stringer</strong>
                     </div>
+
+                    <div class="board-current-spec">
+                        <span>Medidas</span>
+                        <strong id="sidePreviewSize">
+                            5'7" × 18 7/16" × 2 1/8"
+                        </strong>
+                    </div>
+
+                    <div class="board-current-spec">
+                        <span>Volumen</span>
+                        <strong id="sidePreviewVolume">22.5L</strong>
+                    </div>
+
+                    <div class="board-current-spec">
+                        <span>Tail</span>
+                        <strong id="sidePreviewTail">Squash</strong>
+                    </div>
+
+                    <div class="board-current-spec">
+                        <span>Quillas</span>
+                        <strong id="sidePreviewFins">FCS · Thruster</strong>
+                    </div>
+
+                    <div class="board-current-spec">
+                        <span>Glassing</span>
+                        <strong id="sidePreviewGlassing">
+                            PU Regular Innegra
+                        </strong>
+                    </div>
+
+                    <div class="board-current-spec">
+                        <span>Carbon patch</span>
+                        <strong id="sidePreviewCarbon">
+                            Progressive Carbon White
+                        </strong>
+                    </div>
+
+                    <div class="board-current-spec">
+                        <span>Diseño</span>
+                        <strong id="sidePreviewDesign">Sol Pampeano</strong>
+                    </div>
+
+                    <div class="board-current-spec board-current-price">
+                        <span>Precio estimado</span>
+                        <strong id="sidePreviewPrice">USD 930</strong>
+                    </div>
+
                 </div>
 
-                <!-- Notes -->
-                <div class="ctrl-group">
-                    <p class="ctrl-group-label">Notas para el shaper (opcional)</p>
-                    <textarea class="rec-input" rows="3" placeholder="Ej: Quiero el stringer de cedro, raíles un poco más llenos en el tail, sin pintura en el deck…" id="shaperNotes"></textarea>
-                </div>
-
-                <!-- Add to cart from customizer -->
-                <button class="btn-gold" style="width:100%; padding:1.1rem; font-size:.9rem; letter-spacing:.09em; border-radius:2px;" onclick="addCustomToCart()">
-                    Agregar tabla customizada al carrito →
+                <button type="button"
+                        class="board-download-button"
+                        onclick="downloadBoardPreview()">
+                    ↓
                 </button>
-            </div>
 
-            <!-- Board preview -->
-            <div class="board-preview-wrap reveal">
-                <p class="board-preview-title">Vista previa en tiempo real</p>
-                <canvas id="boardCanvas" width="240" height="500"></canvas>
-                <div class="board-preview-specs">
-                    <div class="preview-spec-row">
-                        <span class="preview-spec-label">Modelo</span>
-                        <span class="preview-spec-value" id="previewModel">El Gaucho</span>
-                    </div>
-                    <div class="preview-spec-row">
-                        <span class="preview-spec-label">Medidas</span>
-                        <span class="preview-spec-value" id="previewSize">6'2" × 18¾" × 2⅜"</span>
-                    </div>
-                    <div class="preview-spec-row">
-                        <span class="preview-spec-label">Volumen</span>
-                        <span class="preview-spec-value" id="previewVol">28.5L</span>
-                    </div>
-                    <div class="preview-spec-row">
-                        <span class="preview-spec-label">Quillas</span>
-                        <span class="preview-spec-value" id="previewFin">Thruster</span>
-                    </div>
-                    <div class="preview-spec-row">
-                        <span class="preview-spec-label">Diseño</span>
-                        <span class="preview-spec-value" id="previewDesign">Sol Pampeano</span>
-                    </div>
-                    <div class="preview-spec-row" style="padding-top: .75rem; margin-top: .25rem; border-top: 1px solid rgba(255,255,255,.08);">
-                        <span class="preview-spec-label">Precio estimado</span>
-                        <span class="preview-spec-value" id="previewPrice" style="font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:.04em;">USD 780</span>
-                    </div>
+            </aside>
+
+            <!-- ─────────────────────────────
+             COLUMNA DERECHA: DETALLES
+        ────────────────────────────── -->
+            <div class="custom-details-column">
+
+                <h3 class="custom-details-title">
+                    Board Details
+                </h3>
+
+                <!-- Modelo -->
+                <div class="custom-field">
+                    <label for="customModel">
+                        Surfboard model
+                    </label>
+
+                    <select class="custom-select"
+                            id="customModel">
+
+                        <optgroup label="Master Surfboards">
+                            <option value="gaucho" selected>
+                                El Gaucho
+                            </option>
+
+                            <option value="pampeano">
+                                El Pampeano
+                            </option>
+
+                            <option value="charrua">
+                                El Charrúa
+                            </option>
+
+                            <option value="playero">
+                                El Playero
+                            </option>
+                        </optgroup>
+
+                        <optgroup label="Grom / Youth">
+                            <option value="grom-plus">Grom +</option>
+                            <option value="grom-two">Grom Two</option>
+                            <option value="mini-bird">Mini Bird</option>
+                            <option value="spawn-mini">Spawn Mini</option>
+                        </optgroup>
+
+                        <optgroup label="Groveller">
+                            <option value="bv2">BV2</option>
+                            <option value="fire-chief">Fire Chief</option>
+                            <option value="hkii">HKII</option>
+                            <option value="miami-spice">Miami Spice</option>
+                            <option value="pina-colada">Piña Colada</option>
+                            <option value="popper">Popper</option>
+                            <option value="pretty-sweet">Pretty Sweet</option>
+                        </optgroup>
+
+                        <optgroup label="All Rounder">
+                            <option value="black-vulture">Black Vulture</option>
+                            <option value="churro">Churro</option>
+                            <option value="churro-2">Churro 2</option>
+                            <option value="hot-knife">Hot Knife</option>
+                            <option value="middy">Middy</option>
+                            <option value="rare-bird">Rare Bird</option>
+                            <option value="rare-bird-evo">Rare Bird EVO</option>
+                            <option value="rarest-bird">Rarest Bird</option>
+                            <option value="volume-2">Volume II</option>
+                        </optgroup>
+
+                        <optgroup label="Premium Performance">
+                            <option value="shortie">Shortie</option>
+                            <option value="a2">A2</option>
+                            <option value="fad3r">FAD3R</option>
+                            <option value="faded">Faded</option>
+                            <option value="faded-2">Faded 2.0</option>
+                        </optgroup>
+
+                        <optgroup label="Step Up / Gun">
+                            <option value="faded-gun">
+                                Faded 2.0 Gun
+                            </option>
+
+                            <option value="faded-step-up">
+                                Faded 2.0 Step Up
+                            </option>
+                        </optgroup>
+
+                        <optgroup label="Twin">
+                            <option value="peppa-twin">Peppa Twin</option>
+                            <option value="sugar">Sugar</option>
+                        </optgroup>
+
+                        <optgroup label="Mid Length">
+                            <option value="full-strength">Full Strength</option>
+                            <option value="mid-strength">Mid Strength</option>
+                            <option value="twin-strength">Twin Strength</option>
+                        </optgroup>
+
+                    </select>
                 </div>
+
+                <!-- Construcción -->
+                <div class="custom-field">
+                    <label for="customConstruction">
+                        Technology / Construction
+                    </label>
+
+                    <select class="custom-select"
+                            id="customConstruction">
+
+                        <option value="pu-stringer" selected>
+                            PU Stringer
+                        </option>
+
+                        <option value="eps-stringer">
+                            EPS Stringer
+                        </option>
+
+                        <option value="eps-future-flex">
+                            EPS Future Flex
+                        </option>
+
+                        <option value="eps-core-reactor">
+                            EPS X Core Reactor
+                        </option>
+
+                        <option value="eps-twin-tech">
+                            EPS Twin Tech
+                        </option>
+
+                    </select>
+                </div>
+
+                <!-- Medidas recomendadas -->
+                <div class="custom-field">
+                    <label for="customStockMeasurements">
+                        Recommended stock measurements
+                    </label>
+
+                    <select class="custom-select"
+                            id="customStockMeasurements">
+
+                        <option value="5'7|18 7/16|2 1/8|22.5"
+                                selected>
+                            5'7" × 18 7/16" × 2 1/8" × 22.5L
+                        </option>
+
+                        <option value="5'8|18 5/8|2 1/4|24.4">
+                            5'8" × 18 5/8" × 2 1/4" × 24.4L
+                        </option>
+
+                        <option value="5'9|18 7/8|2 1/4|25.2">
+                            5'9" × 18 7/8" × 2 1/4" × 25.2L
+                        </option>
+
+                        <option value="5'10|19|2 5/16|26.6">
+                            5'10" × 19" × 2 5/16" × 26.6L
+                        </option>
+
+                        <option value="6'0|19 1/4|2 3/8|28.9">
+                            6'0" × 19 1/4" × 2 3/8" × 28.9L
+                        </option>
+
+                        <option value="6'2|19 1/2|2 1/2|31.5">
+                            6'2" × 19 1/2" × 2 1/2" × 31.5L
+                        </option>
+
+                    </select>
+                </div>
+
+                <!-- Size -->
+                <div class="custom-measurement-box">
+
+                    <div class="custom-measurement-field">
+                        <label for="customLength">
+                            Size
+                        </label>
+
+                        <select class="custom-select"
+                                id="customLength">
+
+                            <option>5'6"</option>
+                            <option selected>5'7"</option>
+                            <option>5'8"</option>
+                            <option>5'9"</option>
+                            <option>5'10"</option>
+                            <option>5'11"</option>
+                            <option>6'0"</option>
+                            <option>6'1"</option>
+                            <option>6'2"</option>
+                            <option>6'3"</option>
+                            <option>6'4"</option>
+                            <option>6'6"</option>
+                            <option>7'0"</option>
+                            <option>8'0"</option>
+                            <option>9'0"</option>
+
+                        </select>
+                    </div>
+
+                    <div class="custom-measurement-field">
+                        <label for="customWidth">
+                            Width
+                        </label>
+
+                        <select class="custom-select"
+                                id="customWidth">
+
+                            <option>18 1/4"</option>
+                            <option selected>18 7/16"</option>
+                            <option>18 1/2"</option>
+                            <option>18 5/8"</option>
+                            <option>18 3/4"</option>
+                            <option>18 7/8"</option>
+                            <option>19"</option>
+                            <option>19 1/4"</option>
+                            <option>19 1/2"</option>
+                            <option>20"</option>
+                            <option>20 1/2"</option>
+                            <option>21"</option>
+                            <option>22"</option>
+
+                        </select>
+                    </div>
+
+                    <div class="custom-measurement-field">
+                        <label for="customThickness">
+                            Thickness
+                        </label>
+
+                        <select class="custom-select"
+                                id="customThickness">
+
+                            <option>2"</option>
+                            <option selected>2 1/8"</option>
+                            <option>2 3/16"</option>
+                            <option>2 1/4"</option>
+                            <option>2 5/16"</option>
+                            <option>2 3/8"</option>
+                            <option>2 1/2"</option>
+                            <option>2 5/8"</option>
+                            <option>2 3/4"</option>
+                            <option>3"</option>
+
+                        </select>
+                    </div>
+
+                    <div class="custom-measurement-field">
+                        <label for="customVolume">
+                            Volume
+                        </label>
+
+                        <input class="custom-input volume-input"
+                               id="customVolume"
+                               value="22.5L"
+                               readonly>
+                    </div>
+
+                </div>
+
+                <!-- Tail -->
+                <div class="custom-field">
+                    <label for="customTail">
+                        Tail type
+                    </label>
+
+                    <select class="custom-select tail-select"
+                            id="customTail">
+
+                        <option value="squash" selected>
+                            Squash
+                        </option>
+
+                        <option value="round">
+                            Round
+                        </option>
+
+                        <option value="round-pin">
+                            Round Pin
+                        </option>
+
+                        <option value="swallow">
+                            Swallow
+                        </option>
+
+                        <option value="diamond">
+                            Diamond
+                        </option>
+
+                        <option value="pin">
+                            Pin
+                        </option>
+
+                        <option value="bat">
+                            Bat
+                        </option>
+
+                    </select>
+                </div>
+
+                <!-- Quillas -->
+                <div class="custom-three-columns">
+
+                    <div class="custom-field">
+                        <label for="customFinSystem">
+                            Fins system
+                        </label>
+
+                        <select class="custom-select"
+                                id="customFinSystem">
+
+                            <option value="fcs" selected>
+                                FCS
+                            </option>
+
+                            <option value="futures">
+                                Futures
+                            </option>
+
+                            <option value="single-box">
+                                Single Box
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div class="custom-field">
+                        <label for="customFinConfiguration">
+                            Fins number
+                        </label>
+
+                        <select class="custom-select"
+                                id="customFinConfiguration">
+
+                            <option value="thruster" selected>
+                                Thruster
+                            </option>
+
+                            <option value="twin">
+                                Twin
+                            </option>
+
+                            <option value="two-plus-one">
+                                2+1
+                            </option>
+
+                            <option value="quad">
+                                Quad
+                            </option>
+
+                            <option value="single">
+                                Single
+                            </option>
+
+                            <option value="five-fin">
+                                Five Fin
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div class="custom-field">
+                        <label for="customFinOption">
+                            Fins option
+                        </label>
+
+                        <select class="custom-select"
+                                id="customFinOption">
+
+                            <option value="fcs-2-black" selected>
+                                FCS 2 Black
+                            </option>
+
+                            <option value="fcs-2-white">
+                                FCS 2 White
+                            </option>
+
+                            <option value="futures-black">
+                                Futures Black
+                            </option>
+
+                            <option value="futures-white">
+                                Futures White
+                            </option>
+
+                            <option value="without-fins">
+                                Without fins
+                            </option>
+
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- Glassing -->
+                <h4 class="custom-subtitle">
+                    Glassing Specs
+                </h4>
+
+                <div class="custom-two-columns">
+
+                    <div class="custom-field">
+                        <label for="customGlassing">
+                            Glassing
+                        </label>
+
+                        <select class="custom-select"
+                                id="customGlassing">
+
+                            <option value="ultralight">
+                                PU Ultra Light — 4oz / 4oz
+                            </option>
+
+                            <option value="regular-innegra"
+                                    selected>
+                                PU Regular Innegra — 4oz + 4oz / 4oz
+                            </option>
+
+                            <option value="heavy">
+                                PU Heavy — 6oz + 4oz / 4oz
+                            </option>
+
+                            <option value="extra-heavy">
+                                PU Extra Heavy — 6oz + 6oz / 4oz
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div class="custom-field">
+                        <label for="customCarbonPatch">
+                            Carbon patch
+                        </label>
+
+                        <select class="custom-select"
+                                id="customCarbonPatch">
+
+                            <option value="none">
+                                None
+                            </option>
+
+                            <option value="progressive-white"
+                                    selected>
+                                Progressive Carbon White
+                            </option>
+
+                            <option value="progressive-black">
+                                Progressive Carbon Black
+                            </option>
+
+                            <option value="carbon-stripes">
+                                Carbon Stripes
+                            </option>
+
+                            <option value="heel-toe">
+                                Heel and Toe Patches
+                            </option>
+
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- Decal -->
+                <div class="custom-field">
+                    <label for="customDecal">
+                        Master decal
+                    </label>
+
+                    <select class="custom-select"
+                            id="customDecal">
+
+                        <option value="master-standard" selected>
+                            Master Standard
+                        </option>
+
+                        <option value="master-black">
+                            Master Black
+                        </option>
+
+                        <option value="master-white">
+                            Master White
+                        </option>
+
+                        <option value="master-gold">
+                            Master Gold
+                        </option>
+
+                        <option value="minimal">
+                            Minimal
+                        </option>
+
+                        <option value="none">
+                            No decal
+                        </option>
+
+                    </select>
+                </div>
+
+                <!-- Paint -->
+                <button type="button"
+                        class="custom-paint-button"
+                        onclick="togglePaintOptions()">
+                    Paint
+                </button>
+
+                <div class="custom-paint-options"
+                     id="paintOptions"
+                     hidden>
+
+                    <div class="custom-field">
+                        <label for="customDesign">
+                            Paint design
+                        </label>
+
+                        <select class="custom-select"
+                                id="customDesign">
+
+                            <option value="sin-pintura">
+                                No paint
+                            </option>
+
+                            <option value="sol-pampeano" selected>
+                                Sol Pampeano
+                            </option>
+
+                            <option value="lineas-clasicas">
+                                Classic Lines
+                            </option>
+
+                            <option value="mitad-y-mitad">
+                                Half and Half
+                            </option>
+
+                            <option value="degrade">
+                                Gradient
+                            </option>
+
+                            <option value="rails-color">
+                                Rails Color
+                            </option>
+
+                            <option value="nose-color">
+                                Nose Color
+                            </option>
+
+                            <option value="tail-color">
+                                Tail Color
+                            </option>
+
+                            <option value="pinline">
+                                Pinline
+                            </option>
+
+                            <option value="abstracto">
+                                Abstract
+                            </option>
+
+                            <option value="retro">
+                                Retro
+                            </option>
+
+                            <option value="minimalista">
+                                Minimal
+                            </option>
+
+                            <option value="deck-completo">
+                                Full Deck
+                            </option>
+
+                            <option value="bottom-completo">
+                                Full Bottom
+                            </option>
+
+                            <option value="doble-color">
+                                Two Colors
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div class="custom-two-columns">
+
+                        <div class="custom-field">
+                            <label for="customColor">
+                                Primary color
+                            </label>
+
+                            <input class="custom-color-input"
+                                   id="customColor"
+                                   type="color"
+                                   value="#c9a84c">
+                        </div>
+
+                        <div class="custom-field">
+                            <label for="customSecondaryColor">
+                                Secondary color
+                            </label>
+
+                            <input class="custom-color-input"
+                                   id="customSecondaryColor"
+                                   type="color"
+                                   value="#121212">
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Stringer -->
+                <div class="custom-field">
+                    <label for="customStringerName">
+                        Name on stringer
+                    </label>
+
+                    <input class="custom-input"
+                           id="customStringerName"
+                           maxlength="60">
+                </div>
+
+                <!-- Información adicional -->
+                <div class="custom-field">
+                    <label for="shaperNotes">
+                        Additional information
+                    </label>
+
+                    <textarea class="custom-textarea"
+                              id="shaperNotes"
+                              rows="5"></textarea>
+                </div>
+
             </div>
 
         </div>
-    </section>
 
+        <!-- ═══════════════════════════════════════════════════════
+         ADD ACCESSORIES
+    ════════════════════════════════════════════════════════ -->
+        <section class="custom-accessories-section">
+
+            <h3 class="custom-accessories-title">
+                Add Accessories
+            </h3>
+
+            <div class="accessory-tabs">
+
+                <button type="button"
+                        class="accessory-tab active"
+                        data-accessory-tab="fins"
+                        onclick="showAccessoryTab('fins', this)">
+                    Surfboard Fins
+                </button>
+
+                <button type="button"
+                        class="accessory-tab"
+                        data-accessory-tab="leash"
+                        onclick="showAccessoryTab('leash', this)">
+                    Leash
+                </button>
+
+                <button type="button"
+                        class="accessory-tab"
+                        data-accessory-tab="pads"
+                        onclick="showAccessoryTab('pads', this)">
+                    Tail Pads
+                </button>
+
+            </div>
+
+            <div class="accessory-content">
+
+                <!-- QUILLA -->
+                <div class="accessory-panel active"
+                     id="accessoryFins">
+
+                    <div class="accessory-products-grid">
+
+                        <article class="accessory-product selected"
+                                 data-accessory-id="fins-reactor"
+                                 data-accessory-name="Master Reactor Tri Fins"
+                                 data-accessory-price="25"
+                                 onclick="selectAccessory(this)">
+
+                            <img src="~/img/boards/thruster.png"
+                                 alt="Thruster fins">
+
+                            <h4>Master Reactor Tri Fins</h4>
+
+                            <select class="accessory-select"
+                                    onclick="event.stopPropagation()">
+                                <option>M - 104.5</option>
+                                <option>S - 100</option>
+                                <option>L - 110</option>
+                            </select>
+
+                        </article>
+
+                        <article class="accessory-product"
+                                 data-accessory-id="fins-twin"
+                                 data-accessory-name="Master Twin Fins"
+                                 data-accessory-price="20"
+                                 onclick="selectAccessory(this)">
+
+                            <img src="~/img/boards/twin.png"
+                                 alt="Twin fins">
+
+                            <h4>Master Twin Fins</h4>
+
+                            <select class="accessory-select"
+                                    onclick="event.stopPropagation()">
+                                <option>M - 104.5</option>
+                                <option>S - 100</option>
+                                <option>L - 110</option>
+                            </select>
+
+                        </article>
+
+                        <article class="accessory-product"
+                                 data-accessory-id="fins-quad"
+                                 data-accessory-name="Master Quad Fins"
+                                 data-accessory-price="30"
+                                 onclick="selectAccessory(this)">
+
+                            <img src="~/img/boards/quad.png"
+                                 alt="Quad fins">
+
+                            <h4>Master Quad Fins</h4>
+
+                            <select class="accessory-select"
+                                    onclick="event.stopPropagation()">
+                                <option>M - 104.5</option>
+                                <option>S - 100</option>
+                                <option>L - 110</option>
+                            </select>
+
+                        </article>
+
+                    </div>
+
+                </div>
+
+                <!-- LEASH -->
+                <div class="accessory-panel"
+                     id="accessoryLeash"
+                     hidden>
+
+                    <div class="accessory-products-grid">
+
+                        <article class="accessory-product"
+                                 data-accessory-id="leash-6"
+                                 data-accessory-name="Master Leash 6 ft"
+                                 data-accessory-price="22"
+                                 onclick="selectAccessory(this)">
+
+                            <div class="accessory-placeholder">
+                                6'
+                            </div>
+
+                            <h4>Master Leash 6 ft</h4>
+
+                            <select class="accessory-select"
+                                    onclick="event.stopPropagation()">
+                                <option>Black</option>
+                                <option>White</option>
+                                <option>Blue</option>
+                            </select>
+
+                        </article>
+
+                        <article class="accessory-product"
+                                 data-accessory-id="leash-7"
+                                 data-accessory-name="Master Leash 7 ft"
+                                 data-accessory-price="25"
+                                 onclick="selectAccessory(this)">
+
+                            <div class="accessory-placeholder">
+                                7'
+                            </div>
+
+                            <h4>Master Leash 7 ft</h4>
+
+                            <select class="accessory-select"
+                                    onclick="event.stopPropagation()">
+                                <option>Black</option>
+                                <option>White</option>
+                                <option>Blue</option>
+                            </select>
+
+                        </article>
+
+                        <article class="accessory-product"
+                                 data-accessory-id="leash-8"
+                                 data-accessory-name="Master Leash 8 ft"
+                                 data-accessory-price="28"
+                                 onclick="selectAccessory(this)">
+
+                            <div class="accessory-placeholder">
+                                8'
+                            </div>
+
+                            <h4>Master Leash 8 ft</h4>
+
+                            <select class="accessory-select"
+                                    onclick="event.stopPropagation()">
+                                <option>Black</option>
+                                <option>White</option>
+                                <option>Blue</option>
+                            </select>
+
+                        </article>
+
+                    </div>
+
+                </div>
+
+                <!-- GRIP -->
+                <div class="accessory-panel"
+                     id="accessoryPads"
+                     hidden>
+
+                    <div class="accessory-products-grid">
+
+                        <article class="accessory-product"
+                                 data-accessory-id="grip-black"
+                                 data-accessory-name="Master Tail Pad Black"
+                                 data-accessory-price="35"
+                                 onclick="selectAccessory(this)">
+
+                            <img src="~/img/boards/grip-black.png"
+                                 alt="Grip negro">
+
+                            <h4>Master Tail Pad Black</h4>
+
+                            <select class="accessory-select"
+                                    onclick="event.stopPropagation()">
+                                <option>Three Piece</option>
+                                <option>Four Piece</option>
+                            </select>
+
+                        </article>
+
+                        <article class="accessory-product"
+                                 data-accessory-id="grip-white"
+                                 data-accessory-name="Master Tail Pad White"
+                                 data-accessory-price="35"
+                                 onclick="selectAccessory(this)">
+
+                            <img src="~/img/boards/grip-white.png"
+                                 alt="Grip blanco">
+
+                            <h4>Master Tail Pad White</h4>
+
+                            <select class="accessory-select"
+                                    onclick="event.stopPropagation()">
+                                <option>Three Piece</option>
+                                <option>Four Piece</option>
+                            </select>
+
+                        </article>
+
+                        <article class="accessory-product"
+                                 data-accessory-id="carbon-patch"
+                                 data-accessory-name="Master Carbon Tail Patch"
+                                 data-accessory-price="40"
+                                 onclick="selectAccessory(this)">
+
+                            <img src="~/img/boards/carbon-patch.png"
+                                 alt="Carbon patch">
+
+                            <h4>Master Carbon Tail Patch</h4>
+
+                            <select class="accessory-select"
+                                    onclick="event.stopPropagation()">
+                                <option>Black</option>
+                                <option>Grey</option>
+                            </select>
+
+                        </article>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════
+         CUSTOM ORDER SUMMARY
+    ════════════════════════════════════════════════════════ -->
+        <section class="custom-order-summary">
+
+            <h3>Custom Order Summary</h3>
+
+            <div class="custom-summary-row">
+                <span id="summaryBoardName">
+                    Master El Gaucho
+                </span>
+
+                <span id="summaryBoardPrice">
+                    USD 780
+                </span>
+            </div>
+
+            <div class="custom-summary-row">
+                <span id="summaryFinSetup">
+                    Fin Setup (Thruster)
+                </span>
+
+                <span id="summaryFinPrice">
+                    USD 25
+                </span>
+            </div>
+
+            <div class="custom-summary-accessories"
+                 id="summaryAccessories">
+            </div>
+
+            <div class="custom-summary-row custom-summary-total">
+                <span>Total</span>
+
+                <span id="summaryTotal">
+                    USD 805
+                </span>
+            </div>
+
+            <button type="button"
+                    class="custom-add-cart-button"
+                    onclick="addCustomToCart()">
+                Add to cart
+            </button>
+
+        </section>
+
+    </section>
 
     <div class="section-divider"></div>
 

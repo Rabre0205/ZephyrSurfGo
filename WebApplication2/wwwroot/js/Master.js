@@ -53,27 +53,671 @@ function addToCart(id, name, price) {
     showToast(`"${name}" agregada al carrito`);
 }
 
+
+/* ════════════════════════════════════
+   VISTA REALISTA POR CAPAS
+════════════════════════════════════ */
+
+const BOARD_IMAGE_PATH = '/img/boards/';
+
+const FIN_IMAGES = {
+    thruster: 'thruster.png',
+    twin: 'twin.png',
+    quad: 'quad.png',
+    'five-fin': 'five-fin.png',
+
+    // Todavía no tenés imágenes específicas para estas configuraciones
+    'two-plus-one': 'thruster.png',
+    single: 'thruster.png'
+};
+
+
+
+
+
+function getSelectedValue(id, fallback = '') {
+    const element = document.getElementById(id);
+    return element ? element.value : fallback;
+}
+
+function getSelectedOptionText(id) {
+    const select = document.getElementById(id);
+
+    if (!select || select.selectedIndex < 0) {
+        return '';
+    }
+
+    return select.options[select.selectedIndex].text;
+}
+
+function getActiveCustomDetails() {
+    return Array.from(
+        document.querySelectorAll(
+            '#customizador [data-detail].active'
+        )
+    ).map(button => button.dataset.detail);
+}
+
+function createBoardBackground(design, primary, secondary) {
+    switch (design) {
+        case 'sin-pintura':
+            return 'transparent';
+
+        case 'mitad-y-mitad':
+            return `linear-gradient(
+                90deg,
+                ${primary} 0 50%,
+                ${secondary} 50% 100%
+            )`;
+
+        case 'degrade':
+            return `linear-gradient(
+                180deg,
+                ${primary},
+                ${secondary}
+            )`;
+
+        case 'rails-color':
+            return `linear-gradient(
+                90deg,
+                ${primary} 0 14%,
+                transparent 14% 86%,
+                ${primary} 86% 100%
+            )`;
+
+        case 'nose-color':
+            return `linear-gradient(
+                180deg,
+                ${primary} 0 28%,
+                transparent 28% 100%
+            )`;
+
+        case 'tail-color':
+            return `linear-gradient(
+                180deg,
+                transparent 0 72%,
+                ${primary} 72% 100%
+            )`;
+
+        case 'lineas-clasicas':
+            return `linear-gradient(
+                180deg,
+                transparent 0 30%,
+                ${primary} 30% 36%,
+                ${secondary} 36% 39%,
+                transparent 39% 100%
+            )`;
+
+        case 'pinline':
+            return `linear-gradient(
+                90deg,
+                transparent 0 7%,
+                ${primary} 7% 9%,
+                transparent 9% 91%,
+                ${primary} 91% 93%,
+                transparent 93% 100%
+            )`;
+
+        case 'retro':
+            return `linear-gradient(
+                90deg,
+                transparent 0 28%,
+                ${primary} 28% 43%,
+                ${secondary} 43% 50%,
+                transparent 50% 100%
+            )`;
+
+        case 'doble-color':
+            return `linear-gradient(
+                180deg,
+                ${primary} 0 50%,
+                ${secondary} 50% 100%
+            )`;
+
+        case 'abstracto':
+            return `
+                radial-gradient(
+                    ellipse at 25% 25%,
+                    ${primary} 0 18%,
+                    transparent 19%
+                ),
+                radial-gradient(
+                    ellipse at 75% 58%,
+                    ${secondary} 0 24%,
+                    transparent 25%
+                ),
+                linear-gradient(
+                    145deg,
+                    transparent 0 35%,
+                    ${primary} 36% 52%,
+                    transparent 53%
+                )
+            `;
+
+        case 'minimalista':
+            return `radial-gradient(
+                circle at 50% 32%,
+                ${primary} 0 11%,
+                transparent 12%
+            )`;
+
+        case 'deck-completo':
+        case 'bottom-completo':
+            return primary;
+
+        case 'sol-pampeano':
+        default:
+            return `repeating-conic-gradient(
+                from 0deg at 50% 28%,
+                ${primary} 0deg 10deg,
+                ${secondary} 10deg 20deg
+            )`;
+    }
+}
+
+function updateBoardImages() {
+    const deckPaint =
+        document.getElementById('deckPaint');
+
+    const bottomPaint =
+        document.getElementById('bottomPaint');
+
+    if (!deckPaint || !bottomPaint) {
+        return;
+    }
+
+    const design =
+        getSelectedValue(
+            'customDesign',
+            'sol-pampeano'
+        );
+
+    const primary =
+        getSelectedValue(
+            'customColor',
+            '#c9a84c'
+        );
+
+    const secondary =
+        getSelectedValue(
+            'customSecondaryColor',
+            '#121212'
+        );
+
+    const background =
+        createBoardBackground(
+            design,
+            primary,
+            secondary
+        );
+
+    /*
+       Podés decidir que ciertos diseños aparezcan solo
+       de un lado de la tabla.
+    */
+    if (design === 'bottom-completo') {
+        deckPaint.style.background = 'transparent';
+        bottomPaint.style.background = primary;
+    } else if (design === 'deck-completo') {
+        deckPaint.style.background = primary;
+        bottomPaint.style.background = 'transparent';
+    } else {
+        deckPaint.style.background = background;
+        bottomPaint.style.background = background;
+    }
+
+    updateBoardAccessories();
+}
+
+const CUSTOM_MODEL_PRICES = {
+    gaucho: 780,
+    pampeano: 820,
+    charrua: 950,
+    playero: 760,
+    'grom-plus': 690,
+    'grom-two': 700,
+    'mini-bird': 710,
+    'spawn-mini': 720,
+    bv2: 790,
+    'fire-chief': 810,
+    hkii: 830,
+    'miami-spice': 820,
+    'pina-colada': 830,
+    popper: 800,
+    'pretty-sweet': 840,
+    'black-vulture': 850,
+    churro: 840,
+    'churro-2': 860,
+    'hot-knife': 870,
+    middy: 900,
+    'rare-bird': 850,
+    'rare-bird-evo': 880,
+    'rarest-bird': 890,
+    'volume-2': 870,
+    shortie: 890,
+    a2: 920,
+    fad3r: 930,
+    faded: 920,
+    'faded-2': 950,
+    'faded-gun': 990,
+    'faded-step-up': 970,
+    'peppa-twin': 880,
+    sugar: 870,
+    'full-strength': 990,
+    'mid-strength': 960,
+    'twin-strength': 980
+};
+
+const CUSTOM_EXTRA_PRICES = {
+    construction: {
+        'pu-stringer': 0,
+        'eps-stringer': 60,
+        'eps-future-flex': 130,
+        'eps-core-reactor': 160,
+        'eps-twin-tech': 150
+    },
+
+    glassing: {
+        ultralight: 50,
+        'regular-innegra': 80,
+        heavy: 90,
+        'extra-heavy': 120
+    },
+
+    carbon: {
+        none: 0,
+        'progressive-white': 45,
+        'progressive-black': 45,
+        'carbon-stripes': 60,
+        'heel-toe': 55
+    },
+
+    design: {
+        'sol-pampeano': 70,
+        'lineas-clasicas': 50,
+        'mitad-y-mitad': 65,
+        degrade: 80,
+        'rails-color': 55,
+        'nose-color': 40,
+        'tail-color': 40,
+        pinline: 45,
+        abstracto: 100,
+        retro: 75,
+        minimalista: 30,
+        'deck-completo': 90,
+        'bottom-completo': 90,
+        'doble-color': 75,
+        'sin-pintura': 0
+    }
+};
+
+function calculateCustomPrice() {
+    const model =
+        getSelectedValue('customModel', 'gaucho');
+
+    const construction =
+        getSelectedValue(
+            'customConstruction',
+            'pu-stringer'
+        );
+
+    const glassing =
+        getSelectedValue(
+            'customGlassing',
+            'regular-innegra'
+        );
+
+    const carbon =
+        getSelectedValue(
+            'customCarbonPatch',
+            'none'
+        );
+
+    const design =
+        getSelectedValue(
+            'customDesign',
+            'sin-pintura'
+        );
+
+    let total =
+        CUSTOM_MODEL_PRICES[model] || 780;
+
+    total +=
+        CUSTOM_EXTRA_PRICES.construction[construction] || 0;
+
+    total +=
+        CUSTOM_EXTRA_PRICES.glassing[glassing] || 0;
+
+    total +=
+        CUSTOM_EXTRA_PRICES.carbon[carbon] || 0;
+
+    total +=
+        CUSTOM_EXTRA_PRICES.design[design] || 0;
+
+    const details = getActiveCustomDetails();
+
+    if (details.includes('grip')) {
+        total += 45;
+    }
+
+    if (details.includes('serial')) {
+        total += 15;
+    }
+
+    if (details.includes('fcs-box')) {
+        total += 50;
+    }
+
+    return total;
+}
+
+function updateCustomPreview() {
+
+    const setText = function (id, text) {
+        const element = document.getElementById(id);
+
+        if (element) {
+            element.textContent = text;
+        }
+    };
+
+    const length =
+        getSelectedValue('customLength');
+
+    const width =
+        getSelectedValue('customWidth');
+
+    const thickness =
+        getSelectedValue('customThickness');
+
+    const volume =
+        getSelectedValue('customVolume');
+
+    setText(
+        'sidePreviewModel',
+        getSelectedOptionText('customModel')
+    );
+
+    setText(
+        'sidePreviewConstruction',
+        getSelectedOptionText('customConstruction')
+    );
+
+    setText(
+        'sidePreviewSize',
+        `${length} × ${width} × ${thickness}`
+    );
+
+    setText(
+        'sidePreviewVolume',
+        volume
+    );
+
+    setText(
+        'sidePreviewTail',
+        getSelectedOptionText('customTail')
+    );
+
+    setText(
+        'sidePreviewFins',
+        getSelectedOptionText('customFinSystem') +
+        ' · ' +
+        getSelectedOptionText('customFinConfiguration')
+    );
+
+    setText(
+        'sidePreviewGlassing',
+        getSelectedOptionText('customGlassing')
+    );
+
+    setText(
+        'sidePreviewCarbon',
+        getSelectedOptionText('customCarbonPatch')
+    );
+
+    setText(
+        'sidePreviewDesign',
+        getSelectedOptionText('customDesign')
+    );
+
+    const price = calculateCustomPrice();
+
+    setText(
+        'sidePreviewPrice',
+        'USD ' + price
+    );
+
+    const previewPrice =
+        document.getElementById('previewPrice');
+
+    if (previewPrice) {
+        previewPrice.textContent =
+            'USD ' + price;
+    }
+
+    updateBoardImages();
+    updateAccessoryPreview();
+    updateCustomSummary();
+}
+
+
+
+function toggleCustomDetail(button) {
+    button.classList.toggle('active');
+    updateCustomPreview();
+}
+
+function updateBoardAccessories() {
+    const details = getActiveCustomDetails();
+
+    const grip =
+        document.getElementById('deckGrip');
+
+    const deckCarbon =
+        document.getElementById('deckCarbon');
+
+    const bottomCarbon =
+        document.getElementById('bottomCarbon');
+
+    const logo =
+        document.getElementById('deckLogo');
+
+    const finImage =
+        document.getElementById('bottomFins');
+
+    const stringerName =
+        document.getElementById('deckStringerName');
+
+    /* Grip */
+    if (grip) {
+        const hasGrip =
+            details.includes('grip');
+
+        grip.hidden = !hasGrip;
+
+        /*
+           Podés agregar un select customGripColor.
+           Si no existe, usa negro.
+        */
+        const gripColor =
+            getSelectedValue(
+                'customGripColor',
+                'black'
+            );
+
+        grip.src =
+            BOARD_IMAGE_PATH +
+            (
+                gripColor === 'white'
+                    ? 'grip-white.png'
+                    : 'grip-black.png'
+            );
+    }
+
+    /* Carbon patch */
+    const carbonValue =
+        getSelectedValue(
+            'customCarbonPatch',
+            'none'
+        );
+
+    const showCarbon =
+        carbonValue !== 'none';
+
+    if (deckCarbon) {
+        deckCarbon.hidden = !showCarbon;
+    }
+
+    if (bottomCarbon) {
+        bottomCarbon.hidden = !showCarbon;
+    }
+
+    /* Logo */
+    if (logo) {
+        const showLogo =
+            details.includes('logo');
+
+        logo.hidden = !showLogo;
+    }
+
+    /* Quillas */
+    if (finImage) {
+
+        let finSetup =
+            getSelectedValue(
+                'customFinConfiguration',
+                'thruster'
+            );
+
+        const selectedFin =
+            Array.from(selectedAccessories.values())
+                .find(item => item.id.startsWith('fins-'));
+
+        if (selectedFin) {
+
+            switch (selectedFin.id) {
+
+                case 'fins-reactor':
+                    finSetup = 'thruster';
+                    break;
+
+                case 'fins-twin':
+                    finSetup = 'twin';
+                    break;
+
+                case 'fins-quad':
+                    finSetup = 'quad';
+                    break;
+
+                case 'fins-five':
+                    finSetup = 'five-fin';
+                    break;
+            }
+
+        }
+
+        finImage.src =
+            BOARD_IMAGE_PATH +
+            FIN_IMAGES[finSetup];
+
+    }
+
+    /* Nombre en el stringer */
+    if (stringerName) {
+        stringerName.textContent =
+            document
+                .getElementById(
+                    'customStringerName'
+                )
+                ?.value
+                .trim() || '';
+    }
+}
+
 function addCustomToCart() {
-    const model = document.querySelector('#modelSelector .active')?.dataset.model || 'gaucho';
-    const board = BOARDS[model];
-    const design = document.querySelector('#designGrid .design-swatch.active')?.dataset.name || 'Clásico';
-    const fin = document.querySelector('#finGrid .fin-option.active .fin-label')?.textContent || 'Thruster';
-    const notes = document.getElementById('shaperNotes')?.value || '';
+    const modelSelect = document.getElementById('customModel');
+
+    if (!modelSelect) {
+        showToast('No se encontró el personalizador');
+        return;
+    }
+
+    const selectedText = function (id) {
+        const select = document.getElementById(id);
+
+        if (!select || select.selectedIndex < 0) {
+            return '';
+        }
+
+        return select.options[select.selectedIndex].text;
+    };
+
+    const modelName =
+        modelSelect.options[modelSelect.selectedIndex].text;
+
+    const length =
+        document.getElementById('customLength')?.value || '';
+
+    const width =
+        document.getElementById('customWidth')?.value || '';
+
+    const thickness =
+        document.getElementById('customThickness')?.value || '';
+
+    const volume =
+        document.getElementById('customVolume')?.value || '';
+
+    const priceText =
+        document.getElementById('previewPrice')?.textContent || 'USD 0';
+
+    const price =
+        Number(priceText.replace(/[^0-9.]/g, '')) || 0;
+
+    const activeDetails = Array.from(
+        document.querySelectorAll(
+            '#customizador [data-detail].active'
+        )
+    ).map(function (button) {
+        return button.textContent.trim();
+    });
+
+    const details = [
+        `${length} × ${width} × ${thickness}`,
+        volume,
+        selectedText('customConstruction'),
+        selectedText('customTail'),
+        selectedText('customFinSystem') +
+        ' · ' +
+        selectedText('customFinConfiguration'),
+        selectedText('customGlassing'),
+        selectedText('customCarbonPatch'),
+        selectedText('customDesign'),
+        activeDetails.join(', ')
+    ]
+        .filter(function (value) {
+            return value !== '';
+        })
+        .join(' · ');
+
     const cart = getCart();
-    const customId = model + '_custom';
-    const existing = cart.find(i => i.id === customId);
-    if (existing) existing.qty += 1;
-    else cart.push({
-        id: customId,
-        name: board.name + ' (Custom)',
-        price: board.price + 80,
+
+    cart.push({
+        id: 'custom_' + modelSelect.value + '_' + Date.now(),
+        name: modelName + ' (Custom)',
+        price: price,
         qty: 1,
         custom: true,
-        details: `${board.spec} · ${fin} · ${design}`,
-        notes
+        details: details,
+        notes:
+            document.getElementById('shaperNotes')
+                ?.value.trim() || ''
     });
+
     saveCart(cart);
-    showToast(`"${board.name} Custom" agregada al carrito`);
+
+    showToast(
+        '"' + modelName + ' Custom" agregada al carrito'
+    );
 }
 
 function renderOrderSummary() {
@@ -384,324 +1028,607 @@ function addResultToCart() {
 }
 
 function applyRecommendedBoard() {
-    if (!recommendedBoard) return;
-    const btn = document.querySelector(`#modelSelector [data-model="${recommendedBoard}"]`);
-    if (btn) {
-        document.querySelectorAll('#modelSelector .toggle-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        updatePreviewFromModel(recommendedBoard);
+    if (!recommendedBoard) {
+        return;
     }
+
+    const modelSelect =
+        document.getElementById('customModel');
+
+    if (modelSelect) {
+        const optionExists = Array.from(
+            modelSelect.options
+        ).some(function (option) {
+            return option.value === recommendedBoard;
+        });
+
+        if (optionExists) {
+            modelSelect.value = recommendedBoard;
+
+            modelSelect.dispatchEvent(
+                new Event('change')
+            );
+        }
+    }
+
+    document
+        .getElementById('customizador')
+        ?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
 }
 
 renderQuestion();
 
+
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+        const stockMeasurements =
+            document.getElementById(
+                'customStockMeasurements'
+            );
+
+        if (stockMeasurements) {
+            stockMeasurements.addEventListener(
+                'change',
+                function () {
+                    const values =
+                        this.value.split('|');
+
+                    const length = values[0];
+                    const width = values[1];
+                    const thickness = values[2];
+                    const volume = values[3];
+
+                    const lengthInput =
+                        document.getElementById(
+                            'customLength'
+                        );
+
+                    const widthInput =
+                        document.getElementById(
+                            'customWidth'
+                        );
+
+                    const thicknessInput =
+                        document.getElementById(
+                            'customThickness'
+                        );
+
+                    const volumeInput =
+                        document.getElementById(
+                            'customVolume'
+                        );
+
+                    if (lengthInput) {
+                        lengthInput.value =
+                            length + '"';
+                    }
+
+                    if (widthInput) {
+                        widthInput.value =
+                            width + '"';
+                    }
+
+                    if (thicknessInput) {
+                        thicknessInput.value =
+                            thickness + '"';
+                    }
+
+                    if (volumeInput) {
+                        volumeInput.value =
+                            volume + 'L';
+                    }
+
+                    updateCustomPreview();
+                }
+            );
+        }
+
+        const controlIds = [
+            'customModel',
+            'customConstruction',
+            'customStockMeasurements',
+            'customLength',
+            'customWidth',
+            'customThickness',
+            'customVolume',
+            'customTail',
+            'customFinSystem',
+            'customFinConfiguration',
+            'customFinOption',
+            'customGlassing',
+            'customCarbonPatch',
+            'customDesign',
+            'customColor',
+            'customSecondaryColor',
+            'customGripColor',
+            'customDecal',
+            'customStringerName',
+            'surferHeight',
+            'surferWeight',
+            'surferLevel',
+            'surferFitness'
+        ];
+
+        controlIds.forEach(function (id) {
+            const control =
+                document.getElementById(id);
+
+            if (!control) {
+                return;
+            }
+
+            control.addEventListener(
+                'change',
+                updateCustomPreview
+            );
+
+            control.addEventListener(
+                'input',
+                updateCustomPreview
+            );
+        });
+
+        updateCustomPreview();
+    }
+);
+
+function changeBoardView(view, button) {
+    const deckStage = document.getElementById('deckStage');
+    const bottomStage = document.getElementById('bottomStage');
+
+    document.querySelectorAll('.board-view-tab').forEach(function (tab) {
+        tab.classList.remove('active');
+    });
+
+    if (button) {
+        button.classList.add('active');
+    }
+
+    if (view === 'bottom') {
+        if (deckStage) {
+            deckStage.classList.remove('active');
+            deckStage.hidden = true;
+        }
+
+        if (bottomStage) {
+            bottomStage.hidden = false;
+            bottomStage.classList.add('active');
+        }
+    } else {
+        if (bottomStage) {
+            bottomStage.classList.remove('active');
+            bottomStage.hidden = true;
+        }
+
+        if (deckStage) {
+            deckStage.hidden = false;
+            deckStage.classList.add('active');
+        }
+    }
+}
+
 /* ════════════════════════════════════
-   CUSTOMIZADOR
+   ACCESORIOS DEL CUSTOM ORDER
 ════════════════════════════════════ */
-const DESIGNS = [
-    { name: 'Sol Pampeano', colors: ['#c9a84c', '#f5e090', '#1a1a1a'] },
-    { name: 'Océano Profundo', colors: ['#1a3a6a', '#4394e0', '#071626'] },
-    { name: 'Naturaleza', colors: ['#1a4a25', '#2ec27e', '#0a1a0d'] },
-    { name: 'Fuego Lento', colors: ['#6a1a1a', '#e05050', '#1a0a0a'] },
-    { name: 'Neblina', colors: ['#2a2a3a', '#8090b8', '#161620'] },
-    { name: 'Tierra', colors: ['#3a2a1a', '#8a6a40', '#1a1208'] },
-    { name: 'Aurora', colors: ['#1a1a3a', '#5040c8', '#c060e0'] },
-    { name: 'Surf Blanco', colors: ['#e0e0e0', '#ffffff', '#c8c8c8'] },
-    { name: 'Noche', colors: ['#0a0a0a', '#1a1a1a', '#2a2a2a'] },
-    { name: 'Mar de Noche', colors: ['#0a1a2a', '#0d3a5a', '#1a5a8a'] },
-    { name: 'Dorado Viejo', colors: ['#2a1a0a', '#8a6030', '#e0a050'] },
-    { name: 'Coral', colors: ['#2a0a10', '#c03040', '#f06070'] },
-    { name: 'Pradera', colors: ['#1a2a0a', '#4a8a20', '#80c040'] },
-    { name: 'Gris Urbano', colors: ['#1a1a1a', '#3a3a3a', '#6a6a6a'] },
-    { name: 'Cobalto', colors: ['#0a1828', '#1a3a6a', '#4060c0'] },
-];
 
-const COLOR_PALETTE = [
-    '#c9a84c', '#4394e0', '#2ec27e', '#e63946', '#9060c8',
-    '#ff8c00', '#00b4d8', '#f8f9fa', '#1a1a1a', '#e07060',
-    '#60c0a0', '#a0a0a0',
-];
+const selectedAccessories = new Map();
 
-let currentState = {
-    model: 'gaucho',
-    design: 0,
-    color: '#c9a84c',
-    tail: 'squash',
-    fin: 'thruster',
+const ACCESSORY_FIN_IMAGES = {
+    'fins-reactor': 'thruster.png',
+    'fins-twin': 'twin.png',
+    'fins-quad': 'quad.png',
+    'fins-five': 'five-fin.png'
 };
 
-// Build design grid
-const designGrid = document.getElementById('designGrid');
-DESIGNS.forEach((d, i) => {
-    const sw = document.createElement('div');
-    sw.className = 'design-swatch' + (i === 0 ? ' active' : '');
-    sw.dataset.name = d.name;
-    sw.dataset.index = i;
-    sw.title = d.name;
-    sw.style.background = `linear-gradient(135deg, ${d.colors[2]}, ${d.colors[0]}, ${d.colors[1]})`;
-    sw.onclick = function () {
-        document.querySelectorAll('.design-swatch').forEach(s => s.classList.remove('active'));
-        this.classList.add('active');
-        currentState.design = i;
-        document.getElementById('previewDesign').textContent = d.name;
-        renderBoard();
-    };
-    designGrid.appendChild(sw);
-});
-
-// Build color row
-const colorRow = document.getElementById('colorRow');
-COLOR_PALETTE.forEach(col => {
-    const dot = document.createElement('div');
-    dot.className = 'color-dot' + (col === '#c9a84c' ? ' active' : '');
-    dot.style.background = col;
-    dot.title = col;
-    dot.onclick = function () {
-        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-        this.classList.add('active');
-        currentState.color = col;
-        renderBoard();
-    };
-    colorRow.appendChild(dot);
-});
-
-function selectModel(btn) {
-    document.querySelectorAll('#modelSelector .toggle-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentState.model = btn.dataset.model;
-    updatePreviewFromModel(btn.dataset.model);
-}
-
-function updatePreviewFromModel(model) {
-    const b = BOARDS[model];
-    document.getElementById('previewModel').textContent = b.name;
-    document.getElementById('previewSize').textContent = b.spec;
-    document.getElementById('previewVol').textContent = b.vol;
-    document.getElementById('previewPrice').textContent = `USD ${b.price + 80}`;
-    currentState.model = model;
-    renderBoard();
-}
-
-function selectTail(btn) {
-    document.querySelectorAll('#tailSelector .toggle-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentState.tail = btn.dataset.tail;
-    renderBoard();
-}
-
-function selectFin(el, fin) {
-    document.querySelectorAll('#finGrid .fin-option').forEach(f => f.classList.remove('active'));
-    el.classList.add('active');
-    currentState.fin = fin;
-    document.getElementById('previewFin').textContent = fin.charAt(0).toUpperCase() + fin.slice(1);
-    renderBoard();
-}
-
-function selectBoard(id) {
-    const btn = document.querySelector(`#modelSelector [data-model="${id}"]`);
-    if (btn) {
-        document.querySelectorAll('#modelSelector .toggle-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        updatePreviewFromModel(id);
+/* Seleccionar o quitar un accesorio */
+function selectAccessory(card) {
+    if (!card) {
+        return;
     }
-    const customizer = document.getElementById('customizador');
-    if (customizer) customizer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    const accessoryId = card.dataset.accessoryId;
+
+    if (!accessoryId) {
+        console.warn(
+            'La tarjeta no tiene data-accessory-id',
+            card
+        );
+
+        return;
+    }
+
+    const accessoryName =
+        card.dataset.accessoryName || 'Accesorio';
+
+    const accessoryPrice =
+        Number(card.dataset.accessoryPrice || 0);
+
+    const wasSelected =
+        card.classList.contains('selected');
+
+    const panel =
+        card.closest('.accessory-panel');
+
+    /*
+       Permite una selección por categoría:
+       una quilla, un leash y un tail pad.
+    */
+    if (panel) {
+        panel
+            .querySelectorAll('.accessory-product')
+            .forEach(function (product) {
+                product.classList.remove('selected');
+
+                const productId =
+                    product.dataset.accessoryId;
+
+                if (productId) {
+                    selectedAccessories.delete(productId);
+                }
+            });
+    }
+
+    /*
+       Si tocamos una tarjeta que ya estaba seleccionada,
+       queda deseleccionada.
+    */
+    if (wasSelected) {
+        updateAccessoryPreview();
+        updateCustomSummary();
+        return;
+    }
+
+    card.classList.add('selected');
+
+    const accessorySelect =
+        card.querySelector('.accessory-select');
+
+    selectedAccessories.set(accessoryId, {
+        id: accessoryId,
+        name: accessoryName,
+        price: accessoryPrice,
+        option: accessorySelect
+            ? accessorySelect.value
+            : ''
+    });
+
+    updateAccessoryPreview();
+    updateCustomSummary();
 }
 
-/* ── CANVAS BOARD RENDERER ── */
-function renderBoard() {
-    const canvas = document.getElementById('boardCanvas');
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width, h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
+/* Cambiar entre Fins, Leash y Tail Pads */
+function showAccessoryTab(tabName, button) {
+    document
+        .querySelectorAll('.accessory-tab')
+        .forEach(function (tab) {
+            tab.classList.remove('active');
+        });
 
-    const model = currentState.model;
-    const design = DESIGNS[currentState.design];
-    const color = currentState.color;
-    const tail = currentState.tail;
+    document
+        .querySelectorAll('.accessory-panel')
+        .forEach(function (panel) {
+            panel.classList.remove('active');
+            panel.hidden = true;
+        });
 
-    // Board shape dimensions
-    const cx = w / 2;
-    const topY = 30, botY = h - 30;
-    const midH = (topY + botY) / 2;
+    if (button) {
+        button.classList.add('active');
+    }
 
-    // Widths per model
-    const widths = { gaucho: 48, pampeano: 58, charrua: 65, playero: 70 };
-    const maxW = widths[model] || 50;
+    const panels = {
+        fins: document.getElementById('accessoryFins'),
+        leash: document.getElementById('accessoryLeash'),
+        pads: document.getElementById('accessoryPads')
+    };
 
-    // Nose width
-    const noseW = model === 'playero' ? maxW * 0.55 : model === 'charrua' ? maxW * 0.6 : maxW * 0.35;
+    const selectedPanel = panels[tabName];
 
-    // Tail path per tail type
-    function tailPoints() {
-        switch (tail) {
-            case 'squash': return [[cx - maxW * 0.42, botY - 8], [cx + maxW * 0.42, botY - 8], [cx + maxW * 0.3, botY], [cx - maxW * 0.3, botY]];
-            case 'round': return [[cx - maxW * 0.42, botY - 12], [cx + maxW * 0.42, botY - 12]]; // will use arc
-            case 'swallow': return [[cx - maxW * 0.4, botY - 8], [cx + maxW * 0.4, botY - 8], [cx + maxW * 0.25, botY], [cx, botY - 14], [cx - maxW * 0.25, botY]];
-            case 'pin': return [[cx - maxW * 0.3, botY - 16], [cx + maxW * 0.3, botY - 16], [cx, botY]];
-            case 'bat': return [[cx - maxW * 0.45, botY - 6], [cx + maxW * 0.45, botY - 6], [cx + maxW * 0.35, botY + 2], [cx, botY - 8], [cx - maxW * 0.35, botY + 2]];
-            default: return [[cx - maxW * 0.42, botY - 8], [cx + maxW * 0.42, botY - 8], [cx, botY]];
+    if (selectedPanel) {
+        selectedPanel.hidden = false;
+        selectedPanel.classList.add('active');
+    }
+}
+
+/* Cambio de tamaño/color dentro del accesorio */
+document.addEventListener('change', function (event) {
+    const select = event.target.closest('.accessory-select');
+
+    if (!select) {
+        return;
+    }
+
+    const card =
+        select.closest('.accessory-product');
+
+    if (!card) {
+        return;
+    }
+
+    const accessoryId =
+        card.dataset.accessoryId;
+
+    /*
+       Si todavía no estaba seleccionado,
+       seleccionarlo al cambiar su opción.
+    */
+    if (!card.classList.contains('selected')) {
+        selectAccessory(card);
+        return;
+    }
+
+    const accessory =
+        selectedAccessories.get(accessoryId);
+
+    if (accessory) {
+        accessory.option = select.value;
+    }
+
+    updateCustomSummary();
+});
+
+/* Mostrar los accesorios en la tabla */
+function updateAccessoryPreview() {
+    const deckGrip =
+        document.getElementById('deckGrip');
+
+    const bottomFins =
+        document.getElementById('bottomFins');
+
+    /* ── Tail pad ── */
+
+    const blackGrip =
+        selectedAccessories.has('grip-black');
+
+    const whiteGrip =
+        selectedAccessories.has('grip-white');
+
+    if (deckGrip) {
+        if (blackGrip) {
+            deckGrip.src =
+                BOARD_IMAGE_PATH + 'grip-black.png';
+
+            deckGrip.hidden = false;
+        } else if (whiteGrip) {
+            deckGrip.src =
+                BOARD_IMAGE_PATH + 'grip-white.png';
+
+            deckGrip.hidden = false;
+        } else {
+            /*
+               Si no hay grip seleccionado como accesorio,
+               se respeta el selector general del customizador.
+            */
+            const customGripColor =
+                getSelectedValue(
+                    'customGripColor',
+                    ''
+                );
+
+            if (customGripColor === 'black') {
+                deckGrip.src =
+                    BOARD_IMAGE_PATH + 'grip-black.png';
+
+                deckGrip.hidden = false;
+            } else if (customGripColor === 'white') {
+                deckGrip.src =
+                    BOARD_IMAGE_PATH + 'grip-white.png';
+
+                deckGrip.hidden = false;
+            } else {
+                deckGrip.hidden = true;
+            }
         }
     }
 
-    // Draw board outline
-    ctx.save();
-    ctx.beginPath();
+    /* ── Quillas ── */
 
-    // Nose
-    ctx.moveTo(cx, topY);
+    const selectedFin =
+        Array
+            .from(selectedAccessories.values())
+            .find(function (item) {
+                return item.id.startsWith('fins-');
+            });
 
-    // Right rail
-    ctx.bezierCurveTo(
-        cx + noseW, topY + (botY - topY) * 0.25,
-        cx + maxW, midH - (botY - topY) * 0.05,
-        cx + maxW * 0.45, midH + (botY - topY) * 0.25
-    );
+    if (bottomFins) {
+        let imageName;
 
-    // Tail right side
-    const tp = tailPoints();
-    if (tail === 'round') {
-        ctx.lineTo(cx + maxW * 0.42, botY - 12);
-        ctx.arcTo(cx, botY + 5, cx - maxW * 0.42, botY - 12, maxW * 0.45);
-        ctx.lineTo(cx - maxW * 0.42, botY - 12);
-    } else if (tail === 'swallow') {
-        ctx.lineTo(cx + maxW * 0.4, botY - 8);
-        ctx.lineTo(cx + maxW * 0.25, botY);
-        ctx.lineTo(cx, botY - 14);
-        ctx.lineTo(cx - maxW * 0.25, botY);
-    } else if (tail === 'bat') {
-        ctx.lineTo(cx + maxW * 0.45, botY - 6);
-        ctx.lineTo(cx + maxW * 0.35, botY + 2);
-        ctx.lineTo(cx, botY - 8);
-        ctx.lineTo(cx - maxW * 0.35, botY + 2);
-    } else if (tail === 'pin') {
-        ctx.lineTo(cx + maxW * 0.3, botY - 16);
-        ctx.lineTo(cx, botY);
-    } else {
-        // squash
-        ctx.lineTo(cx + maxW * 0.42, botY - 8);
-        ctx.lineTo(cx + maxW * 0.3, botY);
-        ctx.lineTo(cx - maxW * 0.3, botY);
+        if (selectedFin) {
+            imageName =
+                ACCESSORY_FIN_IMAGES[selectedFin.id];
+        }
+
+        /*
+           Si no se eligió una quilla como accesorio,
+           usa la configuración elegida en Board Details.
+        */
+        if (!imageName) {
+            const finConfiguration =
+                getSelectedValue(
+                    'customFinConfiguration',
+                    'thruster'
+                );
+
+            imageName =
+                FIN_IMAGES[finConfiguration] ||
+                'thruster.png';
+        }
+
+        bottomFins.src =
+            BOARD_IMAGE_PATH + imageName;
+
+        bottomFins.hidden = false;
     }
-
-    // Left rail
-    if (tail !== 'swallow' && tail !== 'bat' && tail !== 'pin' && tail !== 'round') {
-        ctx.lineTo(cx - maxW * 0.42, botY - 8);
-    }
-    ctx.bezierCurveTo(
-        cx - maxW * 0.45, midH + (botY - topY) * 0.25,
-        cx - maxW, midH - (botY - topY) * 0.05,
-        cx - noseW, topY + (botY - topY) * 0.25
-    );
-    ctx.closePath();
-
-    // Fill with design gradient
-    const grd = ctx.createLinearGradient(0, topY, w, botY);
-    grd.addColorStop(0, design.colors[2]);
-    grd.addColorStop(0.5, color);
-    grd.addColorStop(1, design.colors[2]);
-    ctx.fillStyle = grd;
-    ctx.fill();
-
-    // Outline
-    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.restore();
-
-    // Stringer
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(cx, topY + 4);
-    ctx.lineTo(cx, botY - 10);
-    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.restore();
-
-    // Concave reflection
-    ctx.save();
-    ctx.beginPath();
-    ctx.ellipse(cx, midH, maxW * 0.25, (botY - topY) * 0.2, 0, 0, Math.PI * 2);
-    const grd2 = ctx.createRadialGradient(cx, midH, 0, cx, midH, maxW * 0.25);
-    grd2.addColorStop(0, 'rgba(255,255,255,0.09)');
-    grd2.addColorStop(1, 'transparent');
-    ctx.fillStyle = grd2;
-    ctx.fill();
-    ctx.restore();
-
-    // Logo text
-    ctx.save();
-    ctx.font = 'bold 10px "Bebas Neue", sans-serif';
-    ctx.letterSpacing = '3px';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.fillText('MASTER', cx, topY + (botY - topY) * 0.3);
-    ctx.restore();
-
-    // Fins
-    drawFins(ctx, cx, botY, maxW, currentState.fin, color);
 }
 
-function drawFins(ctx, cx, botY, maxW, setup, color) {
-    ctx.save();
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    const fh = 22, fw = 10;
-    function fin(x, y, flip) {
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + (flip ? -fw : fw) * 0.6, y - fh);
-        ctx.lineTo(x + (flip ? fw : -fw) * 0.3, y);
-        ctx.closePath();
-        ctx.fill();
+/* Actualizar el resumen y el precio */
+function updateCustomSummary() {
+    const modelSelect =
+        document.getElementById('customModel');
+
+    const modelName =
+        modelSelect &&
+            modelSelect.selectedIndex >= 0
+            ? modelSelect.options[
+                modelSelect.selectedIndex
+            ].text
+            : 'Tabla Master';
+
+    const boardPrice =
+        calculateCustomPrice();
+
+    let accessoriesTotal = 0;
+    let accessoryHtml = '';
+
+    selectedAccessories.forEach(function (item) {
+        accessoriesTotal += item.price;
+
+        const optionText =
+            item.option
+                ? ` · ${escapeAccessoryHtml(item.option)}`
+                : '';
+
+        accessoryHtml += `
+            <div class="custom-summary-row">
+                <span>
+                    ${escapeAccessoryHtml(item.name)}
+                    ${optionText}
+                </span>
+
+                <span>
+                    USD ${item.price}
+                </span>
+            </div>
+        `;
+    });
+
+    const summaryBoardName =
+        document.getElementById('summaryBoardName');
+
+    const summaryBoardPrice =
+        document.getElementById('summaryBoardPrice');
+
+    const summaryFinSetup =
+        document.getElementById('summaryFinSetup');
+
+    const summaryFinPrice =
+        document.getElementById('summaryFinPrice');
+
+    const summaryAccessories =
+        document.getElementById('summaryAccessories');
+
+    const summaryTotal =
+        document.getElementById('summaryTotal');
+
+    if (summaryBoardName) {
+        summaryBoardName.textContent =
+            'Master ' + modelName;
     }
-    switch (setup) {
-        case 'thruster':
-            fin(cx - maxW * 0.28, botY - 6, false);
-            fin(cx + maxW * 0.28, botY - 6, true);
-            fin(cx, botY - 8, false);
-            break;
-        case 'twin':
-            fin(cx - maxW * 0.32, botY - 8, false);
-            fin(cx + maxW * 0.32, botY - 8, true);
-            break;
-        case '2+1':
-            fin(cx - maxW * 0.3, botY - 8, false);
-            fin(cx + maxW * 0.3, botY - 8, true);
-            ctx.beginPath();
-            ctx.moveTo(cx, botY - 12);
-            ctx.lineTo(cx + 6, botY - 12 - fh * 1.2);
-            ctx.lineTo(cx - 6, botY - 12);
-            ctx.closePath();
-            ctx.fill();
-            break;
-        case 'quad':
-            fin(cx - maxW * 0.3, botY - 8, false);
-            fin(cx + maxW * 0.3, botY - 8, true);
-            fin(cx - maxW * 0.2, botY - 4, false);
-            fin(cx + maxW * 0.2, botY - 4, true);
-            break;
-        case 'single':
-            ctx.beginPath();
-            ctx.moveTo(cx, botY - 8);
-            ctx.lineTo(cx + 8, botY - 8 - fh * 1.4);
-            ctx.lineTo(cx - 8, botY - 8);
-            ctx.closePath();
-            ctx.fill();
-            break;
-        case 'five':
-            fin(cx - maxW * 0.28, botY - 6, false);
-            fin(cx + maxW * 0.28, botY - 6, true);
-            fin(cx, botY - 8, false);
-            fin(cx - maxW * 0.18, botY - 3, false);
-            fin(cx + maxW * 0.18, botY - 3, true);
-            break;
+
+    if (summaryBoardPrice) {
+        summaryBoardPrice.textContent =
+            'USD ' + boardPrice;
     }
-    ctx.restore();
+
+    const selectedFin =
+        Array
+            .from(selectedAccessories.values())
+            .find(function (item) {
+                return item.id.startsWith('fins-');
+            });
+
+    if (summaryFinSetup) {
+        if (selectedFin) {
+            summaryFinSetup.textContent =
+                selectedFin.name +
+                (
+                    selectedFin.option
+                        ? ` · ${selectedFin.option}`
+                        : ''
+                );
+        } else {
+            summaryFinSetup.textContent =
+                'Fin Setup (' +
+                getSelectedOptionText(
+                    'customFinConfiguration'
+                ) +
+                ')';
+        }
+    }
+
+    if (summaryFinPrice) {
+        summaryFinPrice.textContent =
+            selectedFin
+                ? 'USD ' + selectedFin.price
+                : 'Incluido';
+    }
+
+    if (summaryAccessories) {
+        /*
+           Evita repetir la quilla porque ya se muestra
+           en summaryFinSetup.
+        */
+        let otherAccessoriesHtml = '';
+
+        selectedAccessories.forEach(function (item) {
+            if (item.id.startsWith('fins-')) {
+                return;
+            }
+
+            otherAccessoriesHtml += `
+                <div class="custom-summary-row">
+                    <span>
+                        ${escapeAccessoryHtml(item.name)}
+                        ${item.option
+                    ? ` · ${escapeAccessoryHtml(item.option)}`
+                    : ''
+                }
+                    </span>
+
+                    <span>
+                        USD ${item.price}
+                    </span>
+                </div>
+            `;
+        });
+
+        summaryAccessories.innerHTML =
+            otherAccessoriesHtml;
+    }
+
+    if (summaryTotal) {
+        summaryTotal.textContent =
+            'USD ' +
+            (boardPrice + accessoriesTotal);
+    }
+
+    /*
+       Actualizar también la información debajo
+       de la tabla.
+    */
+    const sidePreviewPrice =
+        document.getElementById('sidePreviewPrice');
+
+    if (sidePreviewPrice) {
+        sidePreviewPrice.textContent =
+            'USD ' +
+            (boardPrice + accessoriesTotal);
+    }
 }
 
-// Initial render
-renderBoard();
+/* Evitar insertar HTML desde los datos */
+function escapeAccessoryHtml(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
 
 /* ════════════════════════════════════
    ORDER SUBMIT
@@ -775,3 +1702,5 @@ function setLang(lang) {
     });
     document.documentElement.lang = currentLang;
 })();
+
+
