@@ -18,4 +18,8 @@
     <Folder Include="Models\Enums\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ClassLibrary\ClassLibrary.csproj" />
+  </ItemGroup>
+
 </Project>

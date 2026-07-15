@@ -17,22 +17,22 @@ namespace ClassLibrary.Datos
             List<Producto> productos = new List<Producto>();
 
             string sql = @"
-                SELECT
-                    p.Id, p.Titulo, p.Subtitulo, p.Precio, p.Descripcion, p.ImagenUrl,
-                    p.ShaperId, p.TipoProducto,
-                    l.LargoDeTablaRecomendado,
-                    pa.Largo, pa.Ancho AS AnchoPad, pa.Material,
-                    q.SistemaDeEncaje AS SistemaEncajeQuilla,
-                    t.Altura, t.Ancho AS AnchoTabla, t.Volumen, t.SistemaDeEncaje AS SistemaEncajeTabla,
-                    t.TipoDeOla, t.EstiloDeSurf, t.PesoMinimo, t.PesoMaximo,
-                    t.Experiencia, t.ImagenAtrasUrl,
-                    tr.Genero, tr.Espesor, tr.Talle, tr.Temperatura
-                FROM Productos p
-                LEFT JOIN Leashes l ON l.ProductoId = p.Id
-                LEFT JOIN Pads    pa ON pa.ProductoId = p.Id
-                LEFT JOIN Quillas q ON q.ProductoId = p.Id
-                LEFT JOIN Tablas  t ON t.ProductoId = p.Id
-                LEFT JOIN Trajes  tr ON tr.ProductoId = p.Id";
+                        SELECT
+                            p.Id, p.Titulo, p.Subtitulo, p.Precio, p.Descripcion, p.ImagenUrl,
+                            p.ShaperId, p.TipoProducto,
+                            l.LargoDeTablaRecomendado,
+                            pa.Largo, pa.Ancho AS AnchoPad, pa.Material,
+                            q.SistemaDeEncajeId AS SistemaEncajeQuilla,
+                            t.Altura, t.Ancho AS AnchoTabla, t.Volumen, t.SistemaDeEncajeId AS SistemaEncajeTabla,
+                            t.TipoDeOlaId, t.EstiloDeSurfId, t.PesoMinimo, t.PesoMaximo,
+                            t.ExperienciaId, t.ImagenAtrasUrl,
+                            tr.GeneroId, tr.Espesor, tr.TalleId, tr.Temperatura
+                        FROM Productos p
+                        LEFT JOIN Leashes l ON l.ProductoId = p.Id
+                        LEFT JOIN Pads    pa ON pa.ProductoId = p.Id
+                        LEFT JOIN Quillas q ON q.ProductoId = p.Id
+                        LEFT JOIN Tablas  t ON t.ProductoId = p.Id
+                        LEFT JOIN Trajes  tr ON tr.ProductoId = p.Id";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
@@ -95,11 +95,11 @@ namespace ClassLibrary.Datos
                     int ordSistemaTabla = lector.GetOrdinal("SistemaEncajeTabla");
                     SistemaDeEncaje sistemaTabla =
                         (SistemaDeEncaje)lector.GetByte(ordSistemaTabla);
-                    TipoDeOla tipoOla = (TipoDeOla)lector.GetByte(lector.GetOrdinal("TipoDeOla"));
-                    EstiloDeSurf estilo = (EstiloDeSurf)lector.GetByte(lector.GetOrdinal("EstiloDeSurf"));
+                    TipoDeOla tipoOla = (TipoDeOla)lector.GetByte(lector.GetOrdinal("TipoDeOlaId"));
+                    EstiloDeSurf estilo = (EstiloDeSurf)lector.GetByte(lector.GetOrdinal("EstiloDeSurfId"));
                     int pesoMin = lector.GetInt32(lector.GetOrdinal("PesoMinimo"));
                     int pesoMax = lector.GetInt32(lector.GetOrdinal("PesoMaximo"));
-                    Experiencia experiencia = (Experiencia)lector.GetByte(lector.GetOrdinal("Experiencia"));
+                    Experiencia experiencia = (Experiencia)lector.GetByte(lector.GetOrdinal("ExperienciaId"));
                     int ordImagenAtras = lector.GetOrdinal("ImagenAtrasUrl");
                     string imagenAtras = lector.IsDBNull(ordImagenAtras) ? string.Empty : lector.GetString(ordImagenAtras);
 
@@ -109,9 +109,9 @@ namespace ClassLibrary.Datos
                         pesoMin, pesoMax, experiencia, imagenAtras);
 
                 case "Traje":
-                    Genero genero = (Genero)lector.GetByte(lector.GetOrdinal("Genero"));
+                    Genero genero = (Genero)lector.GetByte(lector.GetOrdinal("GeneroId"));
                     int espesor = lector.GetInt32(lector.GetOrdinal("Espesor"));
-                    Talle talle = (Talle)lector.GetByte(lector.GetOrdinal("Talle"));
+                    Talle talle = (Talle)lector.GetByte(lector.GetOrdinal("TalleId"));
                     int ordTemperatura = lector.GetOrdinal("Temperatura");
                     string temperatura = lector.IsDBNull(ordTemperatura) ? string.Empty : lector.GetString(ordTemperatura);
 
@@ -119,7 +119,6 @@ namespace ClassLibrary.Datos
                         genero, espesor, talle, temperatura);
 
                 default:
-                    // No debería pasar si el CHECK constraint de la DB está vigente
                     return new Producto(id, titulo, subtitulo, precio, descripcion, imagenUrl, shaperId);
             }
         }
@@ -277,10 +276,15 @@ namespace ClassLibrary.Datos
                 {
                     int idGenerado;
 
-                    string sqlBase = @"INSERT INTO Productos
-                                            (Titulo, Subtitulo, Precio, Descripcion, ImagenUrl, ShaperId, TipoProducto)
-                                        OUTPUT INSERTED.Id
-                                        VALUES (@Titulo, @Subtitulo, @Precio, @Descripcion, @ImagenUrl, @ShaperId, 'Tabla')";
+                    string sqlBase = @"
+                DECLARE @Insertados TABLE (Id INT);
+
+                INSERT INTO Productos
+                    (Titulo, Subtitulo, Precio, Descripcion, ImagenUrl, ShaperId, TipoProducto)
+                OUTPUT INSERTED.Id INTO @Insertados
+                VALUES (@Titulo, @Subtitulo, @Precio, @Descripcion, @ImagenUrl, @ShaperId, 'Tabla');
+
+                SELECT Id FROM @Insertados;";
 
                     using (SqlCommand comandoBase = new SqlCommand(sqlBase, conexion, transaccion))
                     {
@@ -294,8 +298,14 @@ namespace ClassLibrary.Datos
                         idGenerado = (int)comandoBase.ExecuteScalar();
                     }
 
-                    string sqlHija = @"INSERT INTO Tablas (ProductoId, Altura, Ancho, Volumen, SistemaDeEncaje, TipoDeOla, EstiloDeSurf, PesoMinimo, PesoMaximo, Experiencia, ImagenAtrasUrl)
-                                        VALUES (@ProductoId, @Altura, @Ancho, @Volumen, @SistemaDeEncaje, @TipoDeOla, @EstiloDeSurf, @PesoMinimo, @PesoMaximo, @Experiencia, @ImagenAtrasUrl)";
+                    string sqlHija = @"INSERT INTO Tablas
+                                    (ProductoId, Altura, Ancho, Volumen, SistemaDeEncajeId,
+                                     TipoDeOlaId, EstiloDeSurfId, PesoMinimo, PesoMaximo,
+                                     ExperienciaId, ImagenAtrasUrl)
+                                VALUES
+                                    (@ProductoId, @Altura, @Ancho, @Volumen, @SistemaDeEncajeId,
+                                     @TipoDeOlaId, @EstiloDeSurfId, @PesoMinimo, @PesoMaximo,
+                                     @ExperienciaId, @ImagenAtrasUrl)";
 
                     using (SqlCommand comandoHija = new SqlCommand(sqlHija, conexion, transaccion))
                     {
@@ -303,12 +313,12 @@ namespace ClassLibrary.Datos
                         comandoHija.Parameters.Add("@Altura", SqlDbType.NVarChar, 50).Value = tabla.Altura ?? (object)DBNull.Value;
                         comandoHija.Parameters.Add("@Ancho", SqlDbType.Int).Value = tabla.Ancho;
                         comandoHija.Parameters.Add("@Volumen", SqlDbType.Decimal).Value = (decimal)tabla.Volumen;
-                        comandoHija.Parameters.Add("@SistemaDeEncaje", SqlDbType.TinyInt).Value = (byte)tabla.SistemaDeEncaje;
-                        comandoHija.Parameters.Add("@TipoDeOla", SqlDbType.TinyInt).Value = (byte)tabla.TipoDeOla;
-                        comandoHija.Parameters.Add("@EstiloDeSurf", SqlDbType.TinyInt).Value = (byte)tabla.EstiloDeSurf;
+                        comandoHija.Parameters.Add("@SistemaDeEncajeId", SqlDbType.TinyInt).Value = (byte)tabla.SistemaDeEncaje;
+                        comandoHija.Parameters.Add("@TipoDeOlaId", SqlDbType.TinyInt).Value = (byte)tabla.TipoDeOla;
+                        comandoHija.Parameters.Add("@EstiloDeSurfId", SqlDbType.TinyInt).Value = (byte)tabla.EstiloDeSurf;
                         comandoHija.Parameters.Add("@PesoMinimo", SqlDbType.Int).Value = tabla.PesoMinimo;
                         comandoHija.Parameters.Add("@PesoMaximo", SqlDbType.Int).Value = tabla.PesoMaximo;
-                        comandoHija.Parameters.Add("@Experiencia", SqlDbType.TinyInt).Value = (byte)tabla.Experiencia;
+                        comandoHija.Parameters.Add("@ExperienciaId", SqlDbType.TinyInt).Value = (byte)tabla.Experiencia;
                         comandoHija.Parameters.Add("@ImagenAtrasUrl", SqlDbType.NVarChar, 500).Value = tabla.ImagenAtrasUrl ?? (object)DBNull.Value;
 
                         comandoHija.ExecuteNonQuery();

@@ -1,0 +1,113 @@
+﻿@{
+    ViewBag.Title = "Agregar Tabla";
+}
+
+
+<h2>Agregar Tabla</h2>
+
+@if (ViewBag.Error != null)
+{
+    <div style="color:red; margin-bottom:15px;">
+        @ViewBag.Error
+    </div>
+}
+
+<form action="/Admin/AgregarTabla" method="post" enctype="multipart/form-data">
+
+    <div>
+        <label for="Titulo">Título</label>
+        <input type="text" id="Titulo" name="Titulo" required />
+    </div>
+
+    <div>
+        <label for="Subtitulo">Subtítulo</label>
+        <input type="text" id="Subtitulo" name="Subtitulo" />
+    </div>
+
+    <div>
+        <label for="Precio">Precio</label>
+        <input type="number" id="Precio" name="Precio" step="0.01" min="0.01" required />
+    </div>
+
+    <div>
+        <label for="Descripcion">Descripción</label>
+        <textarea id="Descripcion" name="Descripcion" rows="4"></textarea>
+    </div>
+
+    <div>
+        <label for="Altura">Altura (ej: 6'2")</label>
+        <input type="text" id="Altura" name="Altura" required />
+    </div>
+
+    <div>
+        <label for="Ancho">Ancho (pulgadas)</label>
+        <input type="number" id="Ancho" name="Ancho" min="1" required />
+    </div>
+
+    <div>
+        <label for="Volumen">Volumen (litros)</label>
+        <input type="number" id="Volumen" name="Volumen" step="0.01" min="0.01" required />
+    </div>
+
+    <div>
+        <label for="SistemaDeEncaje">Sistema de encaje</label>
+        <select id="SistemaDeEncaje" name="SistemaDeEncaje" required>
+            <option value="0">FSS2</option>
+            <option value="1">Future</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="TipoDeOla">Tipo de ola</label>
+        <select id="TipoDeOla" name="TipoDeOla" required>
+            <option value="0">Plana</option>
+            <option value="1">Power</option>
+            <option value="2">Chica</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="EstiloDeSurf">Estilo de surf</label>
+        <select id="EstiloDeSurf" name="EstiloDeSurf" required>
+            <option value="0">Agresivo</option>
+            <option value="1">Fluido</option>
+            <option value="2">Versatil</option>
+            <option value="3">Recreativo</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="PesoMinimo">Peso mínimo recomendado (kg)</label>
+        <input type="number" id="PesoMinimo" name="PesoMinimo" min="1" required />
+    </div>
+
+    <div>
+        <label for="PesoMaximo">Peso máximo recomendado (kg)</label>
+        <input type="number" id="PesoMaximo" name="PesoMaximo" min="1" required />
+    </div>
+
+    <div>
+        <label for="Experiencia">Experiencia recomendada</label>
+        <select id="Experiencia" name="Experiencia" required>
+            <option value="0">Sin experiencia</option>
+            <option value="1">Iniciado</option>
+            <option value="2">Intermedio</option>
+            <option value="3">Avanzado</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="ImagenFrontal">Imagen frontal</label>
+        <input type="file" id="ImagenFrontal" name="ImagenFrontal" accept="image/*" required />
+    </div>
+
+    <div>
+        <label for="ImagenTrasera">Imagen trasera (opcional)</label>
+        <input type="file" id="ImagenTrasera" name="ImagenTrasera" accept="image/*" />
+    </div>
+
+    <div>
+        <button type="submit">Guardar tabla</button>
+    </div>
+
+</form>

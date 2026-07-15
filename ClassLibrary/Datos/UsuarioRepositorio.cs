@@ -17,8 +17,8 @@ namespace ClassLibrary.Datos
         {
             List<Usuario> usuarios = new List<Usuario>();
 
-            string sql = @"SELECT Id, Email, Contrasenia, Nombre, Pais, TipoDeUsuario,
-                                   NombreDeNegosio, Contacto, LogoUrl
+            string sql = @"SELECT Id, Email, Contrasenia, Nombre, PaisId, TipoDeUsuarioId,
+                            NombreDeNegosio, Contacto, LogoUrl
                             FROM Usuarios";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
@@ -155,8 +155,8 @@ namespace ClassLibrary.Datos
             string email = lector.GetString(lector.GetOrdinal("Email"));
             string contrasenia = lector.GetString(lector.GetOrdinal("Contrasenia"));
             string nombre = lector.GetString(lector.GetOrdinal("Nombre"));
-            Pais pais = (Pais)lector.GetByte(lector.GetOrdinal("Pais"));
-            TipoDeUsuario tipo = (TipoDeUsuario)lector.GetByte(lector.GetOrdinal("TipoDeUsuario"));
+            Pais pais = (Pais)lector.GetByte(lector.GetOrdinal("PaisId"));
+            TipoDeUsuario tipo = (TipoDeUsuario)lector.GetByte(lector.GetOrdinal("TipoDeUsuarioId"));
 
             if (tipo == TipoDeUsuario.Shaper)
             {
