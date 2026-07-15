@@ -47,34 +47,62 @@ function showToast(msg, type = 'success') {
 
 /* ── ADD TO CART (global, called from index.html) ── */
 window.addToCart = function (productId) {
-    const prod = CATALOG.find(p => p.id === productId);
-    if (!prod) return;
+    const prod = CATALOG.find(function (product) {
+        return product.id === productId;
+    });
+
+    if (!prod) {
+        return;
+    }
+
     const cart = getCart();
-    const existing = cart.find(i => i.id === productId);
-    if (existing) { existing.qty += 1; }
-    else { cart.push({ ...prod, qty: 1 }); }
+
+    const existing = cart.find(function (item) {
+        return item.id === productId;
+    });
+
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        cart.push({
+            ...prod,
+            qty: 1
+        });
+    }
+
     saveCart(cart);
     showToast(`"${prod.name}" agregada al carrito`);
     renderCart();
 };
 
-/* ── REMOVE ── */
-function removeItem(id) {
-    const cart = getCart().filter(i => i.id !== id);
-    saveCart(cart);
-    renderCart();
-    showToast('Tabla removida del carrito', 'info');
-}
 
 /* ── CHANGE QTY ── */
-function changeQty(id, delta) {
+window.changeQty = function (id, delta) {
+    console.log('Cambio de cantidad:', id, delta);
+
     const cart = getCart();
-    const item = cart.find(i => i.id === id);
-    if (!item) return;
-    item.qty = Math.max(1, item.qty + delta);
+
+    const item = cart.find(function (product) {
+        return String(product.id) === String(id);
+    });
+
+    if (!item) {
+        console.warn('No se encontró el producto:', id);
+        return;
+    }
+
+    const currentQty = Number(item.qty) || 1;
+    const newQty = currentQty + Number(delta);
+
+    if (newQty < 1) {
+        return;
+    }
+
+    item.qty = newQty;
+
     saveCart(cart);
     renderCart();
-}
+};
 
 /* ── RENDER ── */
 function renderCart() {
@@ -98,9 +126,11 @@ function renderCart() {
         return;
     }
 
-    const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
-    const shipping = subtotal >= 800 ? 0 : 45;
-    const total = subtotal + shipping;
+    const subtotal = cart.reduce(function (sum, item) {
+        return sum + Number(item.price || 0) * Number(item.qty || 1);
+    }, 0);
+
+    const total = subtotal;
 
     const itemsHTML = `
         <table style="width:100%;border-collapse:collapse;font-family:'DM Sans',sans-serif;font-size:.84rem;color:#111;">
@@ -115,43 +145,106 @@ function renderCart() {
               <th style="padding:.7rem 1rem;border-bottom:1px solid rgba(0,0,0,.12);"></th>
             </tr>
           </thead>
-          <tbody>
-            ${cart.map((item, idx) => {
-        const subtitle = item.details || item.level || (item.custom ? 'Tabla customizada' : 'Tabla estándar');
-        const shaperInfo = item.maker ? `${item.maker}${item.country ? ' · ' + item.country : ''}` : (item.country || subtitle);
-        const idStr = JSON.stringify(item.id);
+         <tbody>
+    ${cart.map((item, idx) => {
+        const subtitle =
+            item.details ||
+            item.level ||
+            (item.custom
+                ? 'Tabla customizada'
+                : 'Tabla estándar');
+
+        let shaperInfo = '';
+
+        if (item.custom) {
+            shaperInfo =
+                item.shaper ||
+                'Shaper personalizado';
+        } else if (item.maker) {
+            shaperInfo =
+                item.maker +
+                (
+                    item.country
+                        ? ' · ' + item.country
+                        : ''
+                );
+        } else {
+            shaperInfo =
+                'Shaper no disponible';
+        }
+
         return `
-              <tr style="border-bottom:1px solid rgba(0,0,0,.07);${idx % 2 === 1 ? 'background:rgba(0,0,0,.02);' : ''}animation:fadeIn .3s ${idx * 60}ms both;">
-                <td style="padding:.85rem 1rem;">${boardSVG}</td>
-                <td style="padding:.85rem 1rem;">
-                  <p style="font-weight:500;margin:0 0 .2rem;">${item.name}</p>
-                  <p style="font-size:.72rem;color:#777;margin:0;">${subtitle}</p>
-                </td>
-                <td style="padding:.85rem 1rem;color:#666;font-size:.78rem;">${shaperInfo}</td>
-                <td style="padding:.85rem 1rem;text-align:center;">
-                  <div style="display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,0,0,.05);border-radius:3px;padding:.15rem .3rem;">
-                    <button class="qty-btn" onclick="changeQty(${idStr}, -1)" style="background:none;border:none;color:#333;font-size:1rem;cursor:pointer;padding:0 .2rem;line-height:1;">−</button>
-                    <span style="font-weight:500;min-width:1.2rem;text-align:center;">${item.qty}</span>
-                    <button class="qty-btn" onclick="changeQty(${idStr}, 1)" style="background:none;border:none;color:#333;font-size:1rem;cursor:pointer;padding:0 .2rem;line-height:1;">+</button>
-                  </div>
-                </td>
-                <td style="padding:.85rem 1rem;text-align:right;color:#666;font-size:.78rem;">USD ${item.price.toLocaleString()}</td>
-                <td style="padding:.85rem 1rem;text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.04em;color:#111;">USD ${(item.price * item.qty).toLocaleString()}</td>
-                <td style="padding:.85rem 1rem;text-align:center;">
-                  <button class="btn-remove" onclick="removeItem(${idStr})" style="background:none;border:1px solid rgba(0,0,0,.18);color:#888;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .55rem;border-radius:2px;cursor:pointer;white-space:nowrap;transition:all .2s;" onmouseover="this.style.borderColor='rgba(255,80,80,.5)';this.style.color='rgba(255,100,100,.8)'" onmouseout="this.style.borderColor='rgba(0,0,0,.18)';this.style.color='#888'">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:.2rem;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-                    Quitar
-                  </button>
-                </td>
-              </tr>`;
+<tr style="border-bottom:1px solid rgba(0,0,0,.07);${idx % 2 === 1 ? 'background:rgba(0,0,0,.02);' : ''}animation:fadeIn .3s ${idx * 60}ms both;">
+
+    <td style="padding:.85rem 1rem;min-width:85px;">
+        ${renderBoardImage(item)}
+    </td>
+
+    <td style="padding:.85rem 1rem;">
+        <p style="font-weight:500;margin:0 0 .2rem;">
+            ${item.name}
+        </p>
+        <p style="font-size:.72rem;color:#777;margin:0;">
+            ${subtitle}
+        </p>
+    </td>
+
+    <td style="padding:.85rem 1rem;color:#666;font-size:.78rem;">
+        ${shaperInfo}
+    </td>
+
+    <td style="padding:.85rem 1rem;text-align:center;">
+        <div style="display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,0,0,.05);border-radius:3px;padding:.15rem .3rem;">
+
+            <button
+                type="button"
+                class="qty-btn qty-change"
+                data-item-id="${String(item.id)}"
+                data-delta="-1"
+                style="background:none;border:none;color:#333;font-size:1rem;cursor:pointer;padding:0 .2rem;line-height:1;">
+                −
+            </button>
+
+            <span style="font-weight:500;min-width:1.2rem;text-align:center;">
+                ${item.qty}
+            </span>
+
+            <button
+                type="button"
+                class="qty-btn qty-change"
+                data-item-id="${String(item.id)}"
+                data-delta="1"
+                style="background:none;border:none;color:#333;font-size:1rem;cursor:pointer;padding:0 .2rem;line-height:1;">
+                +
+            </button>
+
+        </div>
+    </td>
+
+    <td style="padding:.85rem 1rem;text-align:right;color:#666;font-size:.78rem;">
+        USD ${item.price.toLocaleString()}
+    </td>
+
+    <td style="padding:.85rem 1rem;text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.04em;color:#111;">
+        USD ${(item.price * item.qty).toLocaleString()}
+    </td>
+
+    <td style="padding:.85rem 1rem;text-align:center;">
+        <button
+            type="button"
+            class="btn-remove"
+            data-item-id="${String(item.id)}">
+            Quitar
+        </button>
+    </td>
+
+</tr>
+`;
     }).join('')}
-          </tbody>
+</tbody>
         </table>
       `;
 
-    const shippingLabel = shipping === 0
-        ? '<span style="color:#2ec27e;font-weight:500">Envío gratuito 🎉</span>'
-        : `USD ${shipping}`;
 
     wrapper.innerHTML = `
         <!-- LEFT: Items -->
@@ -172,29 +265,11 @@ function renderCart() {
             </div>
           `).join('')}
 
-          <div class="summary-line">
-            <span>Envío estimado</span>
-            <span>${shippingLabel}</span>
-          </div>
-
-          ${shipping > 0 ? `
-            <div class="summary-shipping">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-              </svg>
-              Superá USD 800 para envío gratis
-            </div>
-          ` : ''}
+       
 
           <div class="summary-line total">
             <span>Total</span>
             <span>USD ${total.toLocaleString()}</span>
-          </div>
-
-          <div class="coupon-row">
-            <input class="coupon-input" type="text" placeholder="Código de descuento" id="couponInput" />
-            <button class="coupon-btn" onclick="applyCoupon()">Aplicar</button>
           </div>
 
           <button class="btn-checkout" onclick="openOrderForm()" id="btnProceed">
@@ -254,13 +329,6 @@ function renderRecommended() {
       `;
 }
 
-/* ── COUPON ── */
-function applyCoupon() {
-    const val = document.getElementById('couponInput')?.value.trim().toUpperCase();
-    if (!val) return;
-    showToast(val === 'SURF10' ? '¡Cupón aplicado! 10% off' : 'Código inválido o expirado', val === 'SURF10' ? 'success' : 'info');
-}
-
 /* ── ORDER FORM MODAL ── */
 function openOrderForm() {
     const cart = getCart();
@@ -292,6 +360,41 @@ function submitOrder() {
     showToast('Pedido enviado — Francisco te contacta en 24hs', 'success');
     // Could clear cart here: saveCart([]); renderCart();
 }
+
+document.addEventListener('click', function (event) {
+    const removeButton = event.target.closest('.btn-remove');
+
+    if (!removeButton) {
+        return;
+    }
+
+    event.preventDefault();
+
+    const itemId = removeButton.dataset.itemId;
+
+    console.log('Quitando producto:', itemId);
+
+    const cart = getCart();
+
+    const updatedCart = cart.filter(function (item) {
+        return String(item.id) !== String(itemId);
+    });
+
+    localStorage.setItem(
+        'master_cart',
+        JSON.stringify(updatedCart)
+    );
+
+    updateBadge();
+    renderCart();
+
+    if (document.getElementById('toastContainer')) {
+        showToast(
+            'Tabla removida del carrito',
+            'info'
+        );
+    }
+});
 
 /* ── INIT ── */
 updateBadge();
@@ -341,3 +444,96 @@ function setLang(lang) {
     });
     document.documentElement.lang = currentLang;
 })();
+
+function renderBoardImage(item) {
+    if (!item.custom || !item.boardPreview) {
+        return boardSVG;
+    }
+
+    const preview = item.boardPreview;
+
+    /*
+       En tu carpeta no existe deck-base.png.
+       deck-mask.png es la silueta blanca disponible.
+    */
+    const baseImage = '/img/boards/deck-mask.png';
+
+    /*
+       Quitamos completamente:
+       - color
+       - diseños
+       - Sol Pampeano
+       - carbon patch
+    */
+
+    const gripLayer = preview.gripImage
+        ? `
+            <img
+                src="${preview.gripImage}"
+                alt="Pad de la tabla"
+                style="
+                    position:absolute;
+                    left:50%;
+                    bottom:-5%;
+                    width:58%;
+                    height:30%;
+                    object-fit:contain;
+                    transform:translateX(-50%);
+                    z-index:3;
+                    pointer-events:none;
+                "
+            />
+        `
+        : '';
+
+    return `
+        <div style="
+            position:relative;
+            width:68px;
+            height:130px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            flex-shrink:0;
+        ">
+            <div style="
+                position:relative;
+                width:56px;
+                height:124px;
+            ">
+                <img
+                    src="${baseImage}"
+                    alt="${item.name || 'Tabla personalizada'}"
+                    style="
+                        position:absolute;
+                        inset:0;
+                        width:100%;
+                        height:100%;
+                        object-fit:contain;
+                        z-index:1;
+                    "
+                />
+
+                ${gripLayer}
+            </div>
+        </div>
+    `;
+}
+document.addEventListener('click', function (event) {
+    const quantityButton =
+        event.target.closest('.qty-change');
+
+    if (!quantityButton) {
+        return;
+    }
+
+    event.preventDefault();
+
+    const itemId =
+        quantityButton.dataset.itemId;
+
+    const delta =
+        Number(quantityButton.dataset.delta);
+
+    changeQty(itemId, delta);
+});

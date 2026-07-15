@@ -59,53 +59,7 @@ body {
     background: linear-gradient(135deg, var(--blue-dark) 0%, #0d2560 35%, #1a4fc4 65%, #2c5fa8 100%);
 }
 
-.hero-waves {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-}
 
-.wave-line {
-    position: absolute;
-    width: 200%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent 0%, rgba(74,143,232,.15) 30%, rgba(74,143,232,.4) 50%, rgba(74,143,232,.15) 70%, transparent 100%);
-    animation: waveDrift linear infinite;
-}
-
-    .wave-line:nth-child(1) {
-        top: 15%;
-        animation-duration: 18s;
-        animation-delay: 0s;
-    }
-
-    .wave-line:nth-child(2) {
-        top: 28%;
-        animation-duration: 24s;
-        animation-delay: -6s;
-        opacity: .6;
-    }
-
-    .wave-line:nth-child(3) {
-        top: 45%;
-        animation-duration: 20s;
-        animation-delay: -3s;
-        opacity: .4;
-    }
-
-    .wave-line:nth-child(4) {
-        top: 62%;
-        animation-duration: 22s;
-        animation-delay: -9s;
-        opacity: .7;
-    }
-
-    .wave-line:nth-child(5) {
-        top: 78%;
-        animation-duration: 16s;
-        animation-delay: -2s;
-        opacity: .3;
-    }
 
 @keyframes waveDrift {
     from {
@@ -1468,6 +1422,14 @@ footer {
     position: relative;
 }
 
+
+.hero-bg {
+    background-image: url('../img/Shaper.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+}
 /* MENÚ PRINCIPAL */
 .submenu {
     position: absolute;

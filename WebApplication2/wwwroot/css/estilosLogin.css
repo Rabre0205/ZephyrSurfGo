@@ -80,7 +80,7 @@ body {
     position: fixed;
     inset: 0;
     z-index: 0;
-    background: url('../img/FondoLogin.jpg') center/cover no-repeat;
+    background: url('../img/Captura de pantalla 2026-07-14 213620.png') center/cover no-repeat;
 }
 
     .page-bg::before {

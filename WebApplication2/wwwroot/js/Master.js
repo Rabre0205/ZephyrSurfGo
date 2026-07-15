@@ -98,122 +98,7 @@ function getActiveCustomDetails() {
     ).map(button => button.dataset.detail);
 }
 
-function createBoardBackground(design, primary, secondary) {
-    switch (design) {
-        case 'sin-pintura':
-            return 'transparent';
 
-        case 'mitad-y-mitad':
-            return `linear-gradient(
-                90deg,
-                ${primary} 0 50%,
-                ${secondary} 50% 100%
-            )`;
-
-        case 'degrade':
-            return `linear-gradient(
-                180deg,
-                ${primary},
-                ${secondary}
-            )`;
-
-        case 'rails-color':
-            return `linear-gradient(
-                90deg,
-                ${primary} 0 14%,
-                transparent 14% 86%,
-                ${primary} 86% 100%
-            )`;
-
-        case 'nose-color':
-            return `linear-gradient(
-                180deg,
-                ${primary} 0 28%,
-                transparent 28% 100%
-            )`;
-
-        case 'tail-color':
-            return `linear-gradient(
-                180deg,
-                transparent 0 72%,
-                ${primary} 72% 100%
-            )`;
-
-        case 'lineas-clasicas':
-            return `linear-gradient(
-                180deg,
-                transparent 0 30%,
-                ${primary} 30% 36%,
-                ${secondary} 36% 39%,
-                transparent 39% 100%
-            )`;
-
-        case 'pinline':
-            return `linear-gradient(
-                90deg,
-                transparent 0 7%,
-                ${primary} 7% 9%,
-                transparent 9% 91%,
-                ${primary} 91% 93%,
-                transparent 93% 100%
-            )`;
-
-        case 'retro':
-            return `linear-gradient(
-                90deg,
-                transparent 0 28%,
-                ${primary} 28% 43%,
-                ${secondary} 43% 50%,
-                transparent 50% 100%
-            )`;
-
-        case 'doble-color':
-            return `linear-gradient(
-                180deg,
-                ${primary} 0 50%,
-                ${secondary} 50% 100%
-            )`;
-
-        case 'abstracto':
-            return `
-                radial-gradient(
-                    ellipse at 25% 25%,
-                    ${primary} 0 18%,
-                    transparent 19%
-                ),
-                radial-gradient(
-                    ellipse at 75% 58%,
-                    ${secondary} 0 24%,
-                    transparent 25%
-                ),
-                linear-gradient(
-                    145deg,
-                    transparent 0 35%,
-                    ${primary} 36% 52%,
-                    transparent 53%
-                )
-            `;
-
-        case 'minimalista':
-            return `radial-gradient(
-                circle at 50% 32%,
-                ${primary} 0 11%,
-                transparent 12%
-            )`;
-
-        case 'deck-completo':
-        case 'bottom-completo':
-            return primary;
-
-        case 'sol-pampeano':
-        default:
-            return `repeating-conic-gradient(
-                from 0deg at 50% 28%,
-                ${primary} 0deg 10deg,
-                ${secondary} 10deg 20deg
-            )`;
-    }
-}
 
 function updateBoardImages() {
     const deckPaint =
@@ -222,48 +107,14 @@ function updateBoardImages() {
     const bottomPaint =
         document.getElementById('bottomPaint');
 
-    if (!deckPaint || !bottomPaint) {
-        return;
+    if (deckPaint) {
+        deckPaint.style.background = 'transparent';
+        deckPaint.style.backgroundImage = 'none';
     }
 
-    const design =
-        getSelectedValue(
-            'customDesign',
-            'sol-pampeano'
-        );
-
-    const primary =
-        getSelectedValue(
-            'customColor',
-            '#c9a84c'
-        );
-
-    const secondary =
-        getSelectedValue(
-            'customSecondaryColor',
-            '#121212'
-        );
-
-    const background =
-        createBoardBackground(
-            design,
-            primary,
-            secondary
-        );
-
-    /*
-       Podés decidir que ciertos diseños aparezcan solo
-       de un lado de la tabla.
-    */
-    if (design === 'bottom-completo') {
-        deckPaint.style.background = 'transparent';
-        bottomPaint.style.background = primary;
-    } else if (design === 'deck-completo') {
-        deckPaint.style.background = primary;
+    if (bottomPaint) {
         bottomPaint.style.background = 'transparent';
-    } else {
-        deckPaint.style.background = background;
-        bottomPaint.style.background = background;
+        bottomPaint.style.backgroundImage = 'none';
     }
 
     updateBoardAccessories();
@@ -667,12 +518,15 @@ function addCustomToCart() {
     const volume =
         document.getElementById('customVolume')?.value || '';
 
-    const priceText =
-        document.getElementById('previewPrice')?.textContent || 'USD 0';
+    const boardPrice = calculateCustomPrice();
 
-    const price =
-        Number(priceText.replace(/[^0-9.]/g, '')) || 0;
+    let accessoriesPrice = 0;
 
+    selectedAccessories.forEach(function (accessory) {
+        accessoriesPrice += Number(accessory.price) || 0;
+    });
+
+    const price = boardPrice + accessoriesPrice;
     const activeDetails = Array.from(
         document.querySelectorAll(
             '#customizador [data-detail].active'
@@ -701,13 +555,96 @@ function addCustomToCart() {
 
     const cart = getCart();
 
+    const design = 'sin-pintura';
+
+    const primaryColor =
+        getSelectedValue('customColor', '#ffffff');
+
+    const secondaryColor =
+        getSelectedValue('customSecondaryColor', '#ffffff');
+
+    const boardBackground = 'transparent';
+
+    const selectedFin =
+        Array.from(selectedAccessories.values())
+            .find(function (item) {
+                return item.id.startsWith('fins-');
+            });
+
+    let finConfiguration =
+        getSelectedValue(
+            'customFinConfiguration',
+            'thruster'
+        );
+
+    if (selectedFin) {
+        const finMap = {
+            'fins-reactor': 'thruster',
+            'fins-twin': 'twin',
+            'fins-quad': 'quad',
+            'fins-five': 'five-fin'
+        };
+
+        finConfiguration =
+            finMap[selectedFin.id] || finConfiguration;
+    }
+
+    const carbonPatch =
+        getSelectedValue('customCarbonPatch', 'none');
+
+    const gripColor =
+        getSelectedValue('customGripColor', '');
+
+    const hasCarbon =
+        carbonPatch !== 'none';
+
+    const selectedGrip =
+        Array.from(selectedAccessories.values())
+            .find(function (item) {
+                return item.id === 'grip-black' ||
+                    item.id === 'grip-white';
+            });
+
+    let gripImage = '';
+
+    if (selectedGrip?.id === 'grip-black') {
+        gripImage = '/img/boards/grip-black.png';
+    } else if (selectedGrip?.id === 'grip-white') {
+        gripImage = '/img/boards/grip-white.png';
+    } else if (gripColor === 'black') {
+        gripImage = '/img/boards/grip-black.png';
+    } else if (gripColor === 'white') {
+        gripImage = '/img/boards/grip-white.png';
+    }
+
     cart.push({
         id: 'custom_' + modelSelect.value + '_' + Date.now(),
         name: modelName + ' (Custom)',
         price: price,
+        boardPrice: boardPrice,
+        accessoriesPrice: accessoriesPrice,
         qty: 1,
         custom: true,
         details: details,
+
+        boardPreview: {
+            baseImage: '/img/boards/deck-mask.png',
+            maskImage: '/img/boards/deck-mask.png',
+
+            background: boardBackground,
+            design: design,
+            primaryColor: primaryColor,
+            secondaryColor: secondaryColor,
+
+            hasCarbon: hasCarbon,
+            carbonImage: hasCarbon
+                ? '/img/boards/carbon-patch.png'
+                : '',
+
+            gripImage: gripImage,
+            finConfiguration: finConfiguration
+        },
+
         notes:
             document.getElementById('shaperNotes')
                 ?.value.trim() || ''
