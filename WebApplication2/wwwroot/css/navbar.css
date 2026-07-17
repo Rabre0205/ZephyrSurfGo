@@ -243,3 +243,9 @@ nav#navbar {
         font-size: .68rem;
     }
 }
+#navbar .dropdown-toggle::before,
+#navbar .dropdown-toggle::after {
+    display: none !important;
+    content: none !important;
+    border: 0 !important;
+}
