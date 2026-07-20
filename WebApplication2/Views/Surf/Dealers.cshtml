@@ -25,79 +25,14 @@
 <body>
 
     <!-- NAVBAR -->
-    <nav id="navbar">
-        <a asp-controller="Surf" asp-action="Home" class="nav-logo">
-            ZEPHYR <span>SURF</span> GO
-        </a>
-
-        <ul class="nav-links d-none d-md-flex">
-            <li><a asp-controller="Surf" asp-action="Home">Home</a></li>
-            <li><a asp-controller="Surf" asp-action="shapers">Shapers</a></li>
-            <li><a asp-controller="Surf" asp-action="Dealers">Dealers</a></li>
-        </ul>
-
-        <div class="nav-actions">
-
-            <a asp-controller="Surf" asp-action="login" class="btn-login" id="navLoginBtn">
-                <svg width="15" height="15" viewBox="0 0 24 24"
-                     fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                </svg>
-
-                <span id="navLoginText">Ingresar</span>
-            </a>
-
-            <div class="util-dropdown">
-                <button class="dropdown-toggle">
-                    🌎 Marcas
-                </button>
-
-                <div class="marcas-menu">
-                    <a href="#">
-                        <img src="https://flagcdn.com/w20/ar.png" alt="">
-                        AR
-                    </a>
-
-                    <a href="#">
-                        <img src="https://flagcdn.com/w20/br.png" alt="">
-                        BR
-                    </a>
-
-                    <div class="dropdown-submenu">
-                        <a href="#">
-                            <img src="https://flagcdn.com/w20/uy.png" alt="">
-                            UY ▸
-                        </a>
-
-                        <div class="submenu">
-                            <a asp-controller="Surf" asp-action="master">Master</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <a asp-controller="Surf" asp-action="carrito" class="btn-cart-nav" id="btnCartNav">
-                <svg width="15" height="15" viewBox="0 0 24 24"
-                     fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="9" cy="21" r="1" />
-                    <circle cx="20" cy="21" r="1" />
-                    <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61H19a2 2 0 001.99-1.79L22 7H6" />
-                </svg>
-
-                <span>Carrito</span>
-                <span class="cart-badge">0</span>
-            </a>
-
-        </div>
-    </nav>
+    <partial name="_Navbar" />
 
    
     <!-- ── HERO ── -->
     <section id="hero">
         <div class="hero-bg"
              style="
-        background-image: url('../img/DealersImagen.png');
+        background-image: url('../img/Dealers.jpeg');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
