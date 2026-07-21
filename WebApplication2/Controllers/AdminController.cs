@@ -52,19 +52,19 @@ namespace WebApplication2.Controllers
             // El ShaperId nunca se toma del formulario (evita que alguien lo manipule
             // desde el HTML): siempre se usa el usuario logueado en el singleton.
 
-            misistema.UsuarioLogueado = misistema.Usuarios[0];
-            int shaperId = misistema.UsuarioLogueado.Id;
             
 
 
             Sistema sistema = Sistema.ObtenerInstancia();
+
+            ViewBag.algo = sistema.Usuarios.ToString();
 
             int idGenerado = sistema.AgregarTabla(
                 titulo: modelo.Titulo,
                 subtitulo: modelo.Subtitulo,
                 precio: modelo.Precio,
                 descripcion: modelo.Descripcion,
-                shaperId: shaperId,
+                shaperId: 1,
                 altura: modelo.Altura,
                 ancho: modelo.Ancho,
                 volumen: modelo.Volumen,

@@ -11,6 +11,13 @@
         @ViewBag.Error
     </div>
 }
+@if (ViewBag.algo != null)
+{
+    <div style="color:blue; margin-bottom:15px;">
+        @ViewBag.algo
+    </div>
+}
+
 
 <form action="/Admin/AgregarTabla" method="post" enctype="multipart/form-data">
 

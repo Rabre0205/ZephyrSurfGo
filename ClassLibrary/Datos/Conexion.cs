@@ -17,7 +17,11 @@ namespace ClassLibrary.Datos
 
         public static SqlConnection ObtenerConexion()
         {
-            return new SqlConnection(cadenaConexion);
+            try {
+                return new SqlConnection(cadenaConexion);
+            } catch (Exception e) {
+                throw new Exception("Error al crear la conexión a la base de datos: " + e.Message);
+            }
         }
     }
 }

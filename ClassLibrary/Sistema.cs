@@ -23,7 +23,6 @@ namespace ClassLibrary
 
         public List<Usuario> Usuarios { get; private set; }
         public List<Producto> Productos { get; private set; }
-        public Usuario UsuarioLogueado { get; set; }
         public Cloudinary Cloudinary { get { return cloudinary; } }
 
         /// <summary>
@@ -54,25 +53,18 @@ namespace ClassLibrary
 
             Usuarios = new List<Usuario>();
             Productos = new List<Producto>();
-            UsuarioLogueado = null;
-
             CargarDatos();
         }
 
-        /// <summary>
-        /// Recarga todos los datos desde la base. Llamalo después de cualquier
-        /// operación de escritura (alta, baja, modificación) para mantener la
-        /// caché en memoria sincronizada con la DB.
-        /// </summary>
+
+
         public void CargarDatos()
         {
             Usuarios = usuarioRepositorio.ObtenerTodos();
             Productos = productoRepositorio.ObtenerTodos();
         }
 
-        /// <summary>
-        /// Búsqueda de usuario por Id sin LINQ: recorrido manual con foreach.
-        /// </summary>
+  
         public Usuario BuscarUsuarioPorId(int id)
         {
             foreach (Usuario usuario in Usuarios)
@@ -86,9 +78,7 @@ namespace ClassLibrary
             return null;
         }
 
-        /// <summary>
-        /// Búsqueda de usuario por Email sin LINQ.
-        /// </summary>
+
         public Usuario BuscarUsuarioPorEmail(string email)
         {
             foreach (Usuario usuario in Usuarios)
@@ -102,9 +92,7 @@ namespace ClassLibrary
             return null;
         }
 
-        /// <summary>
-        /// Obtiene los productos de un Shaper específico sin LINQ.
-        /// </summary>
+
         public List<Producto> BuscarProductosPorShaper(int shaperId)
         {
             List<Producto> resultado = new List<Producto>();
@@ -119,36 +107,23 @@ namespace ClassLibrary
 
             return resultado;
         }
-
-        /// <summary>
-        /// Autentica un usuario buscando por Email y Contraseña.
-        /// Retorna un Usuario o Shaper si las credenciales son correctas, null si no existe.
-        /// También establece UsuarioLogueado si el login es exitoso.
-        /// </summary>
         public Usuario Login(string email, string contrasenia)
         {
-            // Búsqueda sin LINQ: recorrido manual del diccionario en memoria
             foreach (Usuario usuario in Usuarios)
             {
                 if (usuario.Email == email && usuario.Contrasenia == contrasenia)
                 {
-                    // Login exitoso: establecer usuario logueado
-                    UsuarioLogueado = usuario;
                     return usuario;
                 }
             }
 
-            // No encontrado o contraseña incorrecta
             return null;
         }
 
         /// <summary>
         /// Cierra la sesión del usuario logueado.
         /// </summary>
-        public void Logout()
-        {
-            UsuarioLogueado = null;
-        }
+
 
         /// <summary>
         /// Sube una imagen a Cloudinary directamente desde un IFormFile (formulario web).
@@ -311,5 +286,6 @@ namespace ClassLibrary
 
             return tablas;
         }
+
     }
 }

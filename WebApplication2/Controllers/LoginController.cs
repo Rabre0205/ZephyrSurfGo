@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ClassLibrary;
+using ClassLibrary.Persona;
 
 namespace WebApplication2.Controllers
 {
@@ -12,28 +14,27 @@ namespace WebApplication2.Controllers
         [HttpPost]
         public IActionResult IniciarSesion(string email, string password)
         {
-            if (email == "cliente@gmail.com" && password == "1234")
-            {
-                HttpContext.Session.SetString("Rol", "Cliente");
-                HttpContext.Session.SetString("Usuario", "Cliente");
 
-                return RedirectToAction("Home", "Surf");
+            Sistema sistema = Sistema.ObtenerInstancia();
+
+            if (sistema.Login(email, password) != null)
+            {
+                Usuario u = sistema.Login(email, password);
+
+                HttpContext.Session.SetString("Rol", u.TipoDeUsuario.ToString());
+                HttpContext.Session.SetString("UId", u.Id.ToString());
+                return View("Surf/Home");
+            }
+            else {
+                ViewBag.Error = "Usuario o contraseña incorrectos";
+                return View();
             }
 
-            if (email == "shaper@gmail.com" && password == "1234")
-            {
-                HttpContext.Session.SetString("Rol", "Shaper");
-                HttpContext.Session.SetString("Usuario", "Shaper");
-
-                return RedirectToAction("Home", "Surf");
-            }
-
-            ViewBag.Error = "Usuario o contraseña incorrectos";
-            return View("Index");
         }
 
         public IActionResult Logout()
         {
+            Sistema sistema = Sistema.ObtenerInstancia();
             HttpContext.Session.Clear();
 
             return RedirectToAction("Home", "Surf");
