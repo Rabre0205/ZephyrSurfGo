@@ -12,10 +12,12 @@ namespace WebApplication2.Controllers
     public class AdminController : Controller
     {
         private readonly IProductoServicio _productoServicio;
+        private readonly IUsuarioServicio _usuarioServicio;
 
-        public AdminController(IProductoServicio productoServicio)
+        public AdminController(IProductoServicio productoServicio, IUsuarioServicio usuarioServicio)
         {
             _productoServicio = productoServicio;
+            _usuarioServicio = usuarioServicio;
         }
 
         public IActionResult AgregarTabla()
@@ -96,5 +98,39 @@ namespace WebApplication2.Controllers
             TempData["Mensaje"] = "Tabla agregada correctamente.";
             return View();
         }
+
+
+        [HttpGet]
+        public IActionResult RegistrarCliente()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult RegistrarCliente(RegistrarClienteFormModel modelo)
+        {
+            if (modelo == null)
+            {
+                ViewBag.Error = "No se recibieron datos del formulario.";
+                return View(modelo);
+            }
+
+            var resultado = _usuarioServicio.RegistrarCliente(
+                modelo.Email,
+                modelo.Nombre,
+                (Pais)modelo.Pais,
+                modelo.Contrasenia,
+                modelo.ConfirmarContrasenia);
+
+            if (!resultado.Exito)
+            {
+                ViewBag.Error = resultado.Error;
+                return View(modelo);
+            }
+
+            TempData["Mensaje"] = "Cliente registrado correctamente.";
+            return RedirectToAction("RegistrarCliente");
+        }
     }
+
 }
