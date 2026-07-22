@@ -17,3 +17,32 @@ function updateBadge() {
 }
 
 document.addEventListener("DOMContentLoaded", updateBadge);
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const profileDropdown = document.querySelector(".profile-dropdown");
+    const profileButton = document.querySelector(".profile-button");
+
+    if (!profileDropdown || !profileButton) {
+        return;
+    }
+
+    profileButton.addEventListener("click", function (e) {
+
+        e.stopPropagation();
+
+        profileDropdown.classList.toggle("open");
+
+    });
+
+    document.addEventListener("click", function (e) {
+
+        if (!profileDropdown.contains(e.target)) {
+
+            profileDropdown.classList.remove("open");
+
+        }
+
+    });
+
+});

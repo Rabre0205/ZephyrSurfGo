@@ -2,24 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using ClassLibrary.Persona;
 using ClassLibrary.Enums;
+using ClassLibrary.Persona;
 
 namespace ClassLibrary.Datos
 {
     public class UsuarioRepositorio : IUsuarioRepositorio
     {
-        /// <summary>
-        /// Trae todos los usuarios. Si TipoDeUsuario = Shaper, instancia un Shaper;
-        /// si no, instancia un Usuario base.
-        /// </summary>
+        private const string ColumnasUsuario = @"
+            Id,
+            Email,
+            Contrasenia,
+            Nombre,
+            PaisId,
+            TipoDeUsuarioId,
+            NombreDeNegosio,
+            Contacto,
+            LogoUrl";
+
         public List<Usuario> ObtenerTodos()
         {
             List<Usuario> usuarios = new List<Usuario>();
 
-            string sql = @"SELECT Id, Email, Contrasenia, Nombre, PaisId, TipoDeUsuarioId,
-                            NombreDeNegosio, Contacto, LogoUrl
-                            FROM Usuarios";
+            string sql = $@"
+                SELECT {ColumnasUsuario}
+                FROM Usuarios;";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
@@ -38,140 +45,270 @@ namespace ClassLibrary.Datos
             return usuarios;
         }
 
-        public Usuario ObtenerPorId(int id)
+        public Usuario? ObtenerPorId(int id)
         {
-            Usuario usuario = null;
-
-            string sql = @"SELECT Id, Email, Contrasenia, Nombre, Pais, TipoDeUsuario,
-                                   NombreDeNegosio, Contacto, LogoUrl
-                            FROM Usuarios
-                            WHERE Id = @Id";
+            string sql = $@"
+                SELECT {ColumnasUsuario}
+                FROM Usuarios
+                WHERE Id = @Id;";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
             {
                 comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+
                 conexion.Open();
 
                 using (SqlDataReader lector = comando.ExecuteReader())
                 {
                     if (lector.Read())
                     {
-                        usuario = MapearUsuario(lector);
+                        return MapearUsuario(lector);
                     }
                 }
             }
 
-            return usuario;
+            return null;
         }
 
-        public Usuario ObtenerPorEmail(string email)
+        public Usuario? ObtenerPorEmail(string email)
         {
-            Usuario usuario = null;
-
-            string sql = @"SELECT Id, Email, Contrasenia, Nombre, Pais, TipoDeUsuario,
-                                   NombreDeNegosio, Contacto, LogoUrl
-                            FROM Usuarios
-                            WHERE Email = @Email";
+            string sql = $@"
+                SELECT {ColumnasUsuario}
+                FROM Usuarios
+                WHERE LOWER(Email) = LOWER(@Email);";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
             {
-                comando.Parameters.Add("@Email", SqlDbType.NVarChar, 150).Value = email;
+                comando.Parameters.Add("@Email", SqlDbType.NVarChar, 150)
+                    .Value = email.Trim();
+
                 conexion.Open();
 
                 using (SqlDataReader lector = comando.ExecuteReader())
                 {
                     if (lector.Read())
                     {
-                        usuario = MapearUsuario(lector);
+                        return MapearUsuario(lector);
                     }
                 }
             }
 
-            return usuario;
+            return null;
         }
 
-        /// <summary>
-        /// Inserta un Cliente (Usuario base) y devuelve el Id generado.
-        /// </summary>
+        public Usuario? Login(string email, string contrasenia)
+        {
+            string sql = $@"
+                SELECT {ColumnasUsuario}
+                FROM Usuarios
+                WHERE LOWER(Email) = LOWER(@Email)
+                  AND Contrasenia = @Contrasenia;";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add("@Email", SqlDbType.NVarChar, 150)
+                    .Value = email.Trim();
+
+                comando.Parameters.Add("@Contrasenia", SqlDbType.NVarChar, 255)
+                    .Value = contrasenia;
+
+                conexion.Open();
+
+                using (SqlDataReader lector = comando.ExecuteReader())
+                {
+                    if (lector.Read())
+                    {
+                        return MapearUsuario(lector);
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public int InsertarUsuario(Usuario usuario)
         {
-            string sql = @"INSERT INTO Usuarios (Email, Contrasenia, Nombre, Pais, TipoDeUsuario)
-                            OUTPUT INSERTED.Id
-                            VALUES (@Email, @Contrasenia, @Nombre, @Pais, @TipoDeUsuario)";
+            string sql = @"
+                INSERT INTO Usuarios
+                (
+                    Email,
+                    Contrasenia,
+                    Nombre,
+                    PaisId,
+                    TipoDeUsuarioId
+                )
+                OUTPUT INSERTED.Id
+                VALUES
+                (
+                    @Email,
+                    @Contrasenia,
+                    @Nombre,
+                    @PaisId,
+                    @TipoDeUsuarioId
+                );";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
             {
-                comando.Parameters.Add("@Email", SqlDbType.NVarChar, 150).Value = usuario.Email;
-                comando.Parameters.Add("@Contrasenia", SqlDbType.NVarChar, 255).Value = usuario.Contrasenia;
-                comando.Parameters.Add("@Nombre", SqlDbType.NVarChar, 150).Value = usuario.Nombre;
-                comando.Parameters.Add("@Pais", SqlDbType.TinyInt).Value = (byte)usuario.Pais;
-                comando.Parameters.Add("@TipoDeUsuario", SqlDbType.TinyInt).Value = (byte)usuario.TipoDeUsuario;
+                comando.Parameters.Add("@Email", SqlDbType.NVarChar, 150)
+                    .Value = usuario.Email;
+
+                comando.Parameters.Add("@Contrasenia", SqlDbType.NVarChar, 255)
+                    .Value = usuario.Contrasenia;
+
+                comando.Parameters.Add("@Nombre", SqlDbType.NVarChar, 150)
+                    .Value = usuario.Nombre;
+
+                comando.Parameters.Add("@PaisId", SqlDbType.Int)
+                    .Value = Convert.ToInt32(usuario.Pais);
+
+                comando.Parameters.Add("@TipoDeUsuarioId", SqlDbType.Int)
+                    .Value = Convert.ToInt32(usuario.TipoDeUsuario);
 
                 conexion.Open();
-                return (int)comando.ExecuteScalar();
+
+                object? resultado = comando.ExecuteScalar();
+
+                if (resultado == null)
+                {
+                    throw new InvalidOperationException(
+                        "No se pudo obtener el ID del usuario insertado.");
+                }
+
+                return Convert.ToInt32(resultado);
             }
         }
 
-        /// <summary>
-        /// Inserta un Shaper (incluye columnas propias de la subclase).
-        /// </summary>
         public int InsertarShaper(Shaper shaper)
         {
-            string sql = @"INSERT INTO Usuarios
-                                (Email, Contrasenia, Nombre, Pais, TipoDeUsuario,
-                                 NombreDeNegosio, Contacto, LogoUrl)
-                            OUTPUT INSERTED.Id
-                            VALUES
-                                (@Email, @Contrasenia, @Nombre, @Pais, @TipoDeUsuario,
-                                 @NombreDeNegosio, @Contacto, @LogoUrl)";
+            string sql = @"
+                INSERT INTO Usuarios
+                (
+                    Email,
+                    Contrasenia,
+                    Nombre,
+                    PaisId,
+                    TipoDeUsuarioId,
+                    NombreDeNegosio,
+                    Contacto,
+                    LogoUrl
+                )
+                OUTPUT INSERTED.Id
+                VALUES
+                (
+                    @Email,
+                    @Contrasenia,
+                    @Nombre,
+                    @PaisId,
+                    @TipoDeUsuarioId,
+                    @NombreDeNegosio,
+                    @Contacto,
+                    @LogoUrl
+                );";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
             {
-                comando.Parameters.Add("@Email", SqlDbType.NVarChar, 150).Value = shaper.Email;
-                comando.Parameters.Add("@Contrasenia", SqlDbType.NVarChar, 255).Value = shaper.Contrasenia;
-                comando.Parameters.Add("@Nombre", SqlDbType.NVarChar, 150).Value = shaper.Nombre;
-                comando.Parameters.Add("@Pais", SqlDbType.TinyInt).Value = (byte)shaper.Pais;
-                comando.Parameters.Add("@TipoDeUsuario", SqlDbType.TinyInt).Value = (byte)TipoDeUsuario.Shaper;
-                comando.Parameters.Add("@NombreDeNegosio", SqlDbType.NVarChar, 150).Value = shaper.NombreDeNegosio ?? (object)DBNull.Value;
-                comando.Parameters.Add("@Contacto", SqlDbType.NVarChar, 150).Value = shaper.Contacto ?? (object)DBNull.Value;
-                comando.Parameters.Add("@LogoUrl", SqlDbType.NVarChar, 500).Value = shaper.LogoUrl ?? (object)DBNull.Value;
+                comando.Parameters.Add("@Email", SqlDbType.NVarChar, 150)
+                    .Value = shaper.Email;
+
+                comando.Parameters.Add("@Contrasenia", SqlDbType.NVarChar, 255)
+                    .Value = shaper.Contrasenia;
+
+                comando.Parameters.Add("@Nombre", SqlDbType.NVarChar, 150)
+                    .Value = shaper.Nombre;
+
+                comando.Parameters.Add("@PaisId", SqlDbType.Int)
+                    .Value = Convert.ToInt32(shaper.Pais);
+
+                comando.Parameters.Add("@TipoDeUsuarioId", SqlDbType.Int)
+                    .Value = Convert.ToInt32(TipoDeUsuario.Shaper);
+
+                comando.Parameters.Add("@NombreDeNegosio", SqlDbType.NVarChar, 150)
+                    .Value = string.IsNullOrWhiteSpace(shaper.NombreDeNegosio)
+                        ? DBNull.Value
+                        : shaper.NombreDeNegosio;
+
+                comando.Parameters.Add("@Contacto", SqlDbType.NVarChar, 150)
+                    .Value = string.IsNullOrWhiteSpace(shaper.Contacto)
+                        ? DBNull.Value
+                        : shaper.Contacto;
+
+                comando.Parameters.Add("@LogoUrl", SqlDbType.NVarChar, 500)
+                    .Value = string.IsNullOrWhiteSpace(shaper.LogoUrl)
+                        ? DBNull.Value
+                        : shaper.LogoUrl;
 
                 conexion.Open();
-                return (int)comando.ExecuteScalar();
+
+                object? resultado = comando.ExecuteScalar();
+
+                if (resultado == null)
+                {
+                    throw new InvalidOperationException(
+                        "No se pudo obtener el ID del shaper insertado.");
+                }
+
+                return Convert.ToInt32(resultado);
             }
         }
 
-        /// <summary>
-        /// Mapea una fila del reader a Usuario o Shaper según TipoDeUsuario.
-        /// Sin LINQ: lectura secuencial por índice/nombre de columna.
-        /// </summary>
         private Usuario MapearUsuario(SqlDataReader lector)
         {
-            int id = lector.GetInt32(lector.GetOrdinal("Id"));
-            string email = lector.GetString(lector.GetOrdinal("Email"));
-            string contrasenia = lector.GetString(lector.GetOrdinal("Contrasenia"));
-            string nombre = lector.GetString(lector.GetOrdinal("Nombre"));
-            Pais pais = (Pais)lector.GetByte(lector.GetOrdinal("PaisId"));
-            TipoDeUsuario tipo = (TipoDeUsuario)lector.GetByte(lector.GetOrdinal("TipoDeUsuarioId"));
+            int id = Convert.ToInt32(lector["Id"]);
+            string email = Convert.ToString(lector["Email"]) ?? string.Empty;
+            string contrasenia =
+                Convert.ToString(lector["Contrasenia"]) ?? string.Empty;
+            string nombre = Convert.ToString(lector["Nombre"]) ?? string.Empty;
+
+            Pais pais = (Pais)Convert.ToInt32(lector["PaisId"]);
+
+            TipoDeUsuario tipo =
+                (TipoDeUsuario)Convert.ToInt32(lector["TipoDeUsuarioId"]);
 
             if (tipo == TipoDeUsuario.Shaper)
             {
-                int ordinalNegocio = lector.GetOrdinal("NombreDeNegosio");
-                int ordinalContacto = lector.GetOrdinal("Contacto");
-                int ordinalLogo = lector.GetOrdinal("LogoUrl");
+                string nombreDeNegosio =
+                    lector["NombreDeNegosio"] == DBNull.Value
+                        ? string.Empty
+                        : Convert.ToString(lector["NombreDeNegosio"])
+                            ?? string.Empty;
 
-                string nombreDeNegosio = lector.IsDBNull(ordinalNegocio) ? string.Empty : lector.GetString(ordinalNegocio);
-                string contacto = lector.IsDBNull(ordinalContacto) ? string.Empty : lector.GetString(ordinalContacto);
-                string logoUrl = lector.IsDBNull(ordinalLogo) ? string.Empty : lector.GetString(ordinalLogo);
+                string contacto =
+                    lector["Contacto"] == DBNull.Value
+                        ? string.Empty
+                        : Convert.ToString(lector["Contacto"])
+                            ?? string.Empty;
 
-                return new Shaper(id, email, contrasenia, nombre, pais, nombreDeNegosio, contacto, logoUrl);
+                string logoUrl =
+                    lector["LogoUrl"] == DBNull.Value
+                        ? string.Empty
+                        : Convert.ToString(lector["LogoUrl"])
+                            ?? string.Empty;
+
+                return new Shaper(
+                    id,
+                    email,
+                    contrasenia,
+                    nombre,
+                    pais,
+                    nombreDeNegosio,
+                    contacto,
+                    logoUrl
+                );
             }
 
-            return new Usuario(id, email, nombre, pais, contrasenia);
+            return new Usuario(
+                id,
+                email,
+                nombre,
+                pais,
+                contrasenia
+            );
         }
     }
 }
+ 
