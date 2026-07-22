@@ -1,3 +1,8 @@
+using ClassLibrary.Datos;
+using ClassLibrary.Servicios;
+using CloudinaryDotNet;
+using dotenv.net;
+
 namespace WebApplication2
 {
     public class Program
@@ -5,6 +10,23 @@ namespace WebApplication2
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            //cosas de Cloudinary, echo por claude ni idea que es
+            DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
+            
+            builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
+            builder.Services.AddScoped<IProductoRepositorio, ProductoRepositorio>();
+            builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
+            builder.Services.AddScoped<IProductoServicio, ProductoServicio>();
+            builder.Services.AddScoped<ICloudinaryServicio, CloudinaryServicio>();
+
+            builder.Services.AddSingleton(sp =>
+            {
+                var cloudinaryUrl = Environment.GetEnvironmentVariable("CLOUDINARY_URL");
+                var cloudinary = new Cloudinary(cloudinaryUrl);
+                cloudinary.Api.Secure = true;
+                return cloudinary;
+            });
 
             // If you have Razor Pages:
             builder.Services.AddRazorPages();
@@ -45,8 +67,8 @@ namespace WebApplication2
 
             // Map controllers (if any)
             app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Surf}/{action=Home}/{id?}");
+            name: "default",
+            pattern: "{controller=Surf}/{action=Home}/{id?}");
 
             // If MapStaticAssets is required, map it AFTER pages/controllers:
             // app.MapStaticAssets();
