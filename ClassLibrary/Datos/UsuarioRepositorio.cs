@@ -7,7 +7,7 @@ using ClassLibrary.Persona;
 
 namespace ClassLibrary.Datos
 {
-    public class UsuarioRepositorio
+    public class UsuarioRepositorio : IUsuarioRepositorio
     {
         private const string ColumnasUsuario = @"
             Id,

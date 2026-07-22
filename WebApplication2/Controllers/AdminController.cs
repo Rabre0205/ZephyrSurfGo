@@ -1,5 +1,6 @@
 ﻿using ClassLibrary;
 using ClassLibrary.Enums;
+using ClassLibrary.Servicios;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication2.Models.Productos;
 
@@ -7,9 +8,13 @@ namespace WebApplication2.Controllers
 {
     public class AdminController : Controller
     {
+        private readonly IProductoServicio _productoServicio;
 
-        Sistema misistema = Sistema.ObtenerInstancia();
-        
+        public AdminController(IProductoServicio productoServicio)
+        {
+            _productoServicio = productoServicio;
+        }
+
         public IActionResult AgregarTabla()
         {
             return View();
@@ -18,8 +23,6 @@ namespace WebApplication2.Controllers
         [HttpPost]
         public IActionResult AgregarTabla(TablaFormModel modelo)
         {
-
-            //Pasar Validaciones a un metodo en clase Tabla
             if (modelo == null)
             {
                 ViewBag.Error = "No se recibieron datos del formulario.";
@@ -37,6 +40,7 @@ namespace WebApplication2.Controllers
                 ViewBag.Error = "El precio debe ser mayor a 0.";
                 return View(modelo);
             }
+
             if (modelo.PesoMinimo <= 0)
             {
                 ViewBag.Error = "El peso mínimo debe ser mayor a 0.";
@@ -49,36 +53,36 @@ namespace WebApplication2.Controllers
                 return View(modelo);
             }
 
-            // El ShaperId nunca se toma del formulario (evita que alguien lo manipule
-            // desde el HTML): siempre se usa el usuario logueado en el singleton.
+            //hardcodear shaperId mientras no haya login
+            int? shaperId = HttpContext.Session.GetInt32("UsuarioId");
+            shaperId = 2;
+            if (shaperId == null)
+            {
+                return RedirectToAction("Login", "Cuenta");
+            }
 
-            
-
-
-            Sistema sistema = Sistema.ObtenerInstancia();
-
-            ViewBag.algo = sistema.Usuarios.ToString();
-
-            int idGenerado = sistema.AgregarTabla(
-                titulo: modelo.Titulo,
-                subtitulo: modelo.Subtitulo,
-                precio: modelo.Precio,
-                descripcion: modelo.Descripcion,
-                shaperId: 1,
-                altura: modelo.Altura,
-                ancho: modelo.Ancho,
-                volumen: modelo.Volumen,
-                sistemaDeEncaje: (SistemaDeEncaje)modelo.SistemaDeEncaje,
-                tipoDeOla: (TipoDeOla)modelo.TipoDeOla,
-                estiloDeSurf: (EstiloDeSurf)modelo.EstiloDeSurf,
-                pesoMinimo: modelo.PesoMinimo,
-                pesoMaximo: modelo.PesoMaximo,
-                experiencia: (Experiencia)modelo.Experiencia,
-                imagenFrontal: modelo.ImagenFrontal,
-                imagenTrasera: modelo.ImagenTrasera
-            );
-
-            if (idGenerado == -1)
+            int idGenerado;
+            try
+            {
+                idGenerado = _productoServicio.AgregarTabla(
+                    titulo: modelo.Titulo,
+                    subtitulo: modelo.Subtitulo,
+                    precio: modelo.Precio,
+                    descripcion: modelo.Descripcion,
+                    shaperId: shaperId.Value,
+                    altura: modelo.Altura,
+                    ancho: modelo.Ancho,
+                    volumen: modelo.Volumen,
+                    sistemaDeEncaje: (SistemaDeEncaje)modelo.SistemaDeEncaje,
+                    tipoDeOla: (TipoDeOla)modelo.TipoDeOla,
+                    estiloDeSurf: (EstiloDeSurf)modelo.EstiloDeSurf,
+                    pesoMinimo: modelo.PesoMinimo,
+                    pesoMaximo: modelo.PesoMaximo,
+                    experiencia: (Experiencia)modelo.Experiencia,
+                    imagenFrontal: modelo.ImagenFrontal,
+                    imagenTrasera: modelo.ImagenTrasera);
+            }
+            catch (Exception)
             {
                 ViewBag.Error = "Ocurrió un error al guardar la tabla. Intentá nuevamente.";
                 return View(modelo);
