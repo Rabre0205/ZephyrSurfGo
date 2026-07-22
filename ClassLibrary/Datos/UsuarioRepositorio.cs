@@ -7,7 +7,7 @@ using ClassLibrary.Enums;
 
 namespace ClassLibrary.Datos
 {
-    public class UsuarioRepositorio
+    public class UsuarioRepositorio : IUsuarioRepositorio
     {
         /// <summary>
         /// Trae todos los usuarios. Si TipoDeUsuario = Shaper, instancia un Shaper;
