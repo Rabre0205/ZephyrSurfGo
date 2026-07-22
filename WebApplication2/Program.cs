@@ -2,6 +2,7 @@ using ClassLibrary.Datos;
 using ClassLibrary.Servicios;
 using CloudinaryDotNet;
 using dotenv.net;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace WebApplication2
 {
@@ -26,6 +27,16 @@ namespace WebApplication2
                 var cloudinary = new Cloudinary(cloudinaryUrl);
                 cloudinary.Api.Secure = true;
                 return cloudinary;
+            });
+
+            //cosas de authentication, echo por claude ni idea que es
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/Login";
+                options.LogoutPath = "/Login/Logout";
+                options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                options.SlidingExpiration = true;
             });
 
             // If you have Razor Pages:
@@ -59,6 +70,9 @@ namespace WebApplication2
             app.UseRouting();
 
             app.UseSession();
+            //cosa de auth
+            app.UseAuthentication();
+
 
             app.UseAuthorization();
 

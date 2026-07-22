@@ -1,9 +1,11 @@
-﻿@using Microsoft.AspNetCore.Http
+﻿@using System.Security.Claims
 
 @{
-    string? rol = Context.Session.GetString("Rol");
+    bool estaLogueado = User.Identity?.IsAuthenticated ?? false;
 
-    bool estaLogueado = !string.IsNullOrWhiteSpace(rol);
+    string? rol = estaLogueado
+        ? User.FindFirstValue(ClaimTypes.Role)
+        : null;
 
     bool esCliente = string.Equals(
         rol,

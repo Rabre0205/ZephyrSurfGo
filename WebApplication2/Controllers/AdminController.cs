@@ -1,11 +1,14 @@
 ﻿using ClassLibrary;
 using ClassLibrary.Enums;
 using ClassLibrary.Servicios;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WebApplication2.Models.Productos;
 
 namespace WebApplication2.Controllers
 {
+    [Authorize(Roles = "Shaper")]
     public class AdminController : Controller
     {
         private readonly IProductoServicio _productoServicio;
@@ -54,7 +57,8 @@ namespace WebApplication2.Controllers
             }
 
             //hardcodear shaperId mientras no haya login
-            int? shaperId = HttpContext.Session.GetInt32("UsuarioId");
+            //int? shaperId = HttpContext.Session.GetInt32("UsuarioId");
+            int shaperId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             shaperId = 2;
             if (shaperId == null)
             {
@@ -69,7 +73,8 @@ namespace WebApplication2.Controllers
                     subtitulo: modelo.Subtitulo,
                     precio: modelo.Precio,
                     descripcion: modelo.Descripcion,
-                    shaperId: shaperId.Value,
+                    //shaperId: shaperId.Value,
+                    shaperId: shaperId,
                     altura: modelo.Altura,
                     ancho: modelo.Ancho,
                     volumen: modelo.Volumen,
