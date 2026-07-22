@@ -14,27 +14,46 @@ namespace WebApplication2.Controllers
         [HttpPost]
         public IActionResult IniciarSesion(string email, string password)
         {
+            if (string.IsNullOrWhiteSpace(email) ||
+                string.IsNullOrWhiteSpace(password))
+            {
+                ViewBag.Error = "Ingresá el correo y la contraseña.";
+                return View("Index");
+            }
 
             Sistema sistema = Sistema.ObtenerInstancia();
 
-            if (sistema.Login(email, password) != null)
+            Usuario? usuario = sistema.Login(
+                email.Trim(),
+                password
+            );
+
+            if (usuario == null)
             {
-                Usuario u = sistema.Login(email, password);
-
-                HttpContext.Session.SetString("Rol", u.TipoDeUsuario.ToString());
-                HttpContext.Session.SetString("UId", u.Id.ToString());
-                return View("Surf/Home");
-            }
-            else {
-                ViewBag.Error = "Usuario o contraseña incorrectos";
-                return View();
+                ViewBag.Error = "Usuario o contraseña incorrectos.";
+                return View("Index");
             }
 
+            HttpContext.Session.SetString(
+                "Rol",
+                usuario.TipoDeUsuario.ToString()
+            );
+
+            HttpContext.Session.SetString(
+                "UId",
+                usuario.Id.ToString()
+            );
+
+            HttpContext.Session.SetString(
+                "Usuario",
+                usuario.Nombre
+            );
+
+            return RedirectToAction("Home", "Surf");
         }
 
         public IActionResult Logout()
         {
-            Sistema sistema = Sistema.ObtenerInstancia();
             HttpContext.Session.Clear();
 
             return RedirectToAction("Home", "Surf");

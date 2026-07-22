@@ -249,3 +249,128 @@ nav#navbar {
     content: none !important;
     border: 0 !important;
 }
+
+/* ==========================================
+   PERFIL
+========================================== */
+
+.profile-dropdown {
+    position: relative;
+}
+
+.profile-button {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    transition: .25s;
+}
+
+    .profile-button:hover {
+        color: #09BDE5;
+    }
+
+.profile-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 200px;
+    background: #071A2B;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: .25s;
+    z-index: 9999;
+}
+
+.profile-dropdown.open .profile-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.profile-menu a {
+    display: block;
+    padding: 12px 16px;
+    color: white;
+    text-decoration: none;
+    transition: .2s;
+}
+
+    .profile-menu a:hover {
+        background: rgba(255,255,255,.08);
+    }
+
+.profile-menu-divider {
+    height: 1px;
+    background: rgba(255,255,255,.08);
+}
+
+.logout-link {
+    color: #ff6b6b !important;
+}
+
+
+/* ==========================================
+   DASHBOARD SHAPER
+========================================== */
+
+.nav-dropdown {
+    position: relative;
+}
+
+.nav-dropdown-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.nav-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    min-width: 190px;
+    background: #071A2B;
+    border-radius: 10px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: .25s;
+    z-index: 9999;
+}
+
+.nav-dropdown:hover .nav-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.nav-dropdown-menu a {
+    display: block;
+    padding: 12px 16px;
+    color: white;
+    text-decoration: none;
+    transition: .2s;
+}
+
+    .nav-dropdown-menu a:hover {
+        background: rgba(255,255,255,.08);
+    }
