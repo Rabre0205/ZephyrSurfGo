@@ -6,7 +6,7 @@ namespace ClassLibrary.Enums
 {
     public enum TipoDeUsuario
     {
-        Shaper,
-        Cliente
+        Shaper = 0,
+        Cliente = 1
     }
 }

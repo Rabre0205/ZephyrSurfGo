@@ -11,12 +11,7 @@ function switchTab(tab) {
 }
 
 /* ── Password toggle ── */
-function togglePwd(inputId, btn) {
-    const input = document.getElementById(inputId);
-    const isText = input.type === 'text';
-    input.type = isText ? 'password' : 'text';
-    btn.querySelector('svg').style.opacity = isText ? '1' : '.45';
-}
+
 
 /* ── Password strength ── */
 function checkStrength(val) {
@@ -70,91 +65,10 @@ function clearAlert() {
 }
 
 /* ── Login handler ── */
-function handleLogin() {
-    clearAlert();
-    const email = document.getElementById('loginEmail').value.trim();
-    const pwd = document.getElementById('loginPwd').value;
 
-    let valid = true;
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    setError('f-login-email', !emailOk);
-    setError('f-login-pwd', !pwd);
-    if (!emailOk || !pwd) valid = false;
-    if (!valid) return;
-
-    // Simulate login — replace with real auth
-    const btn = document.querySelector('#panelLogin .btn-auth');
-    btn.textContent = t('alertLoading');
-    btn.disabled = true;
-
-    setTimeout(() => {
-        btn.textContent = t('btnLogin');
-        btn.disabled = false;
-
-        // Demo: check localStorage for registered users
-        const users = JSON.parse(localStorage.getItem('masterSurfUsers') || '[]');
-        const user = users.find(u => u.email === email && u.pwd === pwd);
-
-        if (user) {
-            localStorage.setItem('masterSurfCurrentUser', JSON.stringify(user));
-            showAlert('success', t('alertWelcome', { name: user.nombre }));
-            setTimeout(() => { window.location.href = 'index.html'; }, 1800);
-        } else {
-            showAlert('error', t('alertBadCreds'));
-        }
-    }, 900);
-}
 
 /* ── Register handler ── */
-function handleRegister() {
-    clearAlert();
-    const nombre = document.getElementById('regNombre').value.trim();
-    const apellido = document.getElementById('regApellido').value.trim();
-    const email = document.getElementById('regEmail').value.trim();
-    const pwd = document.getElementById('regPwd').value;
-    const pwd2 = document.getElementById('regPwd2').value;
-    const terms = document.getElementById('regTerms').checked;
 
-    let valid = true;
-    setError('f-reg-nombre', !nombre);
-    setError('f-reg-apellido', !apellido);
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    setError('f-reg-email', !emailOk);
-    setError('f-reg-pwd', pwd.length < 8);
-    setError('f-reg-pwd2', pwd !== pwd2);
-
-    if (!nombre || !apellido || !emailOk || pwd.length < 8 || pwd !== pwd2) valid = false;
-
-    if (!terms) {
-        showAlert('error', t('alertTerms'));
-        return;
-    }
-    if (!valid) return;
-
-    // Save to localStorage (demo)
-    const users = JSON.parse(localStorage.getItem('masterSurfUsers') || '[]');
-    if (users.find(u => u.email === email)) {
-        showAlert('error', t('alertDupEmail'));
-        return;
-    }
-
-    const btn = document.querySelector('#panelRegister .btn-auth');
-    btn.textContent = t('alertRegLoad');
-    btn.disabled = true;
-
-    setTimeout(() => {
-        btn.textContent = t('btnRegister');
-        btn.disabled = false;
-
-        const newUser = { nombre, apellido, email, pwd, pais: document.getElementById('regPais').value.trim() };
-        users.push(newUser);
-        localStorage.setItem('masterSurfUsers', JSON.stringify(users));
-        localStorage.setItem('masterSurfCurrentUser', JSON.stringify(newUser));
-
-        showAlert('success', t('alertRegDone', { name: nombre }));
-        setTimeout(() => { window.location.href = 'index.html'; }, 2000);
-    }, 1000);
-}
 
 
 /* ════════════════════════════════════
@@ -356,10 +270,74 @@ const LANG_CODES = { es: 'ES', en: 'EN', pt: 'PT' };
 // Apply on load
 applyLang();
 
-/* ── Enter key support ── */
-document.addEventListener('keydown', e => {
-    if (e.key !== 'Enter') return;
-    const loginVisible = !document.getElementById('panelLogin').classList.contains('hidden');
-    if (loginVisible) handleLogin();
-    else handleRegister();
+document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Enter') return;
+
+    const elementoActivo = document.activeElement;
+
+    if (
+        elementoActivo &&
+        elementoActivo.tagName === 'TEXTAREA'
+    ) {
+        return;
+    }
+
+    const panelRegistro =
+        document.getElementById('panelRegister');
+
+    const panelLogin =
+        document.getElementById('panelLogin');
+
+    if (
+        panelRegistro &&
+        !panelRegistro.classList.contains('hidden')
+    ) {
+        panelRegistro
+            .querySelector('form')
+            ?.requestSubmit();
+
+        return;
+    }
+
+    if (
+        panelLogin &&
+        !panelLogin.classList.contains('hidden')
+    ) {
+        panelLogin
+            .querySelector('form')
+            ?.requestSubmit();
+    }
 });
+
+function togglePwd(inputId, button) {
+    const input = document.getElementById(inputId);
+
+    if (!input) return;
+
+    const icon = button.querySelector("svg");
+
+    if (input.type === "password") {
+        input.type = "text";
+
+        if (icon) {
+            icon.innerHTML = `
+                <path d="M17.94 17.94A10.94 10.94 0 0112 20C5 20 1 12 1 12a21.8 21.8 0 015.06-6.94"/>
+                <path d="M9.9 4.24A10.77 10.77 0 0112 4c7 0 11 8 11 8a21.3 21.3 0 01-3.22 4.91"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+            `;
+        }
+
+        button.title = "Ocultar contraseña";
+    } else {
+        input.type = "password";
+
+        if (icon) {
+            icon.innerHTML = `
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+            `;
+        }
+
+        button.title = "Ver contraseña";
+    }
+}

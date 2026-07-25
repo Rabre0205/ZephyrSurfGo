@@ -209,7 +209,7 @@ body {
     position: relative;
 }
 
-    .field-input-wrap svg {
+    .field-input-wrap > svg {
         position: absolute;
         left: 1rem;
         top: 50%;
@@ -271,6 +271,13 @@ body {
     padding: 0;
     transition: color .2s;
 }
+
+    .pwd-toggle svg {
+        position: static !important;
+        transform: none !important;
+        opacity: 1 !important;
+        pointer-events: none;
+    }
 
     .pwd-toggle:hover {
         color: rgba(255,255,255,.7);
