@@ -1,5 +1,6 @@
 ﻿@using ClassLibrary.Enums
 
+
 @{
     ViewBag.Title = "Registrar cliente";
 
@@ -26,6 +27,7 @@
     <div class="alert-success">@TempData["Mensaje"]</div>
 }
 
+<!-- mal echo tengo que arreglarlo -->
 <form asp-controller="Admin" asp-action="RegistrarCliente" method="post">
 
     <label asp-for="Nombre">Nombre</label>

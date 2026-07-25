@@ -12,15 +12,15 @@ namespace WebApplication2
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            //cosas de Cloudinary, echo por claude ni idea que es
             DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
-            
+
             builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
             builder.Services.AddScoped<IProductoRepositorio, ProductoRepositorio>();
             builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
             builder.Services.AddScoped<IProductoServicio, ProductoServicio>();
             builder.Services.AddScoped<ICloudinaryServicio, CloudinaryServicio>();
 
+            //cosa de cloudinary, echo por claude ni idea que es
             builder.Services.AddSingleton(sp =>
             {
                 var cloudinaryUrl = Environment.GetEnvironmentVariable("CLOUDINARY_URL");
