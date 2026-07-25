@@ -1,4 +1,5 @@
 using ClassLibrary.Datos;
+using ClassLibrary.Enums;
 using ClassLibrary.Persona;
 using ClassLibrary.Productos;
 using CloudinaryDotNet;
@@ -81,9 +82,17 @@ namespace ClassLibrary
 
         public Usuario BuscarUsuarioPorEmail(string email)
         {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return null;
+            }
+
             foreach (Usuario usuario in Usuarios)
             {
-                if (usuario.Email == email)
+                if (string.Equals(
+                    usuario.Email,
+                    email.Trim(),
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     return usuario;
                 }
@@ -118,6 +127,63 @@ namespace ClassLibrary
             }
 
             return null;
+        }
+
+        public Usuario RegistrarCliente(
+    string email,
+    string nombre,
+    Pais pais,
+    string contrasenia)
+        {
+            email = email.Trim().ToLower();
+            nombre = nombre.Trim();
+
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                throw new ArgumentException("El correo es obligatorio.");
+            }
+
+            if (string.IsNullOrWhiteSpace(nombre))
+            {
+                throw new ArgumentException("El nombre es obligatorio.");
+            }
+
+            if (string.IsNullOrWhiteSpace(contrasenia))
+            {
+                throw new ArgumentException("La contraseña es obligatoria.");
+            }
+
+            if (BuscarUsuarioPorEmail(email) != null)
+            {
+                throw new InvalidOperationException(
+                    "Ya existe un usuario con ese correo."
+                );
+            }
+
+            Usuario nuevoUsuario = new Usuario(
+                0,
+                email,
+                nombre,
+                pais,
+                contrasenia
+            );
+
+            int idGenerado =
+                usuarioRepositorio.InsertarUsuario(nuevoUsuario);
+
+            CargarDatos();
+
+            Usuario usuarioRegistrado =
+                BuscarUsuarioPorId(idGenerado);
+
+            if (usuarioRegistrado == null)
+            {
+                throw new InvalidOperationException(
+                    "El usuario fue creado, pero no se pudo cargar."
+                );
+            }
+
+            return usuarioRegistrado;
         }
 
         /// <summary>
@@ -266,6 +332,8 @@ namespace ClassLibrary
             }
         }
 
+      
+
         /// <summary>
         /// Obtiene todas las Tablas (productos) de un Shaper específico.
         /// </summary>
@@ -289,3 +357,4 @@ namespace ClassLibrary
 
     }
 }
+

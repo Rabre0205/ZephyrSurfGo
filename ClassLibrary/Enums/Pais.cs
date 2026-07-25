@@ -6,8 +6,8 @@ namespace ClassLibrary.Enums
 {
     public enum Pais
     {
-        Uruguay,
-        Argentina,
-        Brasil,
+        Uruguay = 0,
+        Argentina = 1,
+        Brasil = 2
     }
 }

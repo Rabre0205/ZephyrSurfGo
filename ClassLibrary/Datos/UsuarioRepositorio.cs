@@ -42,15 +42,18 @@ namespace ClassLibrary.Datos
         {
             Usuario usuario = null;
 
-            string sql = @"SELECT Id, Email, Contrasenia, Nombre, Pais, TipoDeUsuario,
-                                   NombreDeNegosio, Contacto, LogoUrl
-                            FROM Usuarios
-                            WHERE Id = @Id";
+            string sql = @"
+        SELECT Id, Email, Contrasenia, Nombre,
+               PaisId, TipoDeUsuarioId,
+               NombreDeNegosio, Contacto, LogoUrl
+        FROM Usuarios
+        WHERE Id = @Id";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
             {
                 comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+
                 conexion.Open();
 
                 using (SqlDataReader lector = comando.ExecuteReader())
@@ -69,15 +72,22 @@ namespace ClassLibrary.Datos
         {
             Usuario usuario = null;
 
-            string sql = @"SELECT Id, Email, Contrasenia, Nombre, Pais, TipoDeUsuario,
-                                   NombreDeNegosio, Contacto, LogoUrl
-                            FROM Usuarios
-                            WHERE Email = @Email";
+            string sql = @"
+        SELECT Id, Email, Contrasenia, Nombre,
+               PaisId, TipoDeUsuarioId,
+               NombreDeNegosio, Contacto, LogoUrl
+        FROM Usuarios
+        WHERE Email = @Email";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
             {
-                comando.Parameters.Add("@Email", SqlDbType.NVarChar, 150).Value = email;
+                comando.Parameters.Add(
+                    "@Email",
+                    SqlDbType.NVarChar,
+                    150
+                ).Value = email;
+
                 conexion.Open();
 
                 using (SqlDataReader lector = comando.ExecuteReader())
@@ -97,21 +107,47 @@ namespace ClassLibrary.Datos
         /// </summary>
         public int InsertarUsuario(Usuario usuario)
         {
-            string sql = @"INSERT INTO Usuarios (Email, Contrasenia, Nombre, Pais, TipoDeUsuario)
-                            OUTPUT INSERTED.Id
-                            VALUES (@Email, @Contrasenia, @Nombre, @Pais, @TipoDeUsuario)";
+            string sql = @"
+        INSERT INTO Usuarios
+            (Email, Contrasenia, Nombre, PaisId, TipoDeUsuarioId)
+        OUTPUT INSERTED.Id
+        VALUES
+            (@Email, @Contrasenia, @Nombre, @PaisId, @TipoDeUsuarioId)";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
             {
-                comando.Parameters.Add("@Email", SqlDbType.NVarChar, 150).Value = usuario.Email;
-                comando.Parameters.Add("@Contrasenia", SqlDbType.NVarChar, 255).Value = usuario.Contrasenia;
-                comando.Parameters.Add("@Nombre", SqlDbType.NVarChar, 150).Value = usuario.Nombre;
-                comando.Parameters.Add("@Pais", SqlDbType.TinyInt).Value = (byte)usuario.Pais;
-                comando.Parameters.Add("@TipoDeUsuario", SqlDbType.TinyInt).Value = (byte)usuario.TipoDeUsuario;
+                comando.Parameters.Add(
+                    "@Email",
+                    SqlDbType.NVarChar,
+                    150
+                ).Value = usuario.Email;
+
+                comando.Parameters.Add(
+                    "@Contrasenia",
+                    SqlDbType.NVarChar,
+                    255
+                ).Value = usuario.Contrasenia;
+
+                comando.Parameters.Add(
+                    "@Nombre",
+                    SqlDbType.NVarChar,
+                    150
+                ).Value = usuario.Nombre;
+
+                comando.Parameters.Add(
+                    "@PaisId",
+                    SqlDbType.TinyInt
+                ).Value = (byte)usuario.Pais;
+
+                comando.Parameters.Add(
+                    "@TipoDeUsuarioId",
+                    SqlDbType.TinyInt
+                ).Value = (byte)usuario.TipoDeUsuario;
 
                 conexion.Open();
-                return (int)comando.ExecuteScalar();
+
+                return Convert.ToInt32(comando.ExecuteScalar());
             }
         }
 
@@ -121,12 +157,12 @@ namespace ClassLibrary.Datos
         public int InsertarShaper(Shaper shaper)
         {
             string sql = @"INSERT INTO Usuarios
-                                (Email, Contrasenia, Nombre, Pais, TipoDeUsuario,
-                                 NombreDeNegosio, Contacto, LogoUrl)
-                            OUTPUT INSERTED.Id
-                            VALUES
-                                (@Email, @Contrasenia, @Nombre, @Pais, @TipoDeUsuario,
-                                 @NombreDeNegosio, @Contacto, @LogoUrl)";
+                        (Email, Contrasenia, Nombre, PaisId, TipoDeUsuarioId,
+                         NombreDeNegosio, Contacto, LogoUrl)
+                    OUTPUT INSERTED.Id
+                    VALUES
+                        (@Email, @Contrasenia, @Nombre, @Pais, @TipoDeUsuario,
+                         @NombreDeNegosio, @Contacto, @LogoUrl)";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
