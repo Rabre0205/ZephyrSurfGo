@@ -1,154 +1,204 @@
-﻿@using Microsoft.AspNetCore.Http
+﻿@using System.Security.Claims
 
 @{
-    string? rol = Context.Session.GetString("Rol");
-    string? usuario = Context.Session.GetString("Usuario");
-    bool estaLogueado = !string.IsNullOrEmpty(rol);
+    bool estaLogueado = User.Identity?.IsAuthenticated ?? false;
+
+    string? rol = estaLogueado
+        ? User.FindFirstValue(ClaimTypes.Role)
+        : null;
+
+    bool esCliente = string.Equals(
+        rol,
+        "Cliente",
+        StringComparison.OrdinalIgnoreCase
+    );
+
+    bool esShaper = string.Equals(
+        rol,
+        "Shaper",
+        StringComparison.OrdinalIgnoreCase
+    );
 }
 
 <nav id="navbar">
-        <a asp-controller="Surf" asp-action="Home" class="nav-logo">
-            ZEPHYR <span>SURF</span> GO
-        </a>
 
-        <ul class="nav-links d-none d-md-flex">
+    <a asp-controller="Surf"
+       asp-action="Home"
+       class="nav-logo">
+        ZEPHYR <span>SURF</span> GO
+    </a>
+
+    <ul class="nav-links d-none d-md-flex">
+
+        @* Visitante y cliente *@
+        @if (!esShaper)
+        {
             <li>
-                <a asp-controller="Surf" asp-action="Home">Home</a>
+                <a asp-controller="Surf"
+                   asp-action="Home">
+                    Home
+                </a>
             </li>
 
             <li>
-                <a asp-controller="Surf" asp-action="Home" asp-fragment="tablas">Tablas</a>
+                <a asp-controller="Surf"
+                   asp-action="Home"
+                   asp-fragment="tablas">
+                    Tablas
+                </a>
             </li>
 
             <li>
-                <a asp-controller="Surf" asp-action="shapers">Shapers</a>
+                <a asp-controller="Surf"
+                   asp-action="shapers">
+                    Shapers
+                </a>
             </li>
-
 
             <li>
-                <a asp-controller="Surf" asp-action="Dealers">Dealers</a>
+                <a asp-controller="Surf"
+                   asp-action="Dealers">
+                    Mapa
+                </a>
+            </li>
+        }
+
+        @if (esShaper)
+        {
+            <li>
+                <a href="#">
+                    Dashboard
+                </a>
             </li>
 
-            @* Opciones exclusivas del cliente *@
-            @if (rol == "Cliente")
-            {
-                <li>
-                    <a href="#">Mis pedidos</a>
-                </li>
-            }
+            <li>
+                <a href="#">
+                    Productos
+                </a>
+            </li>
+        }
+        
 
-            @* Opciones exclusivas del shaper *@
-            @if (rol == "Shaper")
-            {
-                <li>
-                    <a href="#">Mis tablas</a>
-                </li>
+    </ul>
 
-                <li>
-                    <a href="#">Pedidos recibidos</a>
-                </li>
-            }
+    <div class="nav-actions">
 
-        </ul>
+        @* Usuario sin iniciar sesión *@
+        @if (!estaLogueado)
+        {
+            <a asp-controller="Login"
+               asp-action="Index"
+               class="btn-login"
+               id="navLoginBtn">
 
-        <div class="nav-actions">
+                <svg width="15"
+                     height="15"
+                     viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2">
 
-            @if (!estaLogueado)
-            {
-                <a asp-controller="Login"
-                   asp-action="Index"
-                   class="btn-login"
-                   id="navLoginBtn">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
 
-                    <svg width="15" height="15"
+                </svg>
+
+                <span id="navLoginText">
+                    Ingresar
+                </span>
+
+            </a>
+        }
+        else
+        {
+            @* Menú de perfil para cliente y shaper *@
+            <div class="profile-dropdown">
+
+                <button type="button"
+                        class="profile-button"
+                        aria-label="Abrir menú del perfil"
+                        aria-expanded="false">
+
+                    <svg width="20"
+                         height="20"
                          viewBox="0 0 24 24"
                          fill="none"
                          stroke="currentColor"
-                         stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                        <circle cx="12" cy="7" r="4" />
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+
+                        <path d="M20 21a8 8 0 0 0-16 0"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+
                     </svg>
 
-                    <span id="navLoginText">Ingresar</span>
-                </a>
-            }
-            else
-            {
-                <div style="display:flex; align-items:center; gap:10px;">
+                </button>
 
-                    <span class="btn-login">
-                        @usuario
-                    </span>
+                <div class="profile-menu">
+
+                    @if (esCliente)
+                    {
+                        <a href="#">
+                            Mis pedidos
+                        </a>
+                    }
+
+                    <a href="#">
+                        Configuración
+                    </a>
+
+                    <div class="profile-menu-divider"></div>
 
                     <a asp-controller="Login"
                        asp-action="Logout"
-                       class="btn-login">
+                       class="logout-link">
 
-                        Cerrar sesión
+                        Salir del perfil
+
                     </a>
-
-                </div>
-            }
-
-            <div class="util-dropdown">
-
-                <button class="dropdown-toggle">
-                    🌎Paises
-                    <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </button>
-
-                <div class="marcas-menu">
-
-                    <a href="#">
-                        <img src="https://flagcdn.com/w20/ar.png" alt="">
-                        AR
-                    </a>
-
-                    <a href="#">
-                        <img src="https://flagcdn.com/w20/br.png" alt="">
-                        BR
-                    </a>
-
-                    <div class="dropdown-submenu">
-
-                        <a href="#">
-                            <img src="https://flagcdn.com/w20/uy.png" alt="">
-                            UY ▸
-                        </a>
-
-                        <div class="submenu">
-                            <a asp-controller="Surf" asp-action="master">Master</a>
-                        </div>
-
-                    </div>
 
                 </div>
 
             </div>
+        }
 
-            @* El carrito solamente se muestra a los clientes *@
-            @if (rol == "Cliente")
-            {
-                <a asp-controller="Surf"
-                   asp-action="carrito"
-                   class="btn-cart-nav"
-                   id="btnCartNav">
+        @* Carrito solamente para clientes y Visitantes *@
+        @if (!esShaper)
+        {
+            <a asp-controller="Surf"
+               asp-action="carrito"
+               class="btn-cart-nav"
+               id="btnCartNav">
 
-                    <svg width="15" height="15" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="9" cy="21" r="1" />
-                        <circle cx="20" cy="21" r="1" />
-                        <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61H19a2 2 0 001.99-1.79L22 7H6" />
-                    </svg>
+                <svg width="15"
+                     height="15"
+                     viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2">
 
-                    <span>Carrito</span>
-                    <span class="cart-badge">0</span>
+                    <circle cx="9"
+                            cy="21"
+                            r="1" />
 
-                </a>
-            }
+                    <circle cx="20"
+                            cy="21"
+                            r="1" />
 
-        </div>
-    </nav>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61H19a2 2 0 001.99-1.79L22 7H6" />
+
+                </svg>
+
+                <span>Carrito</span>
+
+                <span class="cart-badge">
+                    0
+                </span>
+
+            </a>
+        }
+
+    </div>
+
+</nav>

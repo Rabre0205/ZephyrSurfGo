@@ -1,19 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ClassLibrary;
+﻿using ClassLibrary;
 using ClassLibrary.Persona;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
-namespace WebApplication2.Controllers
+public class LoginController : Controller
 {
-    public class LoginController : Controller
+    public IActionResult Index()
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
+        return View();
+    }
 
-        [HttpPost]
-        public IActionResult IniciarSesion(string email, string password)
+    [HttpPost]
+    public async Task<IActionResult> IniciarSesion(string email, string password)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
+            ViewBag.Error = "Ingresá el correo y la contraseña.";
+            return View("Index");
+        }
 
             Sistema sistema = Sistema.ObtenerInstancia();
 
@@ -32,6 +38,10 @@ namespace WebApplication2.Controllers
                 return View();
             }
 
+        if (usuario == null)
+        {
+            ViewBag.Error = "Usuario o contraseña incorrectos.";
+            return View("Index");
         }
 
         [HttpPost]
@@ -138,10 +148,24 @@ namespace WebApplication2.Controllers
 
         public IActionResult Logout()
         {
-            Sistema sistema = Sistema.ObtenerInstancia();
-            HttpContext.Session.Clear();
+            new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+            new Claim(ClaimTypes.Name, usuario.Nombre),
+            new Claim(ClaimTypes.Role, usuario.TipoDeUsuario.ToString())
+        };
 
-            return RedirectToAction("Home", "Surf");
-        }
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal);
+
+        return RedirectToAction("Home", "Surf");
+    }
+
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return RedirectToAction("Home", "Surf");
     }
 }

@@ -1,3 +1,9 @@
+using ClassLibrary.Datos;
+using ClassLibrary.Servicios;
+using CloudinaryDotNet;
+using dotenv.net;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 namespace WebApplication2
 {
     public class Program
@@ -5,6 +11,33 @@ namespace WebApplication2
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
+
+            builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
+            builder.Services.AddScoped<IProductoRepositorio, ProductoRepositorio>();
+            builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
+            builder.Services.AddScoped<IProductoServicio, ProductoServicio>();
+            builder.Services.AddScoped<ICloudinaryServicio, CloudinaryServicio>();
+
+            //cosa de cloudinary, echo por claude ni idea que es
+            builder.Services.AddSingleton(sp =>
+            {
+                var cloudinaryUrl = Environment.GetEnvironmentVariable("CLOUDINARY_URL");
+                var cloudinary = new Cloudinary(cloudinaryUrl);
+                cloudinary.Api.Secure = true;
+                return cloudinary;
+            });
+
+            //cosas de authentication, echo por claude ni idea que es
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/Login";
+                options.LogoutPath = "/Login/Logout";
+                options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                options.SlidingExpiration = true;
+            });
 
             // If you have Razor Pages:
             builder.Services.AddRazorPages();
@@ -37,6 +70,9 @@ namespace WebApplication2
             app.UseRouting();
 
             app.UseSession();
+            //cosa de auth
+            app.UseAuthentication();
+
 
             app.UseAuthorization();
 
@@ -45,8 +81,8 @@ namespace WebApplication2
 
             // Map controllers (if any)
             app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Surf}/{action=Home}/{id?}");
+            name: "default",
+            pattern: "{controller=Surf}/{action=Home}/{id?}");
 
             // If MapStaticAssets is required, map it AFTER pages/controllers:
             // app.MapStaticAssets();

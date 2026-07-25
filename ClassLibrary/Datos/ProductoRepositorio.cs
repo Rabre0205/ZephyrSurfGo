@@ -6,7 +6,7 @@ using ClassLibrary.Enums;
 
 namespace ClassLibrary.Datos
 {
-    public class ProductoRepositorio
+    public class ProductoRepositorio : IProductoRepositorio
     {
         /// <summary>
         /// Trae todos los productos. Como es TPT, se hace LEFT JOIN a las 5 tablas hijas
@@ -51,6 +51,45 @@ namespace ClassLibrary.Datos
             return productos;
         }
 
+        // nuevo método en ProductoRepositorio, mismo estilo que ObtenerTodos()
+        public List<Producto> ObtenerPorShaper(int shaperId)
+        {
+            List<Producto> productos = new List<Producto>();
+
+            string sql = @"
+            SELECT
+                p.Id, p.Titulo, p.Subtitulo, p.Precio, p.Descripcion, p.ImagenUrl,
+                p.ShaperId, p.TipoProducto,
+                l.LargoDeTablaRecomendado,
+                pa.Largo, pa.Ancho AS AnchoPad, pa.Material,
+                q.SistemaDeEncajeId AS SistemaEncajeQuilla,
+                t.Altura, t.Ancho AS AnchoTabla, t.Volumen, t.SistemaDeEncajeId AS SistemaEncajeTabla,
+                t.TipoDeOlaId, t.EstiloDeSurfId, t.PesoMinimo, t.PesoMaximo,
+                t.ExperienciaId, t.ImagenAtrasUrl,
+                tr.GeneroId, tr.Espesor, tr.TalleId, tr.Temperatura
+            FROM Productos p
+            LEFT JOIN Leashes l ON l.ProductoId = p.Id
+            LEFT JOIN Pads    pa ON pa.ProductoId = p.Id
+            LEFT JOIN Quillas q ON q.ProductoId = p.Id
+            LEFT JOIN Tablas  t ON t.ProductoId = p.Id
+            LEFT JOIN Trajes  tr ON tr.ProductoId = p.Id
+            WHERE p.ShaperId = @ShaperId";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add("@ShaperId", SqlDbType.Int).Value = shaperId;
+                conexion.Open();
+
+                using (SqlDataReader lector = comando.ExecuteReader())
+                {
+                    while (lector.Read())
+                        productos.Add(MapearProducto(lector));
+                }
+            }
+
+            return productos;
+        }
         private Producto MapearProducto(SqlDataReader lector)
         {
             int id = lector.GetInt32(lector.GetOrdinal("Id"));

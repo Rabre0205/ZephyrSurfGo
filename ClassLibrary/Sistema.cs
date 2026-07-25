@@ -116,11 +116,20 @@ namespace ClassLibrary
 
             return resultado;
         }
-        public Usuario Login(string email, string contrasenia)
+        public Usuario? Login(string email, string contrasenia)
         {
             foreach (Usuario usuario in Usuarios)
             {
-                if (usuario.Email == email && usuario.Contrasenia == contrasenia)
+                bool mismoEmail = string.Equals(
+                    usuario.Email?.Trim(),
+                    email?.Trim(),
+                    StringComparison.OrdinalIgnoreCase
+                );
+
+                bool mismaContrasenia =
+                    usuario.Contrasenia == contrasenia;
+
+                if (mismoEmail && mismaContrasenia)
                 {
                     return usuario;
                 }

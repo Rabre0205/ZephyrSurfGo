@@ -14,7 +14,6 @@ namespace WebApplication2.Models.Productos
         public string Subtitulo { get; set; }
         public double Precio { get; set; }
         public string Descripcion { get; set; }
-        public int ShaperId { get; set; }
 
         // Archivos de imagen
         public IFormFile ImagenFrontal { get; set; }  // Imagen principal

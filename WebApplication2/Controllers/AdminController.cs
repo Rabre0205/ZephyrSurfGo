@@ -1,15 +1,25 @@
 ﻿using ClassLibrary;
 using ClassLibrary.Enums;
+using ClassLibrary.Servicios;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WebApplication2.Models.Productos;
 
 namespace WebApplication2.Controllers
 {
+    [Authorize(Roles = "Shaper")]
     public class AdminController : Controller
     {
+        private readonly IProductoServicio _productoServicio;
+        private readonly IUsuarioServicio _usuarioServicio;
 
-        Sistema misistema = Sistema.ObtenerInstancia();
-        
+        public AdminController(IProductoServicio productoServicio, IUsuarioServicio usuarioServicio)
+        {
+            _productoServicio = productoServicio;
+            _usuarioServicio = usuarioServicio;
+        }
+
         public IActionResult AgregarTabla()
         {
             return View();
@@ -18,8 +28,6 @@ namespace WebApplication2.Controllers
         [HttpPost]
         public IActionResult AgregarTabla(TablaFormModel modelo)
         {
-
-            //Pasar Validaciones a un metodo en clase Tabla
             if (modelo == null)
             {
                 ViewBag.Error = "No se recibieron datos del formulario.";
@@ -37,6 +45,7 @@ namespace WebApplication2.Controllers
                 ViewBag.Error = "El precio debe ser mayor a 0.";
                 return View(modelo);
             }
+
             if (modelo.PesoMinimo <= 0)
             {
                 ViewBag.Error = "El peso mínimo debe ser mayor a 0.";
@@ -49,36 +58,38 @@ namespace WebApplication2.Controllers
                 return View(modelo);
             }
 
-            // El ShaperId nunca se toma del formulario (evita que alguien lo manipule
-            // desde el HTML): siempre se usa el usuario logueado en el singleton.
+            //hardcodear shaperId mientras no haya login
+            //int? shaperId = HttpContext.Session.GetInt32("UsuarioId");
+            int shaperId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            shaperId = 2;
+            if (shaperId == null)
+            {
+                return RedirectToAction("Login", "Cuenta");
+            }
 
-            
-
-
-            Sistema sistema = Sistema.ObtenerInstancia();
-
-            ViewBag.algo = sistema.Usuarios.ToString();
-
-            int idGenerado = sistema.AgregarTabla(
-                titulo: modelo.Titulo,
-                subtitulo: modelo.Subtitulo,
-                precio: modelo.Precio,
-                descripcion: modelo.Descripcion,
-                shaperId: 1,
-                altura: modelo.Altura,
-                ancho: modelo.Ancho,
-                volumen: modelo.Volumen,
-                sistemaDeEncaje: (SistemaDeEncaje)modelo.SistemaDeEncaje,
-                tipoDeOla: (TipoDeOla)modelo.TipoDeOla,
-                estiloDeSurf: (EstiloDeSurf)modelo.EstiloDeSurf,
-                pesoMinimo: modelo.PesoMinimo,
-                pesoMaximo: modelo.PesoMaximo,
-                experiencia: (Experiencia)modelo.Experiencia,
-                imagenFrontal: modelo.ImagenFrontal,
-                imagenTrasera: modelo.ImagenTrasera
-            );
-
-            if (idGenerado == -1)
+            int idGenerado;
+            try
+            {
+                idGenerado = _productoServicio.AgregarTabla(
+                    titulo: modelo.Titulo,
+                    subtitulo: modelo.Subtitulo,
+                    precio: modelo.Precio,
+                    descripcion: modelo.Descripcion,
+                    //shaperId: shaperId.Value,
+                    shaperId: shaperId,
+                    altura: modelo.Altura,
+                    ancho: modelo.Ancho,
+                    volumen: modelo.Volumen,
+                    sistemaDeEncaje: (SistemaDeEncaje)modelo.SistemaDeEncaje,
+                    tipoDeOla: (TipoDeOla)modelo.TipoDeOla,
+                    estiloDeSurf: (EstiloDeSurf)modelo.EstiloDeSurf,
+                    pesoMinimo: modelo.PesoMinimo,
+                    pesoMaximo: modelo.PesoMaximo,
+                    experiencia: (Experiencia)modelo.Experiencia,
+                    imagenFrontal: modelo.ImagenFrontal,
+                    imagenTrasera: modelo.ImagenTrasera);
+            }
+            catch (Exception)
             {
                 ViewBag.Error = "Ocurrió un error al guardar la tabla. Intentá nuevamente.";
                 return View(modelo);
@@ -87,5 +98,39 @@ namespace WebApplication2.Controllers
             TempData["Mensaje"] = "Tabla agregada correctamente.";
             return View();
         }
+
+
+        [HttpGet]
+        public IActionResult RegistrarCliente()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult RegistrarCliente(RegistrarClienteFormModel modelo)
+        {
+            if (modelo == null)
+            {
+                ViewBag.Error = "No se recibieron datos del formulario.";
+                return View(modelo);
+            }
+
+            var resultado = _usuarioServicio.RegistrarCliente(
+                modelo.Email,
+                modelo.Nombre,
+                (Pais)modelo.Pais,
+                modelo.Contrasenia,
+                modelo.ConfirmarContrasenia);
+
+            if (!resultado.Exito)
+            {
+                ViewBag.Error = resultado.Error;
+                return View(modelo);
+            }
+
+            TempData["Mensaje"] = "Cliente registrado correctamente.";
+            return RedirectToAction("RegistrarCliente");
+        }
     }
+
 }
