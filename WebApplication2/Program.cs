@@ -12,13 +12,19 @@ namespace WebApplication2
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
+            DotEnv.Load(options: new DotEnvOptions());
+
+            builder.Services.AddDataProtection();
 
             builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
             builder.Services.AddScoped<IProductoRepositorio, ProductoRepositorio>();
             builder.Services.AddScoped<IUsuarioServicio, UsuarioServicio>();
             builder.Services.AddScoped<IProductoServicio, ProductoServicio>();
             builder.Services.AddScoped<ICloudinaryServicio, CloudinaryServicio>();
+            builder.Services.AddScoped<ICifradoServicio, CifradoServicio>();
+            builder.Services.AddScoped<ICredencialesMercadoPagoRepositorio, CredencialesMercadoPagoRepositorio>();
+            builder.Services.AddScoped<IMercadoPagoServicio, MercadoPagoServicio>();
+            
 
             //cosa de cloudinary, echo por claude ni idea que es
             builder.Services.AddSingleton(sp =>
