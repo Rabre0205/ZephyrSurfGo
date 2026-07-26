@@ -28,23 +28,3 @@
 }
 
 <!-- mal echo tengo que arreglarlo -->
-<form asp-controller="Admin" asp-action="RegistrarCliente" method="post">
-
-    <label asp-for="Nombre">Nombre</label>
-    <input asp-for="Nombre" type="text" />
-
-    <label asp-for="Email">Email</label>
-    <input asp-for="Email" type="email" />
-
-    <label asp-for="Pais">País</label>
-    <select asp-for="Pais" asp-items="paisesSelect"></select>
-
-    <label asp-for="Contrasenia">Contraseña</label>
-    <input asp-for="Contrasenia" type="password" />
-
-    <label asp-for="ConfirmarContrasenia">Confirmar contraseña</label>
-    <input asp-for="ConfirmarContrasenia" type="password" />
-
-    <button type="submit">Registrar</button>
-
-</form>

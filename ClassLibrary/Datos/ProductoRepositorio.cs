@@ -6,6 +6,19 @@ using ClassLibrary.Enums;
 
 namespace ClassLibrary.Datos
 {
+    public interface IProductoRepositorio
+    {
+        List<Producto> ObtenerTodos();
+        List<Producto> ObtenerPorShaper(int shaperId);
+        int InsertarLeash(Leash leash);
+        int InsertarPad(Pad pad);
+        int InsertarQuilla(Quilla quilla);
+        int InsertarTabla(Tabla tabla);
+        int InsertarTraje(Traje traje);
+        bool ReservarTabla(int productoId, SqlConnection conexion, SqlTransaction transaccion);
+        bool DescontarStock(int productoId, int cantidad, string tipoProducto, SqlConnection conexion, SqlTransaction transaccion);
+    }
+
     public class ProductoRepositorio : IProductoRepositorio
     {
         /// <summary>
@@ -415,6 +428,53 @@ namespace ClassLibrary.Datos
                     transaccion.Commit();
                     return idGenerado;
                 }
+            }
+        }
+
+        public bool ReservarTabla(int productoId, SqlConnection conexion, SqlTransaction transaccion)
+        {
+            string sql = @"
+        UPDATE Tablas WITH (UPDLOCK, ROWLOCK)
+        SET Disponible = 0
+        WHERE ProductoId = @ProductoId AND Disponible = 1";
+
+            using (SqlCommand comando = new SqlCommand(sql, conexion, transaccion))
+            {
+                comando.Parameters.Add("@ProductoId", SqlDbType.Int).Value = productoId;
+                int filasAfectadas = comando.ExecuteNonQuery();
+                return filasAfectadas == 1; // si ya estaba en 0, no afecta ninguna fila → false
+            }
+        }
+
+        public bool DescontarStock(int productoId, int cantidad, string tipoProducto, SqlConnection conexion, SqlTransaction transaccion)
+        {
+            string nombreTabla = ObtenerTablaStock(tipoProducto);
+
+            string sql = $@"
+        UPDATE {nombreTabla} WITH (UPDLOCK, ROWLOCK)
+        SET Stock = Stock - @Cantidad
+        WHERE ProductoId = @ProductoId AND Stock >= @Cantidad";
+
+            using (SqlCommand comando = new SqlCommand(sql, conexion, transaccion))
+            {
+                comando.Parameters.Add("@ProductoId", SqlDbType.Int).Value = productoId;
+                comando.Parameters.Add("@Cantidad", SqlDbType.Int).Value = cantidad;
+
+                int filasAfectadas = comando.ExecuteNonQuery();
+                return filasAfectadas == 1; // 0 filas = no había stock suficiente
+            }
+        }
+
+        private string ObtenerTablaStock(string tipoProducto)
+        {
+            switch (tipoProducto)
+            {
+                case "Leash": return "Leashes";
+                case "Pad": return "Pads";
+                case "Quilla": return "Quillas";
+                case "Traje": return "Trajes";
+                default:
+                    throw new ArgumentException($"'{tipoProducto}' no maneja stock (¿es una Tabla? usá ReservarTabla).");
             }
         }
     }
