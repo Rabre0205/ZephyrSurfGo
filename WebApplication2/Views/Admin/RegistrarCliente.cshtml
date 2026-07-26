@@ -1,16 +1,17 @@
-﻿@using ClassLibrary.Enums
-
+@using ClassLibrary.Enums
+@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
     ViewBag.Title = "Registrar cliente";
 
     var paisesSelect = new List<SelectListItem>();
+
     foreach (Pais p in Enum.GetValues(typeof(Pais)))
     {
         paisesSelect.Add(new SelectListItem
         {
             Text = p.ToString(),
-            Value = ((byte)p).ToString()
+            Value = Convert.ToInt32(p).ToString()
         });
     }
 }
@@ -19,12 +20,16 @@
 
 @if (ViewBag.Error != null)
 {
-    <div class="alert-error">@ViewBag.Error</div>
+    <div class="alert-error">
+        @ViewBag.Error
+    </div>
 }
 
 @if (TempData["Mensaje"] != null)
 {
-    <div class="alert-success">@TempData["Mensaje"]</div>
+    <div class="alert-success">
+        @TempData["Mensaje"]
+    </div>
 }
 
 <!-- mal echo tengo que arreglarlo -->

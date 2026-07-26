@@ -1,4 +1,5 @@
 using ClassLibrary.Datos;
+using ClassLibrary.Enums;
 using ClassLibrary.Persona;
 using ClassLibrary.Productos;
 using CloudinaryDotNet;
@@ -73,3 +74,4 @@ namespace ClassLibrary
         }
     }
 }
+
