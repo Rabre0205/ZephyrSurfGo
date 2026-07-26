@@ -1,171 +1,213 @@
-﻿using ClassLibrary;
-using ClassLibrary.Persona;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using ClassLibrary.Enums;
+using ClassLibrary.Persona;
+using ClassLibrary.Servicios;
+using Microsoft.AspNetCore.Mvc;
 
 public class LoginController : Controller
 {
+    private readonly IUsuarioServicio _usuarioServicio;
+
+    public LoginController(IUsuarioServicio usuarioServicio)
+    {
+        _usuarioServicio = usuarioServicio;
+    }
+
     public IActionResult Index()
     {
         return View();
     }
 
     [HttpPost]
-    public async Task<IActionResult> IniciarSesion(string email, string password)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> IniciarSesion(
+        string email,
+        string password)
     {
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        if (string.IsNullOrWhiteSpace(email) ||
+            string.IsNullOrWhiteSpace(password))
         {
-            ViewBag.Error = "Ingresá el correo y la contraseña.";
+            ViewBag.Error =
+                "Ingresá el correo y la contraseña.";
+
             return View("Index");
         }
 
-            Sistema sistema = Sistema.ObtenerInstancia();
-
-            Usuario u = sistema.Login(email, password);
-
-            if (u != null)
-            {
-                HttpContext.Session.SetString("Rol", u.TipoDeUsuario.ToString());
-                HttpContext.Session.SetString("UId", u.Id.ToString());
-
-                return RedirectToAction("Home", "Surf");
-            }
-            else
-            {
-                ViewBag.Error = "Usuario o contraseña incorrectos";
-                return View();
-            }
-
-        if (usuario == null)
+        try
         {
-            ViewBag.Error = "Usuario o contraseña incorrectos.";
+            Usuario usuario = _usuarioServicio.Login(
+                email.Trim(),
+                password
+            );
+
+            if (usuario == null)
+            {
+                ViewBag.Error =
+                    "Usuario o contraseña incorrectos.";
+
+                return View("Index");
+            }
+
+            await GuardarUsuarioEnSesion(usuario);
+
+            return RedirectToAction("Home", "Surf");
+        }
+        catch (Exception ex)
+        {
+            ViewBag.Error = ex.ToString();
+            return View("Index");
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Registrarse(
+        string nombre,
+        string apellido,
+        string email,
+        string pais,
+        string password,
+        string confirmarPassword,
+        bool aceptaTerminos)
+    {
+        ViewBag.MostrarRegistro = true;
+
+        if (string.IsNullOrWhiteSpace(nombre) ||
+            string.IsNullOrWhiteSpace(apellido) ||
+            string.IsNullOrWhiteSpace(email) ||
+            string.IsNullOrWhiteSpace(pais) ||
+            string.IsNullOrWhiteSpace(password) ||
+            string.IsNullOrWhiteSpace(confirmarPassword))
+        {
+            ViewBag.ErrorRegistro =
+                "Completá todos los campos obligatorios.";
+
             return View("Index");
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Registrarse(
-    string nombre,
-    string apellido,
-    string email,
-    string pais,
-    string password,
-    string confirmarPassword,
-    bool aceptaTerminos)
+        if (!aceptaTerminos)
         {
-            ViewBag.MostrarRegistro = true;
+            ViewBag.ErrorRegistro =
+                "Debés aceptar los términos y condiciones.";
 
-            if (string.IsNullOrWhiteSpace(nombre) ||
-                string.IsNullOrWhiteSpace(apellido) ||
-                string.IsNullOrWhiteSpace(email) ||
-                string.IsNullOrWhiteSpace(pais) ||
-                string.IsNullOrWhiteSpace(password))
-            {
-                ViewBag.ErrorRegistro =
-                    "Completá todos los campos obligatorios.";
+            return View("Index");
+        }
 
-                return View("Index");
-            }
-
-            if (password.Length < 8)
-            {
-                ViewBag.ErrorRegistro =
-                    "La contraseña debe tener al menos 8 caracteres.";
-
-                return View("Index");
-            }
-
-            if (password != confirmarPassword)
-            {
-                ViewBag.ErrorRegistro =
-                    "Las contraseñas no coinciden.";
-
-                return View("Index");
-            }
-
-            if (!aceptaTerminos)
-            {
-                ViewBag.ErrorRegistro =
-                    "Debés aceptar los términos y condiciones.";
-
-                return View("Index");
-            }
-
-            if (!Enum.TryParse(
+        if (!Enum.TryParse(
                 pais,
                 true,
-                out ClassLibrary.Enums.Pais paisSeleccionado))
-            {
-                ViewBag.ErrorRegistro =
-                    "Seleccioná un país válido.";
+                out Pais paisSeleccionado))
+        {
+            ViewBag.ErrorRegistro =
+                "Seleccioná un país válido.";
 
-                return View("Index");
-            }
-
-            try
-            {
-                Sistema sistema = Sistema.ObtenerInstancia();
-
-                Usuario usuario = sistema.RegistrarCliente(
-                    email,
-                    $"{nombre.Trim()} {apellido.Trim()}",
-                    paisSeleccionado,
-                    password
-                );
-
-                HttpContext.Session.SetString(
-                    "Rol",
-                    usuario.TipoDeUsuario.ToString()
-                );
-
-                HttpContext.Session.SetString(
-                    "UId",
-                    usuario.Id.ToString()
-                );
-
-                HttpContext.Session.SetString(
-                    "Usuario",
-                    usuario.Nombre
-                );
-
-                return RedirectToAction("Home", "Surf");
-            }
-            catch (InvalidOperationException ex)
-            {
-                ViewBag.ErrorRegistro = ex.Message;
-                ViewBag.MostrarRegistro = true;
-                return View("Index");
-            }
-            catch (Exception)
-            {
-                ViewBag.ErrorRegistro = "Ocurrió un error al crear la cuenta.";
-                ViewBag.MostrarRegistro = true;
-                return View("Index");
-            }
+            return View("Index");
         }
 
-        public IActionResult Logout()
+        try
         {
-            new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-            new Claim(ClaimTypes.Name, usuario.Nombre),
-            new Claim(ClaimTypes.Role, usuario.TipoDeUsuario.ToString())
-        };
+            var resultado = _usuarioServicio.RegistrarCliente(
+                email.Trim(),
+                $"{nombre.Trim()} {apellido.Trim()}",
+                paisSeleccionado,
+                password,
+                confirmarPassword
+            );
 
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity);
+            if (!resultado.Exito)
+            {
+                ViewBag.ErrorRegistro = resultado.Error;
+                ViewBag.MostrarRegistro = true;
 
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            principal);
+                return View("Index");
+            }
 
-        return RedirectToAction("Home", "Surf");
+            Usuario usuario = _usuarioServicio.BuscarPorId(
+                resultado.UsuarioId
+            );
+
+            if (usuario == null)
+            {
+                ViewBag.ErrorRegistro =
+                    "El usuario fue creado, pero no se pudo iniciar sesión.";
+
+                ViewBag.MostrarRegistro = true;
+
+                return View("Index");
+            }
+
+            await GuardarUsuarioEnSesion(usuario);
+
+            return RedirectToAction("Home", "Surf");
+        }
+        catch (Exception)
+        {
+            ViewBag.ErrorRegistro =
+                "Ocurrió un error al crear la cuenta.";
+
+            ViewBag.MostrarRegistro = true;
+
+            return View("Index");
+        }
     }
 
     public async Task<IActionResult> Logout()
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await HttpContext.SignOutAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme
+        );
+
+        HttpContext.Session.Clear();
+
         return RedirectToAction("Home", "Surf");
+    }
+
+    private async Task GuardarUsuarioEnSesion(
+        Usuario usuario)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(
+                ClaimTypes.NameIdentifier,
+                usuario.Id.ToString()
+            ),
+            new Claim(
+                ClaimTypes.Name,
+                usuario.Nombre
+            ),
+            new Claim(
+                ClaimTypes.Role,
+                usuario.TipoDeUsuario.ToString()
+            )
+        };
+
+        var identidad = new ClaimsIdentity(
+            claims,
+            CookieAuthenticationDefaults.AuthenticationScheme
+        );
+
+        var principal = new ClaimsPrincipal(identidad);
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal
+        );
+
+        HttpContext.Session.SetString(
+            "Rol",
+            usuario.TipoDeUsuario.ToString()
+        );
+
+        HttpContext.Session.SetString(
+            "UId",
+            usuario.Id.ToString()
+        );
+
+        HttpContext.Session.SetString(
+            "Usuario",
+            usuario.Nombre
+        );
     }
 }

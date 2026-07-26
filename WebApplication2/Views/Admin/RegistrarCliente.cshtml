@@ -1,16 +1,17 @@
 ﻿@using ClassLibrary.Enums
-
+@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
     ViewBag.Title = "Registrar cliente";
 
     var paisesSelect = new List<SelectListItem>();
+
     foreach (Pais p in Enum.GetValues(typeof(Pais)))
     {
         paisesSelect.Add(new SelectListItem
         {
             Text = p.ToString(),
-            Value = ((byte)p).ToString()
+            Value = Convert.ToInt32(p).ToString()
         });
     }
 }
@@ -19,32 +20,61 @@
 
 @if (ViewBag.Error != null)
 {
-    <div class="alert-error">@ViewBag.Error</div>
+    <div class="alert-error">
+        @ViewBag.Error
+    </div>
 }
 
 @if (TempData["Mensaje"] != null)
 {
-    <div class="alert-success">@TempData["Mensaje"]</div>
+    <div class="alert-success">
+        @TempData["Mensaje"]
+    </div>
 }
 
-<!-- mal echo tengo que arreglarlo -->
-<form asp-controller="Admin" asp-action="RegistrarCliente" method="post">
+<form asp-controller="Admin"
+      asp-action="RegistrarCliente"
+      method="post">
 
-    <label asp-for="Nombre">Nombre</label>
-    <input asp-for="Nombre" type="text" />
+    @Html.AntiForgeryToken()
 
-    <label asp-for="Email">Email</label>
-    <input asp-for="Email" type="email" />
+    <label for="Nombre">Nombre</label>
+    <input id="Nombre"
+           name="Nombre"
+           type="text"
+           required />
 
-    <label asp-for="Pais">País</label>
-    <select asp-for="Pais" asp-items="paisesSelect"></select>
+    <label for="Email">Email</label>
+    <input id="Email"
+           name="Email"
+           type="email"
+           required />
 
-    <label asp-for="Contrasenia">Contraseña</label>
-    <input asp-for="Contrasenia" type="password" />
+    <label for="Pais">País</label>
+    <select id="Pais"
+            name="Pais"
+            asp-items="paisesSelect"
+            required>
+        <option value="">Seleccioná un país</option>
+    </select>
 
-    <label asp-for="ConfirmarContrasenia">Confirmar contraseña</label>
-    <input asp-for="ConfirmarContrasenia" type="password" />
+    <label for="Contrasenia">Contraseña</label>
+    <input id="Contrasenia"
+           name="Contrasenia"
+           type="password"
+           required />
 
-    <button type="submit">Registrar</button>
+    <label for="ConfirmarContrasenia">
+        Confirmar contraseña
+    </label>
+
+    <input id="ConfirmarContrasenia"
+           name="ConfirmarContrasenia"
+           type="password"
+           required />
+
+    <button type="submit">
+        Registrar
+    </button>
 
 </form>
