@@ -10,7 +10,9 @@ namespace ClassLibrary.Datos
     public interface ICarritoRepositorio
     {
         List<CarritoItemDetallado> ObtenerPorUsuario(int usuarioId);
-        void EliminarItem(int usuarioId, int productoId, SqlConnection conexion, SqlTransaction transaccion);
+        void AgregarItem(int usuarioId, int productoId, int cantidad);
+        void EliminarItem(int usuarioId, int productoId);
+        void EliminarItem(int usuarioId, int productoId, SqlConnection conexion, SqlTransaction transaccion); // la que ya usa el checkout
     }
 
     public class CarritoRepositorio : ICarritoRepositorio
@@ -60,6 +62,41 @@ namespace ClassLibrary.Datos
                 comando.Parameters.Add("@UsuarioId", SqlDbType.Int).Value = usuarioId;
                 comando.Parameters.Add("@ProductoId", SqlDbType.Int).Value = productoId;
                 comando.ExecuteNonQuery();
+            }
+        }
+
+        public void AgregarItem(int usuarioId, int productoId, int cantidad)
+        {
+            string sql = @"
+        MERGE CarritoItems AS destino
+        USING (SELECT @UsuarioId AS UsuarioId, @ProductoId AS ProductoId) AS origen
+        ON destino.UsuarioId = origen.UsuarioId AND destino.ProductoId = origen.ProductoId
+        WHEN MATCHED THEN UPDATE SET Cantidad = destino.Cantidad + @Cantidad
+        WHEN NOT MATCHED THEN INSERT (UsuarioId, ProductoId, Cantidad)
+            VALUES (@UsuarioId, @ProductoId, @Cantidad);";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add("@UsuarioId", SqlDbType.Int).Value = usuarioId;
+                comando.Parameters.Add("@ProductoId", SqlDbType.Int).Value = productoId;
+                comando.Parameters.Add("@Cantidad", SqlDbType.Int).Value = cantidad;
+                conexion.Open();
+                comando.ExecuteNonQuery();
+            }
+        }
+
+        // Sobrecarga para uso "suelto" (fuera de una transacción de checkout)
+        public void EliminarItem(int usuarioId, int productoId)
+        {
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            {
+                conexion.Open();
+                using (SqlTransaction transaccion = conexion.BeginTransaction())
+                {
+                    EliminarItem(usuarioId, productoId, conexion, transaccion);
+                    transaccion.Commit();
+                }
             }
         }
     }
