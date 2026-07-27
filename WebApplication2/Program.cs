@@ -24,7 +24,7 @@ namespace WebApplication2
             builder.Services.AddScoped<ICifradoServicio, CifradoServicio>();
             builder.Services.AddScoped<ICredencialesMercadoPagoRepositorio, CredencialesMercadoPagoRepositorio>();
             builder.Services.AddScoped<IMercadoPagoServicio, MercadoPagoServicio>();
-            
+            builder.Services.AddScoped<ICarritoRepositorio, CarritoRepositorio>();
 
             //cosa de cloudinary, echo por claude ni idea que es
             builder.Services.AddSingleton(sp =>
