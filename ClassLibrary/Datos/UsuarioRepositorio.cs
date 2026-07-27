@@ -1,9 +1,10 @@
+using ClassLibrary.Enums;
+using ClassLibrary.Persona;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using ClassLibrary.Enums;
-using ClassLibrary.Persona;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ClassLibrary.Datos
 {
@@ -141,23 +142,25 @@ namespace ClassLibrary.Datos
         public int InsertarUsuario(Usuario usuario)
         {
             string sql = @"
-                INSERT INTO Usuarios
-                (
-                    Email,
-                    Contrasenia,
-                    Nombre,
-                    PaisId,
-                    TipoDeUsuarioId
-                )
-                OUTPUT INSERTED.Id
-                VALUES
-                (
-                    @Email,
-                    @Contrasenia,
-                    @Nombre,
-                    @PaisId,
-                    @TipoDeUsuarioId
-                );";
+    INSERT INTO Usuarios
+    (
+        Email,
+        Contrasenia,
+        Nombre,
+        PaisId,
+        TipoDeUsuarioId
+    )
+    VALUES
+    (
+        @Email,
+        @Contrasenia,
+        @Nombre,
+        @PaisId,
+        @TipoDeUsuarioId
+    );
+
+    SELECT CAST(SCOPE_IDENTITY() AS INT);
+";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
@@ -194,29 +197,31 @@ namespace ClassLibrary.Datos
         public int InsertarShaper(Shaper shaper)
         {
             string sql = @"
-                INSERT INTO Usuarios
-                (
-                    Email,
-                    Contrasenia,
-                    Nombre,
-                    PaisId,
-                    TipoDeUsuarioId,
-                    NombreDeNegosio,
-                    Contacto,
-                    LogoUrl
-                )
-                OUTPUT INSERTED.Id
-                VALUES
-                (
-                    @Email,
-                    @Contrasenia,
-                    @Nombre,
-                    @PaisId,
-                    @TipoDeUsuarioId,
-                    @NombreDeNegosio,
-                    @Contacto,
-                    @LogoUrl
-                );";
+    INSERT INTO Usuarios
+    (
+        Email,
+        Contrasenia,
+        Nombre,
+        PaisId,
+        TipoDeUsuarioId,
+        NombreDeNegosio,
+        Contacto,
+        LogoUrl
+    )
+    VALUES
+    (
+        @Email,
+        @Contrasenia,
+        @Nombre,
+        @PaisId,
+        @TipoDeUsuarioId,
+        @NombreDeNegosio,
+        @Contacto,
+        @LogoUrl
+    );
+
+    SELECT CAST(SCOPE_IDENTITY() AS INT);
+";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
