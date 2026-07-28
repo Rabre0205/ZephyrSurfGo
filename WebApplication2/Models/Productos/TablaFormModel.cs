@@ -10,17 +10,17 @@ namespace WebApplication2.Models.Productos
     /// </summary>
     public class TablaFormModel
     {
-        public string Titulo { get; set; }
-        public string Subtitulo { get; set; }
-        public double Precio { get; set; }
-        public string Descripcion { get; set; }
+        public string Titulo { get; set; } = string.Empty;
+        public string Subtitulo { get; set; } = string.Empty;
+        public double Precio { get; set; } 
+        public string Descripcion { get; set; } = string.Empty;
 
         // Archivos de imagen
-        public IFormFile ImagenFrontal { get; set; }  // Imagen principal
+        public IFormFile ImagenFrontal { get; set; } = null!;  // Imagen principal
         public IFormFile ImagenTrasera { get; set; }  // Imagen trasera (opcional)
 
         // Especificaciones de la tabla
-        public string Altura { get; set; }
+        public string Altura { get; set; } = string.Empty;
         public int Ancho { get; set; }
         public double Volumen { get; set; }
         public byte SistemaDeEncaje { get; set; }    // 0=FSS2, 1=Future

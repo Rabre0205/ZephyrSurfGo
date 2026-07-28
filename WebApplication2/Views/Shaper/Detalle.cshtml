@@ -1,6 +1,14 @@
-﻿@{
+﻿@model WebApplication2.Models.ShaperDetalleViewModel
+
+@{
     Layout = null;
-    ViewData["Title"] = "Master";
+
+    string nombreNegocio = Model.Shaper.NombreDeNegosio;
+    string pais = Model.Shaper.Pais.ToString();
+    string contacto = Model.Shaper.Contacto;
+    string logoUrl = Model.Shaper.LogoUrl;
+
+    ViewData["Title"] = nombreNegocio;
 }
 
 <!DOCTYPE html>
@@ -8,7 +16,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Master Surfboards — The Shaper | Zephyr Surf Go</title>
+    <title>@nombreNegocio — The Shaper | Zephyr Surf Go</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/estilosMaster.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
@@ -37,29 +45,106 @@
 
         <div class="hero-overlay"></div>
         <div class="hero-content">
+
             <div class="breadcrumb-nav">
-                <a href="index2.html">Dealers</a>
+                <a asp-controller="Surf"
+                   asp-action="Shapers">
+                    Shapers
+                </a>
+
                 <span class="sep">›</span>
-                <a href="#">Uruguay</a>
+
+                <span>@pais</span>
+
                 <span class="sep">›</span>
-                <span class="current">Master Surfboards</span>
+
+                <span class="current">
+                    @nombreNegocio
+                </span>
             </div>
-            <span class="hero-badge">🇺🇾 Marca uruguaya</span>
-            <p class="hero-eyebrow">The Shaper</p>
+
+            <span class="hero-badge">
+                @pais
+            </span>
+
+            <p class="hero-eyebrow">
+                The Shaper
+            </p>
+
             <h1 class="hero-title">
-                MASTER
+                @nombreNegocio
             </h1>
-            <p class="hero-sub">Hechas a mano en Uruguay desde 1998. Cada tabla es una conversación entre el shaper, el océano y vos.</p>
+
+            <p class="hero-sub">
+                Conocé los productos, tablas y opciones personalizadas de
+                @nombreNegocio.
+            </p>
+
+            @if (!string.IsNullOrWhiteSpace(logoUrl))
+            {
+                <div class="shaper-hero-logo">
+                    <img src="@logoUrl"
+                         alt="Logo de @nombreNegocio"
+                         onerror="this.style.display='none';" />
+                </div>
+            }
+
             <div class="hero-cta-row">
-                <a href="#recomendador" class="btn-gold">Encontrá tu tabla ideal</a>
-                <a href="#tablas" class="btn-ghost-white">Ver catálogo</a>
+                <a href="#recomendador"
+                   class="btn-gold">
+                    Encontrá tu tabla ideal
+                </a>
+
+                <a href="#tablas"
+                   class="btn-ghost-white">
+                    Ver catálogo
+                </a>
             </div>
+
             <div class="hero-stats">
-                <div class="hstat"><div class="hstat-num">26</div><div class="hstat-label">Años de oficio</div></div>
-                <div class="hstat"><div class="hstat-num">400+</div><div class="hstat-label">Tablas entregadas</div></div>
-                <div class="hstat"><div class="hstat-num">100%</div><div class="hstat-label">Artesanal</div></div>
-                <div class="hstat"><div class="hstat-num">UY</div><div class="hstat-label">Origen</div></div>
+
+                <div class="hstat">
+                    <div class="hstat-num">
+                        @Model.Productos.Count
+                    </div>
+
+                    <div class="hstat-label">
+                        Productos
+                    </div>
+                </div>
+
+                <div class="hstat">
+                    <div class="hstat-num">
+                        @pais
+                    </div>
+
+                    <div class="hstat-label">
+                        Origen
+                    </div>
+                </div>
+
+                <div class="hstat">
+                    <div class="hstat-num">
+                        100%
+                    </div>
+
+                    <div class="hstat-label">
+                        Artesanal
+                    </div>
+                </div>
+
+                <div class="hstat">
+                    <div class="hstat-num">
+                        ✓
+                    </div>
+
+                    <div class="hstat-label">
+                        Shaper verificado
+                    </div>
+                </div>
+
             </div>
+
         </div>
         <div class="scroll-hint">
             <div class="scroll-line"></div>
@@ -72,10 +157,10 @@
     <!-- ── TABLAS DESTACADAS ── -->
     <section id="tablas">
         <p class="section-eyebrow reveal">Catálogo selecto</p>
-        <h2 class="section-title reveal">
-            Tablas Master
-        </h2>
-        <p class="section-sub reveal">Los modelos más pedidos de la temporada. Cada una con su propia personalidad, pensada para un tipo de surfer y un tipo de ola.</p>
+        <h2 class="section-title reveal">Tablas Master</h2>
+        <p class="section-sub reveal">
+            Descubrí los productos disponibles de @nombreNegocio.
+        </p>
 
         <div class="boards-grid">
 
@@ -135,37 +220,37 @@
             <div class="board-card reveal" onclick="selectBoard('charrua')">
                 <div class="board-visual" style="background: linear-gradient(135deg, #0e1a10, #152218);">
                     <div class="board-bg-circle" style="background: radial-gradient(circle, rgba(46,194,126,.06) 0%, transparent 70%);"></div>
-                   <div class="board-shape-wrap">
+                    <div class="board-shape-wrap">
                         <img src="~/img/tabla.png"
-                         alt="El Gaucho"
-                          class="master-board-img">
-                        </div>
-                    </div>
-                </div>
-                <div class="board-info">
-                    <p class="board-cat">Longboard · Clásico</p>
-                    <p class="board-name">El Charrúa</p>
-                    <p class="board-spec">9'2" × 22½" × 3" · 75L · Single-fin</p>
-                    <p class="board-desc">Noseriding clásico. Madera de cedro en el stringer, canales laterales únicos y el rocker que convirtió a Master en referente del longboard rioplatense.</p>
-                    <div class="board-footer">
-                        <span class="board-price">USD 950</span>
-                        <button class="btn-add-small" onclick="event.stopPropagation(); addToCart('charrua', 'El Charrúa', 950)">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                            Agregar
-                        </button>
+                             alt="El Gaucho"
+                             class="master-board-img">
                     </div>
                 </div>
             </div>
+            <div class="board-info">
+                <p class="board-cat">Longboard · Clásico</p>
+                <p class="board-name">El Charrúa</p>
+                <p class="board-spec">9'2" × 22½" × 3" · 75L · Single-fin</p>
+                <p class="board-desc">Noseriding clásico. Madera de cedro en el stringer, canales laterales únicos y el rocker que convirtió a Master en referente del longboard rioplatense.</p>
+                <div class="board-footer">
+                    <span class="board-price">USD 950</span>
+                    <button class="btn-add-small" onclick="event.stopPropagation(); addToCart('charrua', 'El Charrúa', 950)">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                        Agregar
+                    </button>
+                </div>
+            </div>
+        </div>
 
-            <!-- Board 4 -->
-            <div class="board-card reveal" onclick="selectBoard('playero')">
-                <div class="board-visual" style="background: linear-gradient(135deg, #1a1018, #241528);">
-                    <div class="board-bg-circle" style="background: radial-gradient(circle, rgba(180,100,220,.06) 0%, transparent 70%);"></div>
+        <!-- Board 4 -->
+        <div class="board-card reveal" onclick="selectBoard('playero')">
+            <div class="board-visual" style="background: linear-gradient(135deg, #1a1018, #241528);">
+                <div class="board-bg-circle" style="background: radial-gradient(circle, rgba(180,100,220,.06) 0%, transparent 70%);"></div>
+                <div class="board-shape-wrap">
                     <div class="board-shape-wrap">
-                        <div class="board-shape-wrap">
-    <img src="~/img/tabla.png"
-         alt="El Gaucho"
-         class="master-board-img">
+                        <img src="~/img/tabla.png"
+                             alt="El Gaucho"
+                             class="master-board-img">
 
                     </div>
                 </div>
@@ -1361,8 +1446,19 @@
             <p style="font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:.75rem;">Último paso</p>
             <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,5vw,4.5rem);color:#fff;line-height:1;margin-bottom:1rem;">Listo para pedir?</h2>
             <p style="font-size:.95rem;color:rgba(255,255,255,.4);line-height:1.8;font-weight:300;margin-bottom:2.5rem;">Revisá tu selección, completá tus datos de surf y confirmá el pedido. Francisco se comunica en 24hs para cerrar los detalles.</p>
-            <a href="carrito.html" class="btn-gold" style="display:inline-block;padding:1.1rem 3rem;font-size:.92rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-decoration:none;">
+            <a asp-controller="Carrito"
+               asp-action="Index"
+               class="btn-gold"
+               style="display:inline-block;
+                padding:1.1rem 3rem;
+                font-size:.92rem;
+                letter-spacing:.1em;
+                text-transform:uppercase;
+                font-weight:700;
+                text-decoration:none;">
+
                 Ir al carrito y confirmar pedido →
+
             </a>
             <p style="font-size:.72rem;color:rgba(255,255,255,.2);margin-top:1.5rem;letter-spacing:.04em;">Cada tabla se hace a mano, a tu medida.</p>
         </div>
@@ -1376,23 +1472,42 @@
     <footer>
         <div class="footer-inner">
             <div>
-                <div class="footer-logo">ZEPHYR <span>SURF</span> GO <span class="master-tag">× Master</span></div>
+                <div class="footer-logo">
+                    ZEPHYR <span>SURF</span> GO
+                    <span class="master-tag">
+                        × @nombreNegocio
+                    </span>
+                </div>
                 <div class="footer-tagline">Tablas de autor. Olas uruguayas.</div>
             </div>
             <ul class="footer-links">
                 <li><a href="index.html">Inicio</a></li>
-                <li><a href="#tablas">Catálogo Master</a></li>
+                <li>
+                    <a href="#tablas">
+                        Catálogo de @nombreNegocio
+                    </a>
+                </li>
                 <li><a href="#recomendador">Recomendador</a></li>
                 <li><a href="#customizador">Customizador</a></li>
                 <li><a href="index2.html">Dealers</a></li>
             </ul>
             <div style="font-size:.75rem;letter-spacing:.08em;">
                 <p style="color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.12em;font-size:.65rem;margin-bottom:.6rem;">Contacto</p>
-                <p>🇺🇾 Punta del Este, Uruguay</p>
+                <p>@pais</p>
+
+                @if (!string.IsNullOrWhiteSpace(contacto))
+                {
+                    <p style="margin-top:.35rem;color:var(--gold);">
+                        @contacto
+                    </p>
+                }
                 <p style="margin-top:.35rem;color:var(--gold);"></p>
             </div>
         </div>
-        <p class="footer-copy">© 2025 Master Surfboards · Zephyr Surf Go — Todos los derechos reservados.</p>
+        <p class="footer-copy">
+            © 2026 @nombreNegocio · Zephyr Surf Go —
+            Todos los derechos reservados.
+        </p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

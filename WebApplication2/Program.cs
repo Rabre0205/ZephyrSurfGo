@@ -25,6 +25,9 @@ namespace WebApplication2
             builder.Services.AddScoped<ICredencialesMercadoPagoRepositorio, CredencialesMercadoPagoRepositorio>();
             builder.Services.AddScoped<IMercadoPagoServicio, MercadoPagoServicio>();
             builder.Services.AddScoped<ICarritoRepositorio, CarritoRepositorio>();
+            builder.Services.AddScoped<IPedidoRepositorio, PedidoRepositorio>();
+            builder.Services.AddScoped<IPedidoServicio, PedidoServicio>();
+            builder.Services.AddScoped<IProductoRepositorio, ProductoRepositorio>();
 
             //cosa de cloudinary, echo por claude ni idea que es
             builder.Services.AddSingleton(sp =>
@@ -39,7 +42,7 @@ namespace WebApplication2
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>
             {
-                options.LoginPath = "/Login";
+                options.LoginPath = "/Login/Index";
                 options.LogoutPath = "/Login/Logout";
                 options.ExpireTimeSpan = TimeSpan.FromDays(7);
                 options.SlidingExpiration = true;

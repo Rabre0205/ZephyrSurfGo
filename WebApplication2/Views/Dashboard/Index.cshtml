@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h1>Dashboard</h1>
+
+<p>Bienvenido al panel del shaper.</p>
+
+<nav>
+    <a asp-controller="Dashboard"
+       asp-action="Index">
+        Resumen
+    </a>
+
+    <a asp-controller="Dashboard"
+       asp-action="Pedidos">
+        Pedidos
+    </a>
+
+    <a asp-controller="Dashboard"
+       asp-action="Facturacion">
+        Facturación
+    </a>
+</nav>

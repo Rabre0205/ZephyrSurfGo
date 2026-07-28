@@ -1,0 +1,283 @@
+﻿@model List<ClassLibrary.Carrito.CarritoItemDetallado>
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Carrito";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carrito — Zephyr Surf Go</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/estilosCarrito.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
+</head>
+<body>
+
+   
+    <!-- ── NAVBAR ── -->
+    <partial name="_Navbar" />
+
+    <!-- ── PAGE HEADER ── -->
+    <div class="page-header">
+        <p class="section-label">Tu selección</p>
+        <h1>Carrito de compras</h1>
+    </div>
+
+    <div class="cart-wrapper">
+
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["Mensaje"]
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["Error"]
+            </div>
+        }
+
+        @if (Model == null || Model.Count == 0)
+        {
+            <div class="empty-cart">
+                <h2>Tu carrito está vacío</h2>
+
+                <p>
+                    Todavía no agregaste productos.
+                </p>
+
+                <a asp-controller="Surf"
+                   asp-action="Home"
+                   asp-fragment="tablas"
+                   class="btn-checkout">
+                    Ver productos
+                </a>
+            </div>
+        }
+        else
+        {
+            double total = Model.Sum(item => item.Precio * item.Cantidad);
+
+            <div class="cart-items">
+
+                @foreach (var item in Model)
+                {
+                    double subtotal = item.Precio * item.Cantidad;
+
+                    <article class="cart-item">
+
+                        <div class="cart-item-info">
+                            <span class="cart-item-type">
+                                @item.TipoProducto
+                            </span>
+
+                            <h2>@item.Titulo</h2>
+
+                            <p>
+                                Precio unitario:
+                                USD @item.Precio.ToString("N2")
+                            </p>
+
+                            <p>
+                                Cantidad: @item.Cantidad
+                            </p>
+
+                            <strong>
+                                Subtotal:
+                                USD @subtotal.ToString("N2")
+                            </strong>
+                        </div>
+
+                        <form asp-controller="Carrito"
+                              asp-action="Eliminar"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="productoId"
+                                   value="@item.ProductoId" />
+
+                            <button type="submit"
+                                    class="btn-remove">
+                                Quitar
+                            </button>
+                        </form>
+
+                    </article>
+                }
+
+            </div>
+
+            <aside class="cart-summary">
+
+                <div class="summary-line total">
+                    <span>Total</span>
+
+                    <span>
+                        USD @total.ToString("N2")
+                    </span>
+                </div>
+
+                <form asp-controller="Carrito"
+                      asp-action="Checkout"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="btn-checkout">
+                        Finalizar compra →
+                    </button>
+                </form>
+
+                <a asp-controller="Surf"
+                   asp-action="Home"
+                   asp-fragment="tablas"
+                   class="btn-continue">
+                    Seguir eligiendo
+                </a>
+
+            </aside>
+        }
+
+    </div>
+
+
+    <!-- ── ORDER FORM MODAL ── -->
+    <div class="order-modal-overlay" id="orderModal">
+        <div class="order-modal">
+            <button class="order-modal-close" onclick="closeOrderForm()">✕</button>
+            <h3>Finalizá tu pedido</h3>
+            <p class="order-modal-sub">Dejanos tus datos y Francisco se comunica en 24hs para confirmar medidas finales y tiempo de entrega.</p>
+
+            <p class="modal-section-title">Tus datos</p>
+            <div class="modal-form-row">
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Nombre</label>
+                    <input class="modal-form-control" type="text" placeholder="Nombre" id="fname" />
+                </div>
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Apellido</label>
+                    <input class="modal-form-control" type="text" placeholder="Apellido" id="lname" />
+                </div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">Email</label>
+                <input class="modal-form-control" type="email" placeholder="tu@email.com" id="femail" />
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">Teléfono / WhatsApp</label>
+                <input class="modal-form-control" type="tel" placeholder="+598 99 xxx xxx" id="fphone" />
+            </div>
+            <div class="modal-form-row">
+                <div class="modal-form-group">
+                    <label class="modal-form-label">País</label>
+                    <select class="modal-form-control" id="fcountry">
+                        <option>Uruguay</option>
+                        <option>Argentina</option>
+                        <option>Brasil</option>
+                        <option>Otro</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Ciudad</label>
+                    <input class="modal-form-control" type="text" placeholder="Punta del Este" id="fcity" />
+                </div>
+            </div>
+
+            <p class="modal-section-title">Datos de surf</p>
+            <div class="modal-form-row">
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Altura (cm)</label>
+                    <input class="modal-form-control" type="number" placeholder="175" id="fheight" />
+                </div>
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Peso (kg)</label>
+                    <input class="modal-form-control" type="number" placeholder="72" id="fweight" />
+                </div>
+            </div>
+            <div class="modal-form-row">
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Calzado (EU)</label>
+                    <input class="modal-form-control" type="number" placeholder="42" id="fshoesize" />
+                </div>
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Stance</label>
+                    <select class="modal-form-control" id="fstance">
+                        <option>Regular</option>
+                        <option>Goofy</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-form-row">
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Pierna dominante</label>
+                    <select class="modal-form-control" id="fleg">
+                        <option>Diestro/a</option>
+                        <option>Zurdo/a</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Nivel (1–5)</label>
+                    <select class="modal-form-control" id="flevel">
+                        <option value="1">1 – Principiante</option>
+                        <option value="2">2 – Básico</option>
+                        <option value="3" selected>3 – Intermedio</option>
+                        <option value="4">4 – Avanzado</option>
+                        <option value="5">5 – Experto</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">Tabla que usás hoy (marca / modelo / medidas)</label>
+                <input class="modal-form-control" type="text" placeholder="Ej: Channel Islands 6'1 Fever…" id="fcurrent" />
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">¿Qué querés mejorar de tu surf?</label>
+                <textarea class="modal-form-control" rows="2" placeholder="Ej: quiero surfear más suelto, mejorar backside…" id="fimprove"></textarea>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">Tipo de olas que surfeás generalmente</label>
+                <input class="modal-form-control" type="text" placeholder="Ej: olas chicas, playas cerradas, reef…" id="fwaves" />
+            </div>
+
+            <button class="btn-confirm-order" onclick="submitOrder()">Confirmar pedido →</button>
+            <p style="font-size:.72rem;color:rgba(255,255,255,.2);text-align:center;margin-top:.75rem;line-height:1.6;">
+                Francisco te contacta en 24hs para confirmar detalles y tiempo de entrega.
+            </p>
+        </div>
+    </div>
+
+    <!-- ── TOAST ── -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+        <div class="footer-inner">
+            <div>
+                <div class="footer-logo">ZEPHYR <span>SURF</span> GO</div>
+                <div class="footer-tagline">Tablas de autor. Olas latinoamericanas.</div>
+            </div>
+            <ul class="footer-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="index.html#tablas">Tablas</a></li>
+                <li><a href="index2.html">Dealers</a></li>
+                <li><a href="index.html#contacto">Contacto</a></li>
+            </ul>
+        </div>
+        <p class="footer-copy">© 2025 Zephyr Surf Go — Todos los derechos reservados.</p>
+    </footer>
+
+    <
+    <script src="~/js/navbar.js" asp-append-version="true"></script>
+
+</body>
+</html>
