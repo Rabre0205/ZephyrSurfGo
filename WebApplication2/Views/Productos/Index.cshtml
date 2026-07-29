@@ -1,57 +1,173 @@
-﻿@model List<ClassLibrary.Productos.Producto>
+﻿@model IEnumerable<ClassLibrary.Productos.Producto>
 
 @{
     ViewData["Title"] = "Mis productos";
 }
 
-<h1>Mis productos</h1>
+<link rel="stylesheet"
+      href="~/css/estilosProductos.css"
+      asp-append-version="true" />
 
-@if (TempData["Mensaje"] != null)
-{
-    <p>
-        @TempData["Mensaje"]
-    </p>
-}
+<section class="productos-page">
 
-<a asp-controller="Productos"
-   asp-action="Crear">
-    Crear tabla
-</a>
+    <div class="productos-header">
 
-@if (Model == null || Model.Count == 0)
-{
-    <p>
-        Todavía no creaste productos.
-    </p>
-}
-else
-{
-    <div>
-        @foreach (var producto in Model)
-        {
-            <article>
-                @if (!string.IsNullOrWhiteSpace(
-                    producto.ImagenUrl))
-                {
-                    <img src="@producto.ImagenUrl"
-                         alt="@producto.Titulo"
-                         style="max-width:180px;" />
-                }
+        <div>
+            <span class="productos-eyebrow">
+                Panel del shaper
+            </span>
 
-                <h2>@producto.Titulo</h2>
+            <h1>Mis productos</h1>
 
-                <p>@producto.Subtitulo</p>
+            <p>
+                Administrá las tablas publicadas en tu perfil.
+            </p>
+        </div>
 
-                <p>
-                    USD @producto.Precio.ToString("0.00")
-                </p>
+        <a asp-controller="Productos"
+           asp-action="Crear"
+           class="btn-crear-tabla">
+            <span>+</span>
+            Crear tabla
+        </a>
 
-                <a asp-controller="Productos"
-                   asp-action="Editar"
-                   asp-route-id="@producto.Id">
-                    Editar
-                </a>
-            </article>
-        }
     </div>
-}
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="mensaje mensaje-exito">
+            <span class="mensaje-icono">✓</span>
+
+            <span>
+                @TempData["Mensaje"]
+            </span>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="mensaje mensaje-error">
+            <span class="mensaje-icono">!</span>
+
+            <span>
+                @TempData["Error"]
+            </span>
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="estado-vacio">
+
+            <div class="estado-vacio-icono">
+                🏄
+            </div>
+
+            <h2>Todavía no tenés tablas publicadas</h2>
+
+            <p>
+                Creá tu primera tabla para que aparezca
+                en tu perfil y los clientes puedan verla.
+            </p>
+
+            <a asp-controller="Productos"
+               asp-action="Crear"
+               class="btn-primera-tabla">
+                Crear mi primera tabla
+            </a>
+
+        </div>
+    }
+    else
+    {
+        <div class="productos-resumen">
+            <p>
+                <strong>@Model.Count()</strong>
+                @(Model.Count() == 1 ? "producto publicado" : "productos publicados")
+            </p>
+        </div>
+
+        <div class="productos-grid">
+
+            @foreach (var producto in Model)
+            {
+                <article class="producto-card">
+
+                    <div class="producto-imagen-contenedor">
+
+                        @if (!string.IsNullOrWhiteSpace(producto.ImagenUrl))
+                        {
+                            <img src="@producto.ImagenUrl"
+                                 alt="@producto.Titulo"
+                                 class="producto-imagen" />
+                        }
+                        else
+                        {
+                            <div class="producto-sin-imagen">
+                                Sin imagen
+                            </div>
+                        }
+
+                        <span class="producto-estado">
+                            Publicada
+                        </span>
+
+                    </div>
+
+                    <div class="producto-info">
+
+                        <div class="producto-info-superior">
+                            <span class="producto-tipo">
+                                Tabla de surf
+                            </span>
+
+                            <h2>@producto.Titulo</h2>
+                        </div>
+
+                        <div class="producto-precio">
+                            USD @producto.Precio.ToString("N2")
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(producto.Descripcion))
+                        {
+                            <p class="producto-descripcion">
+                                @producto.Descripcion
+                            </p>
+                        }
+
+                        <div class="producto-acciones">
+
+                            <a asp-controller="Productos"
+                               asp-action="Editar"
+                               asp-route-id="@producto.Id"
+                               class="btn-editar">
+                                Editar
+                            </a>
+
+                            <form asp-controller="Productos"
+                                  asp-action="Eliminar"
+                                  asp-route-id="@producto.Id"
+                                  method="post"
+                                  class="form-eliminar"
+                                  onsubmit="return confirm('¿Seguro que querés eliminar esta tabla? Esta acción no se puede deshacer.');">
+
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="btn-eliminar">
+                                    Eliminar
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </article>
+            }
+
+        </div>
+    }
+
+</section>

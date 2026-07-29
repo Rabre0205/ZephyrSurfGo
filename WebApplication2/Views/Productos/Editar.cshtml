@@ -1,7 +1,200 @@
-﻿@{
+﻿@model WebApplication2.Models.Productos.TablaFormModel
+
+@{
     ViewData["Title"] = "Editar producto";
 }
 
 <h1>Editar producto</h1>
 
-<p>Aquí se editará una tabla existente.</p>
+@if (ViewBag.Debug != null)
+{
+    <div class="alert alert-danger">
+        @ViewBag.Debug
+    </div>
+}
+
+<form asp-controller="Productos"
+      asp-action="Editar"
+      method="post"
+      enctype="multipart/form-data">
+
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ImagenFrontalActual" />
+    <input type="hidden" asp-for="ImagenTraseraActual" />
+
+    <div asp-validation-summary="All"
+         class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Titulo" class="form-label">Título</label>
+        <input asp-for="Titulo" class="form-control" />
+        <span asp-validation-for="Titulo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Subtitulo" class="form-label">Subtítulo</label>
+        <input asp-for="Subtitulo" class="form-control" />
+        <span asp-validation-for="Subtitulo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Precio" class="form-label">Precio</label>
+        <input asp-for="Precio" class="form-control" />
+        <span asp-validation-for="Precio" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Descripcion" class="form-label">Descripción</label>
+        <textarea asp-for="Descripcion" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Descripcion" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Imagen frontal actual</label>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ImagenFrontalActual))
+        {
+            <div class="mb-2">
+                <img src="@Model.ImagenFrontalActual"
+                     alt="Imagen frontal actual"
+                     style="max-width: 220px; max-height: 220px;" />
+            </div>
+        }
+
+        <label asp-for="ImagenFrontal" class="form-label">
+            Nueva imagen frontal
+        </label>
+
+        <input asp-for="ImagenFrontal"
+               type="file"
+               class="form-control"
+               accept="image/*" />
+
+        <small class="form-text text-muted">
+            Dejá este campo vacío para conservar la imagen actual.
+        </small>
+
+        <span asp-validation-for="ImagenFrontal" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Imagen trasera actual</label>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ImagenTraseraActual))
+        {
+            <div class="mb-2">
+                <img src="@Model.ImagenTraseraActual"
+                     alt="Imagen trasera actual"
+                     style="max-width: 220px; max-height: 220px;" />
+            </div>
+        }
+
+        <label asp-for="ImagenTrasera" class="form-label">
+            Nueva imagen trasera
+        </label>
+
+        <input asp-for="ImagenTrasera"
+               type="file"
+               class="form-control"
+               accept="image/*" />
+
+        <small class="form-text text-muted">
+            Dejá este campo vacío para conservar la imagen actual.
+        </small>
+
+        <span asp-validation-for="ImagenTrasera" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Altura" class="form-label">Altura</label>
+        <input asp-for="Altura" class="form-control" />
+        <span asp-validation-for="Altura" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Ancho" class="form-label">Ancho</label>
+        <input asp-for="Ancho" class="form-control" />
+        <span asp-validation-for="Ancho" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Volumen" class="form-label">Volumen</label>
+        <input asp-for="Volumen" class="form-control" />
+        <span asp-validation-for="Volumen" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SistemaDeEncaje" class="form-label">
+            Sistema de encaje
+        </label>
+
+        <select asp-for="SistemaDeEncaje" class="form-select">
+            <option value="0">FCS2</option>
+            <option value="1">Future</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="TipoDeOla" class="form-label">Tipo de ola</label>
+
+        <select asp-for="TipoDeOla" class="form-select">
+            <option value="0">Plana</option>
+            <option value="1">Power</option>
+            <option value="2">Chica</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="EstiloDeSurf" class="form-label">
+            Estilo de surf
+        </label>
+
+        <select asp-for="EstiloDeSurf" class="form-select">
+            <option value="0">Agresivo</option>
+            <option value="1">Fluido</option>
+            <option value="2">Versátil</option>
+            <option value="3">Recreativo</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PesoMinimo" class="form-label">Peso mínimo</label>
+        <input asp-for="PesoMinimo" class="form-control" />
+        <span asp-validation-for="PesoMinimo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PesoMaximo" class="form-label">Peso máximo</label>
+        <input asp-for="PesoMaximo" class="form-control" />
+        <span asp-validation-for="PesoMaximo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Experiencia" class="form-label">
+            Experiencia
+        </label>
+
+        <select asp-for="Experiencia" class="form-select">
+            <option value="0">Sin experiencia</option>
+            <option value="1">Iniciado</option>
+            <option value="2">Intermedio</option>
+            <option value="3">Avanzado</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Guardar cambios
+    </button>
+
+    <a asp-controller="Productos"
+       asp-action="Index"
+       class="btn btn-secondary">
+        Cancelar
+    </a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

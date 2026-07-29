@@ -66,17 +66,27 @@
         @if (esShaper)
         {
             <li>
-                <a href="#">
+                <a asp-controller="Dashboard"
+                   asp-action="Index">
                     Dashboard
                 </a>
             </li>
 
             <li>
-                <a href="#">
+                <a asp-controller="Productos"
+                   asp-action="Index">
                     Productos
                 </a>
             </li>
+
+            <li>
+                <a asp-controller="Dashboard"
+                   asp-action="Pedidos">
+                    Pedidos
+                </a>
+            </li>
         }
+
         
 
     </ul>
@@ -145,7 +155,7 @@
                     }
 
                     <a href="#">
-                        Configuración
+                        Perfil
                     </a>
 
                     <div class="profile-menu-divider"></div>
@@ -153,9 +163,7 @@
                     <a asp-controller="Login"
                        asp-action="Logout"
                        class="logout-link">
-
                         Salir del perfil
-
                     </a>
 
                 </div>

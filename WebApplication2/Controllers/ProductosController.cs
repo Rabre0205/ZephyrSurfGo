@@ -122,10 +122,301 @@ namespace WebApplication2.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
         public IActionResult Editar(int id)
         {
-            ViewBag.ProductoId = id;
-            return View();
+            int shaperId = ObtenerUsuarioId();
+
+            Producto producto = _productoRepositorio.ObtenerPorId(id);
+
+            if (producto == null || producto.ShaperId != shaperId)
+            {
+                return NotFound();
+            }
+
+            if (producto is not Tabla tabla)
+            {
+                return BadRequest("El producto seleccionado no es una tabla.");
+            }
+
+            TablaFormModel modelo = new TablaFormModel
+            {
+                Id = tabla.Id,
+                Titulo = tabla.Titulo,
+                Subtitulo = tabla.Subtitulo,
+                Precio = tabla.Precio,
+                Descripcion = tabla.Descripcion,
+
+                ImagenFrontalActual = tabla.ImagenUrl,
+                ImagenTraseraActual = tabla.ImagenAtrasUrl,
+
+                Altura = tabla.Altura,
+                Ancho = tabla.Ancho,
+                Volumen = tabla.Volumen,
+
+                SistemaDeEncaje = (byte)tabla.SistemaDeEncaje,
+                TipoDeOla = (byte)tabla.TipoDeOla,
+                EstiloDeSurf = (byte)tabla.EstiloDeSurf,
+
+                PesoMinimo = tabla.PesoMinimo,
+                PesoMaximo = tabla.PesoMaximo,
+
+                Experiencia = (byte)tabla.Experiencia
+            };
+
+            return View(modelo);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(TablaFormModel modelo)
+        {
+            ValidarFormulario(modelo);
+
+            int shaperId = ObtenerUsuarioId();
+
+            Producto productoExistente =
+                _productoRepositorio.ObtenerPorId(modelo.Id);
+
+            if (productoExistente == null ||
+                productoExistente.ShaperId != shaperId)
+            {
+                return NotFound();
+            }
+
+            if (productoExistente is not Tabla tablaExistente)
+            {
+                return BadRequest(
+                    "El producto seleccionado no es una tabla."
+                );
+            }
+
+            if (!ModelState.IsValid)
+            {
+                List<string> errores = new List<string>();
+
+                foreach (var estado in ModelState)
+                {
+                    foreach (var error in estado.Value.Errors)
+                    {
+                        string mensaje =
+                            !string.IsNullOrWhiteSpace(error.ErrorMessage)
+                                ? error.ErrorMessage
+                                : error.Exception?.Message
+                                    ?? "Error desconocido";
+
+                        errores.Add(
+                            $"{estado.Key}: {mensaje}"
+                        );
+                    }
+                }
+
+                ViewBag.Debug =
+                    $"Id recibido: {modelo.Id} | " +
+                    string.Join(" | ", errores);
+
+                modelo.ImagenFrontalActual =
+                    tablaExistente.ImagenUrl;
+
+                modelo.ImagenTraseraActual =
+                    tablaExistente.ImagenAtrasUrl;
+
+                return View(modelo);
+            }
+
+            string imagenFrontalNueva =
+                tablaExistente.ImagenUrl;
+
+            string imagenTraseraNueva =
+                tablaExistente.ImagenAtrasUrl;
+
+            bool seCambioImagenFrontal = false;
+            bool seCambioImagenTrasera = false;
+
+            try
+            {
+                if (modelo.ImagenFrontal != null)
+                {
+                    imagenFrontalNueva =
+                        await GuardarImagenAsync(
+                            modelo.ImagenFrontal
+                        );
+
+                    seCambioImagenFrontal = true;
+                }
+
+                if (modelo.ImagenTrasera != null)
+                {
+                    imagenTraseraNueva =
+                        await GuardarImagenAsync(
+                            modelo.ImagenTrasera
+                        );
+
+                    seCambioImagenTrasera = true;
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                if (seCambioImagenFrontal)
+                {
+                    EliminarImagenSiExiste(
+                        imagenFrontalNueva
+                    );
+                }
+
+                if (seCambioImagenTrasera)
+                {
+                    EliminarImagenSiExiste(
+                        imagenTraseraNueva
+                    );
+                }
+
+                modelo.ImagenFrontalActual =
+                    tablaExistente.ImagenUrl;
+
+                modelo.ImagenTraseraActual =
+                    tablaExistente.ImagenAtrasUrl;
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    ex.Message
+                );
+
+                return View(modelo);
+            }
+
+            Tabla tablaActualizada = new Tabla(
+                id: tablaExistente.Id,
+                titulo: modelo.Titulo,
+                subtitulo: modelo.Subtitulo,
+                precio: modelo.Precio,
+                descripcion: modelo.Descripcion,
+                imagenUrl: imagenFrontalNueva,
+                shaperId: shaperId,
+                altura: modelo.Altura,
+                ancho: modelo.Ancho,
+                volumen: modelo.Volumen,
+                sis: (SistemaDeEncaje)modelo.SistemaDeEncaje,
+                tipodeola: (TipoDeOla)modelo.TipoDeOla,
+                estilo: (EstiloDeSurf)modelo.EstiloDeSurf,
+                pesomin: modelo.PesoMinimo,
+                pesomax: modelo.PesoMaximo,
+                exp: (Experiencia)modelo.Experiencia,
+                urlimg: imagenTraseraNueva
+            );
+
+            try
+            {
+                _productoRepositorio.ActualizarTabla(
+                    tablaActualizada
+                );
+            }
+            catch
+            {
+                if (seCambioImagenFrontal)
+                {
+                    EliminarImagenSiExiste(
+                        imagenFrontalNueva
+                    );
+                }
+
+                if (seCambioImagenTrasera)
+                {
+                    EliminarImagenSiExiste(
+                        imagenTraseraNueva
+                    );
+                }
+
+                modelo.ImagenFrontalActual =
+                    tablaExistente.ImagenUrl;
+
+                modelo.ImagenTraseraActual =
+                    tablaExistente.ImagenAtrasUrl;
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "No se pudo actualizar la tabla."
+                );
+
+                return View(modelo);
+            }
+
+            if (seCambioImagenFrontal)
+            {
+                EliminarImagenSiExiste(
+                    tablaExistente.ImagenUrl
+                );
+            }
+
+            if (seCambioImagenTrasera)
+            {
+                EliminarImagenSiExiste(
+                    tablaExistente.ImagenAtrasUrl
+                );
+            }
+
+            TempData["Mensaje"] =
+                "Tabla actualizada correctamente.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Eliminar(int id)
+        {
+            int shaperId = ObtenerUsuarioId();
+
+            Producto producto =
+                _productoRepositorio.ObtenerPorId(id);
+
+            if (producto == null ||
+                producto.ShaperId != shaperId)
+            {
+                return NotFound();
+            }
+
+            if (producto is not Tabla tabla)
+            {
+                return BadRequest(
+                    "El producto seleccionado no es una tabla."
+                );
+            }
+
+            string imagenFrontal = tabla.ImagenUrl;
+            string imagenTrasera = tabla.ImagenAtrasUrl;
+
+            try
+            {
+                bool eliminado =
+                    _productoRepositorio.EliminarTabla(
+                        id,
+                        shaperId
+                    );
+
+                if (!eliminado)
+                {
+                    TempData["Error"] =
+                        "No se pudo eliminar la tabla.";
+
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch
+            {
+                TempData["Error"] =
+                    "Ocurrió un error al eliminar la tabla.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            EliminarImagenSiExiste(imagenFrontal);
+            EliminarImagenSiExiste(imagenTrasera);
+
+            TempData["Mensaje"] =
+                "Tabla eliminada correctamente.";
+
+            return RedirectToAction(nameof(Index));
         }
 
         private int ObtenerUsuarioId()
@@ -164,7 +455,7 @@ namespace WebApplication2.Controllers
                 );
             }
 
-            if (modelo.ImagenFrontal == null)
+            if (modelo.Id == 0 && modelo.ImagenFrontal == null)
             {
                 ModelState.AddModelError(
                     nameof(modelo.ImagenFrontal),

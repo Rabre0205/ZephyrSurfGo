@@ -45,4 +45,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     });
 
+    document.addEventListener("DOMContentLoaded", () => {
+        const profileButton = document.querySelector(".profile-button");
+        const profileDropdown = document.querySelector(".profile-dropdown");
+
+        if (!profileButton || !profileDropdown) {
+            return;
+        }
+
+        profileButton.addEventListener("click", (event) => {
+            event.stopPropagation();
+
+            const estaAbierto =
+                profileDropdown.classList.toggle("open");
+
+            profileButton.setAttribute(
+                "aria-expanded",
+                estaAbierto.toString()
+            );
+        });
+
+        document.addEventListener("click", () => {
+            profileDropdown.classList.remove("open");
+            profileButton.setAttribute("aria-expanded", "false");
+        });
+    });
 });

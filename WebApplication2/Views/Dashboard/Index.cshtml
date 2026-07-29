@@ -1,24 +1,130 @@
 ﻿@{
+    Layout = null;
     ViewData["Title"] = "Dashboard";
 }
 
-<h1>Dashboard</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<p>Bienvenido al panel del shaper.</p>
+    <title>Dashboard - Zephyr Surf Go</title>
 
-<nav>
-    <a asp-controller="Dashboard"
-       asp-action="Index">
-        Resumen
-    </a>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+          rel="stylesheet" />
 
-    <a asp-controller="Dashboard"
-       asp-action="Pedidos">
-        Pedidos
-    </a>
+    <link rel="stylesheet"
+          href="~/css/navbar.css"
+          asp-append-version="true" />
 
-    <a asp-controller="Dashboard"
-       asp-action="Facturacion">
-        Facturación
-    </a>
-</nav>
+    <link rel="stylesheet"
+          href="~/css/estilosDashboard.css"
+          asp-append-version="true" />
+</head>
+
+<body class="dashboard-page">
+
+    <partial name="_Navbar" />
+
+    <section class="dashboard">
+
+        <div class="dashboard-resumen">
+
+            <article class="resumen-card">
+                <span class="resumen-label">
+                    Facturación total
+                </span>
+
+                <strong>USD 0.00</strong>
+
+                <span class="resumen-detalle">
+                    Sin ventas registradas
+                </span>
+            </article>
+
+            <article class="resumen-card">
+                <span class="resumen-label">
+                    Pedidos pendientes
+                </span>
+
+                <strong>0</strong>
+
+                <span class="resumen-detalle">
+                    No hay pedidos por preparar
+                </span>
+            </article>
+
+            <article class="resumen-card">
+                <span class="resumen-label">
+                    Productos publicados
+                </span>
+
+                <strong>0</strong>
+
+                <a asp-controller="Productos"
+                   asp-action="Index">
+                    Ver productos
+                </a>
+            </article>
+
+        </div>
+
+        <div class="dashboard-contenido">
+
+            <section class="dashboard-panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Pedidos recientes</h2>
+
+                        <p>
+                            Últimos pedidos recibidos por tus clientes.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="panel-vacio">
+                    <span>📦</span>
+
+                    <h3>Todavía no tenés pedidos</h3>
+
+                    <p>
+                        Cuando un cliente compre una tabla,
+                        el pedido aparecerá en esta sección.
+                    </p>
+                </div>
+
+            </section>
+
+            <section class="dashboard-panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Facturación</h2>
+
+                        <p>
+                            Resumen de ingresos generados por tus ventas.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="panel-vacio">
+                    <span>💳</span>
+
+                    <h3>Sin movimientos</h3>
+
+                    <p>
+                        La facturación aparecerá cuando tengas
+                        ventas confirmadas.
+                    </p>
+                </div>
+
+            </section>
+
+        </div>
+
+    </section>
+    <script src="~/js/navbar.js" asp-append-version="true"></script>
+</body>
+</html>

@@ -374,3 +374,47 @@ nav#navbar {
     .nav-dropdown-menu a:hover {
         background: rgba(255,255,255,.08);
     }
+
+
+.profile-dropdown {
+    position: relative;
+}
+
+.profile-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    min-width: 180px;
+    padding: 8px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+    z-index: 2000;
+}
+
+.profile-dropdown.open .profile-menu {
+    display: block;
+}
+
+.profile-menu a {
+    display: block;
+    padding: 10px 12px;
+    color: #111820;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+    .profile-menu a:hover {
+        background: #f1f5f7;
+    }
+
+.profile-menu-divider {
+    height: 1px;
+    margin: 6px 0;
+    background: #d9e1e5;
+}
+
+.profile-menu .logout-link {
+    color: #b42318;
+}

@@ -10,6 +10,13 @@ namespace ClassLibrary.Datos
     {
         List<Producto> ObtenerTodos();
         List<Producto> ObtenerPorShaper(int shaperId);
+
+        Producto ObtenerPorId(int id);
+
+        int ActualizarTabla(Tabla tabla);
+
+        bool EliminarTabla(int id, int shaperId);
+
         int InsertarLeash(Leash leash);
         int InsertarPad(Pad pad);
         int InsertarQuilla(Quilla quilla);
@@ -103,6 +110,73 @@ namespace ClassLibrary.Datos
 
             return productos;
         }
+
+        public Producto ObtenerPorId(int id)
+        {
+            string sql = @"
+        SELECT
+            p.Id,
+            p.Titulo,
+            p.Subtitulo,
+            p.Precio,
+            p.Descripcion,
+            p.ImagenUrl,
+            p.ShaperId,
+            p.TipoProducto,
+
+            l.LargoDeTablaRecomendado,
+
+            pa.Largo,
+            pa.Ancho AS AnchoPad,
+            pa.Material,
+
+            q.SistemaDeEncajeId AS SistemaEncajeQuilla,
+
+            t.Altura,
+            t.Ancho AS AnchoTabla,
+            t.Volumen,
+            t.SistemaDeEncajeId AS SistemaEncajeTabla,
+            t.TipoDeOlaId,
+            t.EstiloDeSurfId,
+            t.PesoMinimo,
+            t.PesoMaximo,
+            t.ExperienciaId,
+            t.ImagenAtrasUrl,
+
+            tr.GeneroId,
+            tr.Espesor,
+            tr.TalleId,
+            tr.Temperatura
+
+        FROM Productos p
+        LEFT JOIN Leashes l ON l.ProductoId = p.Id
+        LEFT JOIN Pads pa ON pa.ProductoId = p.Id
+        LEFT JOIN Quillas q ON q.ProductoId = p.Id
+        LEFT JOIN Tablas t ON t.ProductoId = p.Id
+        LEFT JOIN Trajes tr ON tr.ProductoId = p.Id
+
+        WHERE p.Id = @Id;
+    ";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+
+                conexion.Open();
+
+                using (SqlDataReader lector = comando.ExecuteReader())
+                {
+                    if (lector.Read())
+                    {
+                        return MapearProducto(lector);
+                    }
+                }
+            }
+
+            return null;
+        }
+
         private Producto MapearProducto(SqlDataReader lector)
         {
             int id = lector.GetInt32(lector.GetOrdinal("Id"));
@@ -378,6 +452,174 @@ namespace ClassLibrary.Datos
 
                     transaccion.Commit();
                     return idGenerado;
+                }
+            }
+        }
+
+        public int ActualizarTabla(Tabla tabla)
+        {
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            {
+                conexion.Open();
+
+                using (SqlTransaction transaccion = conexion.BeginTransaction())
+                {
+                    string sqlProducto = @"
+            UPDATE Productos
+            SET
+                Titulo = @Titulo,
+                Subtitulo = @Subtitulo,
+                Precio = @Precio,
+                Descripcion = @Descripcion,
+                ImagenUrl = @ImagenUrl
+            WHERE Id = @Id";
+
+                    using (SqlCommand cmd = new SqlCommand(sqlProducto, conexion, transaccion))
+                    {
+                        cmd.Parameters.Add("@Id", SqlDbType.Int).Value = tabla.Id;
+                        cmd.Parameters.Add("@Titulo", SqlDbType.NVarChar, 150).Value = tabla.Titulo;
+                        cmd.Parameters.Add("@Subtitulo", SqlDbType.NVarChar, 200).Value =
+                            (object?)tabla.Subtitulo ?? DBNull.Value;
+                        cmd.Parameters.Add("@Precio", SqlDbType.Decimal).Value = (decimal)tabla.Precio;
+                        cmd.Parameters.Add("@Descripcion", SqlDbType.NVarChar).Value =
+                            (object?)tabla.Descripcion ?? DBNull.Value;
+                        cmd.Parameters.Add("@ImagenUrl", SqlDbType.NVarChar, 500).Value =
+                            (object?)tabla.ImagenUrl ?? DBNull.Value;
+
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    string sqlTabla = @"
+            UPDATE Tablas
+            SET
+                Altura = @Altura,
+                Ancho = @Ancho,
+                Volumen = @Volumen,
+                SistemaDeEncajeId = @SistemaDeEncajeId,
+                TipoDeOlaId = @TipoDeOlaId,
+                EstiloDeSurfId = @EstiloDeSurfId,
+                PesoMinimo = @PesoMinimo,
+                PesoMaximo = @PesoMaximo,
+                ExperienciaId = @ExperienciaId,
+                ImagenAtrasUrl = @ImagenAtrasUrl
+            WHERE ProductoId = @Id";
+
+                    using (SqlCommand cmd = new SqlCommand(sqlTabla, conexion, transaccion))
+                    {
+                        cmd.Parameters.Add("@Id", SqlDbType.Int).Value = tabla.Id;
+                        cmd.Parameters.Add("@Altura", SqlDbType.NVarChar, 50).Value =
+                            (object?)tabla.Altura ?? DBNull.Value;
+                        cmd.Parameters.Add("@Ancho", SqlDbType.Int).Value = tabla.Ancho;
+                        cmd.Parameters.Add("@Volumen", SqlDbType.Decimal).Value = (decimal)tabla.Volumen;
+                        cmd.Parameters.Add("@SistemaDeEncajeId", SqlDbType.TinyInt).Value = (byte)tabla.SistemaDeEncaje;
+                        cmd.Parameters.Add("@TipoDeOlaId", SqlDbType.TinyInt).Value = (byte)tabla.TipoDeOla;
+                        cmd.Parameters.Add("@EstiloDeSurfId", SqlDbType.TinyInt).Value = (byte)tabla.EstiloDeSurf;
+                        cmd.Parameters.Add("@PesoMinimo", SqlDbType.Int).Value = tabla.PesoMinimo;
+                        cmd.Parameters.Add("@PesoMaximo", SqlDbType.Int).Value = tabla.PesoMaximo;
+                        cmd.Parameters.Add("@ExperienciaId", SqlDbType.TinyInt).Value = (byte)tabla.Experiencia;
+                        cmd.Parameters.Add("@ImagenAtrasUrl", SqlDbType.NVarChar, 500).Value =
+                            (object?)tabla.ImagenAtrasUrl ?? DBNull.Value;
+
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    transaccion.Commit();
+                    return tabla.Id;
+                }
+            }
+        }
+
+        public bool EliminarTabla(int id, int shaperId)
+        {
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            {
+                conexion.Open();
+
+                using (SqlTransaction transaccion = conexion.BeginTransaction())
+                {
+                    try
+                    {
+                        string sqlVerificar = @"
+                    SELECT COUNT(*)
+                    FROM Productos
+                    WHERE Id = @Id
+                      AND ShaperId = @ShaperId
+                      AND TipoProducto = 'Tabla'";
+
+                        using (SqlCommand comandoVerificar =
+                            new SqlCommand(sqlVerificar, conexion, transaccion))
+                        {
+                            comandoVerificar.Parameters
+                                .Add("@Id", SqlDbType.Int)
+                                .Value = id;
+
+                            comandoVerificar.Parameters
+                                .Add("@ShaperId", SqlDbType.Int)
+                                .Value = shaperId;
+
+                            int existe =
+                                (int)comandoVerificar.ExecuteScalar();
+
+                            if (existe == 0)
+                            {
+                                transaccion.Rollback();
+                                return false;
+                            }
+                        }
+
+                        string sqlEliminarTabla = @"
+                    DELETE FROM Tablas
+                    WHERE ProductoId = @Id";
+
+                        using (SqlCommand comandoTabla =
+                            new SqlCommand(
+                                sqlEliminarTabla,
+                                conexion,
+                                transaccion
+                            ))
+                        {
+                            comandoTabla.Parameters
+                                .Add("@Id", SqlDbType.Int)
+                                .Value = id;
+
+                            comandoTabla.ExecuteNonQuery();
+                        }
+
+                        string sqlEliminarProducto = @"
+                    DELETE FROM Productos
+                    WHERE Id = @Id
+                      AND ShaperId = @ShaperId";
+
+                        int filasAfectadas;
+
+                        using (SqlCommand comandoProducto =
+                            new SqlCommand(
+                                sqlEliminarProducto,
+                                conexion,
+                                transaccion
+                            ))
+                        {
+                            comandoProducto.Parameters
+                                .Add("@Id", SqlDbType.Int)
+                                .Value = id;
+
+                            comandoProducto.Parameters
+                                .Add("@ShaperId", SqlDbType.Int)
+                                .Value = shaperId;
+
+                            filasAfectadas =
+                                comandoProducto.ExecuteNonQuery();
+                        }
+
+                        transaccion.Commit();
+
+                        return filasAfectadas == 1;
+                    }
+                    catch
+                    {
+                        transaccion.Rollback();
+                        throw;
+                    }
                 }
             }
         }

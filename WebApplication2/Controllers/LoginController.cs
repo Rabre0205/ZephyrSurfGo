@@ -14,6 +14,11 @@ public class LoginController : Controller
     {
         _usuarioServicio = usuarioServicio;
     }
+    public IActionResult GenerarHash()
+    {
+        string hash = BCrypt.Net.BCrypt.HashPassword("12345Aa");
+        return Content(hash);
+    }
 
     public IActionResult Index()
     {
@@ -51,6 +56,11 @@ public class LoginController : Controller
             }
 
             await GuardarUsuarioEnSesion(usuario);
+
+            if (usuario.TipoDeUsuario == TipoDeUsuario.Shaper)
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
 
             return RedirectToAction("Home", "Surf");
         }
@@ -161,7 +171,7 @@ public class LoginController : Controller
 
         HttpContext.Session.Clear();
 
-        return RedirectToAction("Home", "Surf");
+        return RedirectToAction("Index", "Login");
     }
 
     private async Task GuardarUsuarioEnSesion(
