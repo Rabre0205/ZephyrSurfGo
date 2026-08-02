@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    ESQUEMA DE BASE DE DATOS - SurfDB
    Estrategias:
      - Usuario / Shaper  -> TPH (Table per Hierarchy)
@@ -37,7 +37,7 @@ CREATE TABLE TiposDeUsuario (
     CONSTRAINT PK_TiposDeUsuario_Id PRIMARY KEY (Id)
 );
 GO
-INSERT INTO TiposDeUsuario (Id, Nombre) VALUES (0, N'Shaper'), (1, N'Cliente');
+INSERT INTO TiposDeUsuario (Id, Nombre) VALUES (0, N'Shaper'), (1, N'Cliente'), (2, N'Administrador');
 GO
 
 CREATE TABLE SistemasDeEncaje (
@@ -120,7 +120,7 @@ CREATE TABLE Usuarios (
     PaisId           TINYINT        NOT NULL,
     TipoDeUsuarioId  TINYINT        NOT NULL,
 
-    -- Columnas exclusivas de Shaper (NULL para Cliente)
+    -- Columnas exclusivas de Shaper (NULL para Cliente y Administrador)
     NombreDeNegosio  NVARCHAR(150)  NULL,
     Contacto         NVARCHAR(150)  NULL,
     LogoUrl          NVARCHAR(500)  NULL,
@@ -133,7 +133,7 @@ CREATE TABLE Usuarios (
     CONSTRAINT CK_Usuarios_DatosShaper CHECK (
         (TipoDeUsuarioId = 0 AND NombreDeNegosio IS NOT NULL AND Contacto IS NOT NULL)
         OR
-        (TipoDeUsuarioId = 1 AND NombreDeNegosio IS NULL AND Contacto IS NULL AND LogoUrl IS NULL)
+        (TipoDeUsuarioId IN (1, 2) AND NombreDeNegosio IS NULL AND Contacto IS NULL AND LogoUrl IS NULL)
     )
 );
 GO

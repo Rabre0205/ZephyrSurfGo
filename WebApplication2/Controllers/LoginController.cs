@@ -28,8 +28,8 @@ public class LoginController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> IniciarSesion(
-        string email,
-        string password)
+      string email,
+      string password)
     {
         if (string.IsNullOrWhiteSpace(email) ||
             string.IsNullOrWhiteSpace(password))
@@ -56,6 +56,11 @@ public class LoginController : Controller
             }
 
             await GuardarUsuarioEnSesion(usuario);
+
+            if (usuario.TipoDeUsuario == TipoDeUsuario.Administrador)
+            {
+                return RedirectToAction("Index", "PanelAdmin");
+            }
 
             if (usuario.TipoDeUsuario == TipoDeUsuario.Shaper)
             {
@@ -173,6 +178,8 @@ public class LoginController : Controller
 
         return RedirectToAction("Index", "Login");
     }
+
+
 
     private async Task GuardarUsuarioEnSesion(
         Usuario usuario)
