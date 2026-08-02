@@ -37,8 +37,15 @@ CREATE TABLE TiposDeUsuario (
     CONSTRAINT PK_TiposDeUsuario_Id PRIMARY KEY (Id)
 );
 GO
-INSERT INTO TiposDeUsuario (Id, Nombre) VALUES (0, N'Shaper'), (1, N'Cliente'), (2, N'Administrador');
+INSERT INTO TiposDeUsuario (Id, Nombre)
+VALUES
+    (0, N'Shaper'),
+    (1, N'Cliente'),
+    (2, N'Administrador');
 GO
+
+select * from TiposDeUsuario;
+
 
 CREATE TABLE SistemasDeEncaje (
     Id     TINYINT      NOT NULL,
@@ -131,7 +138,7 @@ CREATE TABLE Usuarios (
     CONSTRAINT FK_Usuarios_TiposDeUsuario FOREIGN KEY (TipoDeUsuarioId) REFERENCES TiposDeUsuario(Id),
 
     CONSTRAINT CK_Usuarios_DatosShaper CHECK (
-        (TipoDeUsuarioId = 0 AND NombreDeNegosio IS NOT NULL AND Contacto IS NOT NULL)
+        ((TipoDeUsuarioId = 0 OR TipoDeUsuarioId = 2) AND NombreDeNegosio IS NOT NULL AND Contacto IS NOT NULL)
         OR
         (TipoDeUsuarioId IN (1, 2) AND NombreDeNegosio IS NULL AND Contacto IS NULL AND LogoUrl IS NULL)
     )
