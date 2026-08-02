@@ -129,7 +129,7 @@ namespace ClassLibrary.Servicios
 
             Usuario nuevoUsuario = new Usuario(email.Trim(), nombre, pais, hash)
             {
-                TipoDeUsuario = TipoDeUsuario.Admin
+                TipoDeUsuario = TipoDeUsuario.Administrador
             };
 
             int idGenerado = _usuarioRepositorio.InsertarUsuario(nuevoUsuario);
