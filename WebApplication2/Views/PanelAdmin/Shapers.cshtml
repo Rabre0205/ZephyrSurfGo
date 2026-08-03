@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ClassLibrary.Persona.Shaper>
+﻿@model WebApplication2.Models.PanelAdmin.ShapersAdminViewModel
 
 @{
     ViewData["Title"] = "Gestión de shapers";
@@ -40,9 +40,46 @@
         </div>
     }
 
+    <div class="shapers-toolbar">
+
+        <form asp-controller="PanelAdmin"
+              asp-action="Shapers"
+              method="get"
+              class="shapers-search-form">
+
+            <input type="search"
+                   name="busqueda"
+                   value="@Model.Busqueda"
+                   placeholder="Buscar por nombre, correo, negocio o contacto..." />
+
+            <button type="submit">
+                Buscar
+            </button>
+
+            @if (!string.IsNullOrWhiteSpace(
+                Model.Busqueda))
+            {
+                <a asp-controller="PanelAdmin"
+                   asp-action="Shapers">
+                    Limpiar
+                </a>
+            }
+
+        </form>
+
+        <span class="shapers-results">
+            @Model.TotalResultados
+            @(Model.TotalResultados == 1
+                ? "resultado"
+                : "resultados")
+        </span>
+
+    </div>
+
     <div class="shapers-card">
 
-        @if (Model == null || !Model.Any())
+        @if (Model.Shapers == null ||
+             !Model.Shapers.Any())
         {
             <div class="shapers-empty">
 
@@ -77,13 +114,14 @@
                             <th>País</th>
                             <th>Negocio</th>
                             <th>Contacto</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
 
                     <tbody>
 
-                        @foreach (var shaper in Model)
+                        @foreach (var shaper in Model.Shapers)
                         {
                             <tr>
 
@@ -122,12 +160,57 @@
                                 </td>
 
                                 <td>
-                                    <a asp-controller="PanelAdmin"
-                                       asp-action="EditarShaper"
-                                       asp-route-id="@shaper.Id"
-                                       class="action-edit">
-                                        Editar
-                                    </a>
+                                    @if (shaper.Activo)
+                                    {
+                                        <span class="status active">
+                                            Activo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status inactive">
+                                            Inactivo
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <div class="shaper-actions">
+
+                                        <a asp-controller="PanelAdmin"
+                                           asp-action="EditarShaper"
+                                           asp-route-id="@shaper.Id"
+                                           class="action-edit">
+                                            Editar
+                                        </a>
+
+                                        <form asp-controller="PanelAdmin"
+                                              asp-action="CambiarEstadoShaper"
+                                              method="post">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@shaper.Id" />
+
+                                            <button type="submit"
+                                                    class="@(shaper.Activo
+                                                                                                    ? "action-disable"
+                                                                                                    : "action-enable")"
+                                                    onclick="return confirm('@(shaper.Activo
+                                                                                                    ? "¿Seguro que querés desactivar este shaper?"
+                                                                                                    : "¿Seguro que querés activar este shaper?")');">
+
+                                                @(shaper.Activo
+                                                    ? "Desactivar"
+                                                    : "Activar")
+
+                                            </button>
+
+                                        </form>
+
+                                    </div>
                                 </td>
 
                             </tr>
@@ -141,6 +224,51 @@
         }
 
     </div>
+
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav class="shapers-pagination"
+             aria-label="Paginación de shapers">
+
+            @if (Model.TienePaginaAnterior)
+            {
+                <a asp-controller="PanelAdmin"
+                   asp-action="Shapers"
+                   asp-route-busqueda="@Model.Busqueda"
+                   asp-route-pagina="@(Model.PaginaActual - 1)">
+                    ← Anterior
+                </a>
+            }
+            else
+            {
+                <span class="disabled">
+                    ← Anterior
+                </span>
+            }
+
+            <span class="page-info">
+                Página @Model.PaginaActual
+                de @Model.TotalPaginas
+            </span>
+
+            @if (Model.TienePaginaSiguiente)
+            {
+                <a asp-controller="PanelAdmin"
+                   asp-action="Shapers"
+                   asp-route-busqueda="@Model.Busqueda"
+                   asp-route-pagina="@(Model.PaginaActual + 1)">
+                    Siguiente →
+                </a>
+            }
+            else
+            {
+                <span class="disabled">
+                    Siguiente →
+                </span>
+            }
+
+        </nav>
+    }
 
     <a asp-controller="PanelAdmin"
        asp-action="Index"
@@ -375,6 +503,150 @@
             background: #174f3c;
             color: white;
         }
+
+    .status {
+        display: inline-flex;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+        .status.active {
+            background: #e8f5ee;
+            color: #176342;
+        }
+
+        .status.inactive {
+            background: #f7eaea;
+            color: #9b3434;
+        }
+
+    .shaper-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+        .shaper-actions form {
+            margin: 0;
+        }
+
+    .action-disable,
+    .action-enable {
+        min-height: 34px;
+        padding: 0 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .action-disable {
+        border: 1px solid #ebcaca;
+        background: #fff5f5;
+        color: #a23838;
+    }
+
+    .action-enable {
+        border: 1px solid #b9d9ca;
+        background: #edf8f2;
+        color: #176342;
+    }
+
+    .shapers-toolbar {
+        display: flex;
+        margin-bottom: 18px;
+        gap: 18px;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .shapers-search-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+        .shapers-search-form input {
+            width: min(420px, 75vw);
+            min-height: 46px;
+            padding: 0 15px;
+            border: 1px solid #ccd8d2;
+            border-radius: 11px;
+            outline: none;
+        }
+
+            .shapers-search-form input:focus {
+                border-color: #1d654b;
+                box-shadow: 0 0 0 3px rgba(29, 101, 75, 0.10);
+            }
+
+        .shapers-search-form button {
+            min-height: 46px;
+            padding: 0 18px;
+            border: 0;
+            border-radius: 10px;
+            background: #1d654b;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .shapers-search-form a {
+            color: #1d654b;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+    .shapers-results {
+        color: #68736e;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .shapers-pagination {
+        display: flex;
+        margin-top: 22px;
+        gap: 18px;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+        .shapers-pagination a,
+        .shapers-pagination .disabled {
+            display: inline-flex;
+            min-height: 40px;
+            padding: 0 15px;
+            align-items: center;
+            border: 1px solid #d5dfda;
+            border-radius: 9px;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .shapers-pagination a {
+            background: white;
+            color: #1d654b;
+        }
+
+            .shapers-pagination a:hover {
+                background: #edf5f1;
+            }
+
+        .shapers-pagination .disabled {
+            background: #f4f5f4;
+            color: #a0a8a4;
+        }
+
+    .page-info {
+        color: #59665f;
+        font-size: 14px;
+        font-weight: 700;
+    }
 
     @@media (max-width: 700px) {
         .shapers-page {

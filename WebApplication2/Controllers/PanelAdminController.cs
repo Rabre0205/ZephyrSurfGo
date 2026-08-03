@@ -26,11 +26,55 @@ namespace WebApplication2.Controllers
             return View();
         }
 
-        public IActionResult Shapers()
+        public IActionResult Shapers(
+    string busqueda = "",
+    int pagina = 1)
         {
-            var shapers = _usuarioServicio.ObtenerShapers();
+            const int cantidadPorPagina = 20;
 
-            return View(shapers);
+            if (pagina < 1)
+            {
+                pagina = 1;
+            }
+
+            string textoBusqueda =
+                busqueda?.Trim() ?? string.Empty;
+
+            int totalResultados =
+                _usuarioServicio.ContarShapers(
+                    textoBusqueda
+                );
+
+            int totalPaginas =
+                (int)Math.Ceiling(
+                    totalResultados /
+                    (double)cantidadPorPagina
+                );
+
+            if (totalPaginas > 0 &&
+                pagina > totalPaginas)
+            {
+                pagina = totalPaginas;
+            }
+
+            var shapers =
+                _usuarioServicio.ObtenerShapersPaginados(
+                    textoBusqueda,
+                    pagina,
+                    cantidadPorPagina
+                );
+
+            var modelo =
+                new ShapersAdminViewModel
+                {
+                    Shapers = shapers,
+                    Busqueda = textoBusqueda,
+                    PaginaActual = pagina,
+                    TotalPaginas = totalPaginas,
+                    TotalResultados = totalResultados
+                };
+
+            return View(modelo);
         }
 
         [HttpGet]
@@ -86,6 +130,40 @@ namespace WebApplication2.Controllers
 
             TempData["Mensaje"] =
                 "Shaper actualizado correctamente.";
+
+            return RedirectToAction(nameof(Shapers));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult CambiarEstadoShaper(int id)
+        {
+            var shaper = _usuarioServicio.ObtenerShaperPorId(id);
+
+            if (shaper == null)
+            {
+                TempData["Error"] = "No se encontró el shaper.";
+                return RedirectToAction(nameof(Shapers));
+            }
+
+            bool nuevoEstado = !shaper.Activo;
+
+            bool actualizado = _usuarioServicio.CambiarEstadoShaper(
+                id,
+                nuevoEstado
+            );
+
+            if (!actualizado)
+            {
+                TempData["Error"] =
+                    "No se pudo modificar el estado del shaper.";
+            }
+            else
+            {
+                TempData["Mensaje"] = nuevoEstado
+                    ? "El shaper fue activado correctamente."
+                    : "El shaper fue desactivado correctamente.";
+            }
 
             return RedirectToAction(nameof(Shapers));
         }

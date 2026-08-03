@@ -1,8 +1,10 @@
-﻿using ClassLibrary.Datos;
+﻿
+using ClassLibrary.Datos;
 using ClassLibrary.Enums;
 using ClassLibrary.Persona;
 using System.Collections.Generic;
 using System.Linq;
+
 
 namespace ClassLibrary.Servicios
 {
@@ -53,6 +55,16 @@ namespace ClassLibrary.Servicios
             string nombreDeNegosio,
             string contacto
         );
+
+        bool CambiarEstadoShaper(int id, bool activo);
+
+        List<Shaper> ObtenerShapersPaginados(
+    string busqueda,
+    int pagina,
+    int cantidadPorPagina
+);
+
+        int ContarShapers(string busqueda);
     }
 
     public class UsuarioServicio : IUsuarioServicio
@@ -74,13 +86,18 @@ namespace ClassLibrary.Servicios
         }
 
         public Usuario Login(
-            string email,
-            string contrasenia)
+    string email,
+    string contrasenia)
         {
             Usuario usuario =
                 _usuarioRepositorio.ObtenerPorEmail(email);
 
             if (usuario == null)
+            {
+                return null;
+            }
+
+            if (!usuario.Activo)
             {
                 return null;
             }
@@ -94,6 +111,16 @@ namespace ClassLibrary.Servicios
             return esValida
                 ? usuario
                 : null;
+        }
+
+
+
+        public bool CambiarEstadoShaper(
+    int id,
+    bool activo)
+        {
+            return _usuarioRepositorio
+                .CambiarEstadoShaper(id, activo);
         }
 
         public (
@@ -371,6 +398,41 @@ namespace ClassLibrary.Servicios
                 string.Empty,
                 idGenerado
             );
+        }
+
+        public List<Shaper> ObtenerShapersPaginados(
+    string busqueda,
+    int pagina,
+    int cantidadPorPagina)
+        {
+            if (pagina < 1)
+            {
+                pagina = 1;
+            }
+
+            if (cantidadPorPagina < 1)
+            {
+                cantidadPorPagina = 20;
+            }
+
+            string textoBusqueda =
+                busqueda?.Trim() ?? string.Empty;
+
+            return _usuarioRepositorio
+                .ObtenerShapersPaginados(
+                    textoBusqueda,
+                    pagina,
+                    cantidadPorPagina
+                );
+        }
+
+        public int ContarShapers(string busqueda)
+        {
+            string textoBusqueda =
+                busqueda?.Trim() ?? string.Empty;
+
+            return _usuarioRepositorio
+                .ContarShapers(textoBusqueda);
         }
 
         public Usuario BuscarPorId(int id)

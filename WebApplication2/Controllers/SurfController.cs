@@ -8,11 +8,23 @@ namespace WebApplication2.Controllers
         public IActionResult Dealers() { return View(); }
         public IActionResult Home()
         {
-            if (User.Identity != null &&
-                User.Identity.IsAuthenticated &&
-                User.IsInRole("Shaper"))
+            if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction("Index", "Dashboard");
+                if (User.IsInRole("Administrador"))
+                {
+                    return RedirectToAction(
+                        "Index",
+                        "PanelAdmin"
+                    );
+                }
+
+                if (User.IsInRole("Shaper"))
+                {
+                    return RedirectToAction(
+                        "Index",
+                        "Dashboard"
+                    );
+                }
             }
 
             return View();

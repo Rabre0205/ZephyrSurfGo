@@ -11,11 +11,21 @@ namespace ClassLibrary.Datos
     public interface IUsuarioRepositorio
     {
         List<Usuario> ObtenerTodos();
+
+        List<Shaper> ObtenerShapersPaginados(
+    string busqueda,
+    int pagina,
+    int cantidadPorPagina
+);
+
+        int ContarShapers(string busqueda);
         Usuario ObtenerPorId(int id);
         Usuario ObtenerPorEmail(string email);
         int InsertarUsuario(Usuario usuario);
         int InsertarShaper(Shaper shaper);
 
+
+        bool CambiarEstadoShaper(int id, bool activo);
         bool ActualizarShaper(
             int id,
             string email,
@@ -37,7 +47,8 @@ namespace ClassLibrary.Datos
             TipoDeUsuarioId,
             NombreDeNegosio,
             Contacto,
-            LogoUrl";
+            LogoUrl,
+            Activo";
 
         public List<Usuario> ObtenerTodos()
         {
@@ -352,40 +363,200 @@ namespace ClassLibrary.Datos
             }
         }
 
+        public bool CambiarEstadoShaper(int id, bool activo)
+        {
+            string sql = @"
+        UPDATE Usuarios
+        SET Activo = @Activo
+        WHERE Id = @Id
+          AND TipoDeUsuarioId = @TipoShaper;
+    ";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+                comando.Parameters.Add("@Activo", SqlDbType.Bit).Value = activo;
+                comando.Parameters.Add("@TipoShaper", SqlDbType.Int).Value =
+                    Convert.ToInt32(TipoDeUsuario.Shaper);
+
+                conexion.Open();
+
+                return comando.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public List<Shaper> ObtenerShapersPaginados(
+    string busqueda,
+    int pagina,
+    int cantidadPorPagina)
+        {
+            List<Shaper> shapers = new List<Shaper>();
+
+            int desplazamiento =
+                (pagina - 1) * cantidadPorPagina;
+
+            string sql = $@"
+        SELECT {ColumnasUsuario}
+        FROM Usuarios
+        WHERE TipoDeUsuarioId = @TipoShaper
+          AND (
+              @Busqueda = ''
+              OR Nombre LIKE '%' + @Busqueda + '%'
+              OR Email LIKE '%' + @Busqueda + '%'
+              OR NombreDeNegosio LIKE '%' + @Busqueda + '%'
+              OR Contacto LIKE '%' + @Busqueda + '%'
+          )
+        ORDER BY Nombre, Id
+        OFFSET @Desplazamiento ROWS
+        FETCH NEXT @CantidadPorPagina ROWS ONLY;
+    ";
+
+            using (SqlConnection conexion =
+                Conexion.ObtenerConexion())
+            using (SqlCommand comando =
+                new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add(
+                    "@TipoShaper",
+                    SqlDbType.Int
+                ).Value = Convert.ToInt32(
+                    TipoDeUsuario.Shaper
+                );
+
+                comando.Parameters.Add(
+                    "@Busqueda",
+                    SqlDbType.NVarChar,
+                    150
+                ).Value = busqueda;
+
+                comando.Parameters.Add(
+                    "@Desplazamiento",
+                    SqlDbType.Int
+                ).Value = desplazamiento;
+
+                comando.Parameters.Add(
+                    "@CantidadPorPagina",
+                    SqlDbType.Int
+                ).Value = cantidadPorPagina;
+
+                conexion.Open();
+
+                using (SqlDataReader lector =
+                    comando.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        Usuario usuario =
+                            MapearUsuario(lector);
+
+                        if (usuario is Shaper shaper)
+                        {
+                            shapers.Add(shaper);
+                        }
+                    }
+                }
+            }
+
+            return shapers;
+        }
+
+        public int ContarShapers(string busqueda)
+        {
+            string sql = @"
+        SELECT COUNT(*)
+        FROM Usuarios
+        WHERE TipoDeUsuarioId = @TipoShaper
+          AND (
+              @Busqueda = ''
+              OR Nombre LIKE '%' + @Busqueda + '%'
+              OR Email LIKE '%' + @Busqueda + '%'
+              OR NombreDeNegosio LIKE '%' + @Busqueda + '%'
+              OR Contacto LIKE '%' + @Busqueda + '%'
+          );
+    ";
+
+            using (SqlConnection conexion =
+                Conexion.ObtenerConexion())
+            using (SqlCommand comando =
+                new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add(
+                    "@TipoShaper",
+                    SqlDbType.Int
+                ).Value = Convert.ToInt32(
+                    TipoDeUsuario.Shaper
+                );
+
+                comando.Parameters.Add(
+                    "@Busqueda",
+                    SqlDbType.NVarChar,
+                    150
+                ).Value = busqueda;
+
+                conexion.Open();
+
+                return Convert.ToInt32(
+                    comando.ExecuteScalar()
+                );
+            }
+        }
+
         private Usuario MapearUsuario(SqlDataReader lector)
         {
             int id = Convert.ToInt32(lector["Id"]);
-            string email = Convert.ToString(lector["Email"]) ?? string.Empty;
-            string contrasenia =
-                Convert.ToString(lector["Contrasenia"]) ?? string.Empty;
-            string nombre = Convert.ToString(lector["Nombre"]) ?? string.Empty;
 
-            Pais pais = (Pais)Convert.ToInt32(lector["PaisId"]);
+            string email =
+                Convert.ToString(lector["Email"])
+                ?? string.Empty;
+
+            string contrasenia =
+                Convert.ToString(lector["Contrasenia"])
+                ?? string.Empty;
+
+            string nombre =
+                Convert.ToString(lector["Nombre"])
+                ?? string.Empty;
+
+            Pais pais =
+                (Pais)Convert.ToInt32(
+                    lector["PaisId"]
+                );
 
             TipoDeUsuario tipo =
-                (TipoDeUsuario)Convert.ToInt32(lector["TipoDeUsuarioId"]);
+                (TipoDeUsuario)Convert.ToInt32(
+                    lector["TipoDeUsuarioId"]
+                );
+
+            bool activo =
+                Convert.ToBoolean(
+                    lector["Activo"]
+                );
 
             if (tipo == TipoDeUsuario.Shaper)
             {
                 string nombreDeNegosio =
                     lector["NombreDeNegosio"] == DBNull.Value
                         ? string.Empty
-                        : Convert.ToString(lector["NombreDeNegosio"])
-                            ?? string.Empty;
+                        : Convert.ToString(
+                            lector["NombreDeNegosio"]
+                        ) ?? string.Empty;
 
                 string contacto =
                     lector["Contacto"] == DBNull.Value
                         ? string.Empty
-                        : Convert.ToString(lector["Contacto"])
-                            ?? string.Empty;
+                        : Convert.ToString(
+                            lector["Contacto"]
+                        ) ?? string.Empty;
 
                 string logoUrl =
                     lector["LogoUrl"] == DBNull.Value
                         ? string.Empty
-                        : Convert.ToString(lector["LogoUrl"])
-                            ?? string.Empty;
+                        : Convert.ToString(
+                            lector["LogoUrl"]
+                        ) ?? string.Empty;
 
-                return new Shaper(
+                Shaper shaper = new Shaper(
                     id,
                     email,
                     contrasenia,
@@ -395,17 +566,22 @@ namespace ClassLibrary.Datos
                     contacto,
                     logoUrl
                 );
+
+                shaper.Activo = activo;
+
+                return shaper;
             }
 
             Usuario usuario = new Usuario(
-     id,
-     email,
-     nombre,
-     pais,
-     contrasenia
- );
+                id,
+                email,
+                nombre,
+                pais,
+                contrasenia
+            );
 
             usuario.TipoDeUsuario = tipo;
+            usuario.Activo = activo;
 
             return usuario;
         }

@@ -8,6 +8,7 @@ namespace ClassLibrary.Persona
 
         public string Email { get; set; }
 
+        public bool Activo { get; set; } = true;
         public string Contrasenia { get; set; }
 
         public string Nombre { get; set; }
