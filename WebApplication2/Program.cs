@@ -44,6 +44,7 @@ namespace WebApplication2
             {
                 options.LoginPath = "/Login/Index";
                 options.LogoutPath = "/Login/Logout";
+                options.AccessDeniedPath = "/Login/AccesoDenegado";
                 options.ExpireTimeSpan = TimeSpan.FromDays(7);
                 options.SlidingExpiration = true;
             });

@@ -1,0 +1,215 @@
+﻿@{
+    ViewData["Title"] = "Acceso denegado";
+}
+
+<section class="access-denied-page">
+    <div class="access-denied-card">
+
+        <div class="access-denied-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"
+                 width="46"
+                 height="46"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.7"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
+
+                <rect x="5"
+                      y="10"
+                      width="14"
+                      height="10"
+                      rx="2">
+                </rect>
+
+                <path d="M8 10V7a4 4 0 0 1 8 0v3">
+                </path>
+
+                <path d="M12 14v2">
+                </path>
+            </svg>
+        </div>
+
+        <span class="access-denied-label">
+            Área restringida
+        </span>
+
+        <h1>Acceso denegado</h1>
+
+        <p class="access-denied-message">
+            No tenés permisos para acceder a esta sección.
+            El panel administrativo está disponible únicamente
+            para administradores de Zephyr Surf Go.
+        </p>
+
+        <div class="access-denied-actions">
+
+            <a asp-controller="Surf"
+               asp-action="Home"
+               class="access-denied-button primary">
+                Volver al inicio
+            </a>
+
+            <form asp-controller="Login"
+                  asp-action="Logout"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="access-denied-button secondary">
+                    Iniciar con otra cuenta
+                </button>
+            </form>
+
+        </div>
+
+        <p class="access-denied-help">
+            Si considerás que se trata de un error,
+            comunicate con el equipo administrador.
+        </p>
+
+    </div>
+</section>
+
+<style>
+    .access-denied-page {
+        display: flex;
+        min-height: calc(100vh - 170px);
+        padding: 60px 20px;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient( circle at top left, rgba(33, 112, 87, 0.10), transparent 38% ), linear-gradient( 135deg, #f2f6f4 0%, #f8f9f8 52%, #edf3f0 100% );
+    }
+
+    .access-denied-card {
+        width: min(100%, 620px);
+        padding: 54px 48px;
+        border: 1px solid rgba(24, 54, 43, 0.10);
+        border-radius: 26px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 24px 70px rgba(31, 60, 50, 0.12), 0 4px 16px rgba(31, 60, 50, 0.06);
+        text-align: center;
+    }
+
+    .access-denied-icon {
+        display: flex;
+        width: 88px;
+        height: 88px;
+        margin: 0 auto 24px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #edf5f1;
+        color: #1e6a4e;
+        box-shadow: inset 0 0 0 1px rgba(30, 106, 78, 0.10);
+    }
+
+    .access-denied-label {
+        display: block;
+        margin-bottom: 10px;
+        color: #648073;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .access-denied-card h1 {
+        margin: 0;
+        color: #18231f;
+        font-size: clamp(36px, 6vw, 54px);
+        font-weight: 700;
+        line-height: 1.05;
+    }
+
+    .access-denied-message {
+        max-width: 480px;
+        margin: 20px auto 0;
+        color: #66716c;
+        font-size: 17px;
+        line-height: 1.7;
+    }
+
+    .access-denied-actions {
+        display: flex;
+        margin-top: 34px;
+        gap: 14px;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+        .access-denied-actions form {
+            margin: 0;
+        }
+
+    .access-denied-button {
+        display: inline-flex;
+        min-height: 48px;
+        padding: 0 24px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+        border-radius: 12px;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 650;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+        .access-denied-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .access-denied-button.primary {
+            background: #1d654b;
+            color: #ffffff;
+            box-shadow: 0 10px 24px rgba(29, 101, 75, 0.22);
+        }
+
+            .access-denied-button.primary:hover {
+                background: #174f3c;
+                color: #ffffff;
+            }
+
+        .access-denied-button.secondary {
+            border-color: #d7e1dc;
+            background: #ffffff;
+            color: #26352f;
+        }
+
+            .access-denied-button.secondary:hover {
+                background: #f3f6f4;
+            }
+
+    .access-denied-help {
+        margin: 30px 0 0;
+        color: #8a948f;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    @@media (max-width: 600px) {
+        .access-denied-page {
+            min-height: calc(100vh - 130px);
+            padding: 30px 14px;
+        }
+
+        .access-denied-card {
+            padding: 40px 24px;
+            border-radius: 20px;
+        }
+
+        .access-denied-actions {
+            flex-direction: column;
+        }
+
+            .access-denied-actions form,
+            .access-denied-button {
+                width: 100%;
+            }
+    }
+</style>

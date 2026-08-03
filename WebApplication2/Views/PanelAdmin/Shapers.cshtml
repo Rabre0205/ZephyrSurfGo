@@ -1,0 +1,364 @@
+﻿@model IEnumerable<ClassLibrary.Persona.Shaper>
+
+@{
+    ViewData["Title"] = "Gestión de shapers";
+}
+
+<section class="shapers-page">
+
+    <header class="shapers-header">
+
+        <div>
+            <span class="shapers-eyebrow">
+                Administración
+            </span>
+
+            <h1>Shapers</h1>
+
+            <p>
+                Consultá y administrá los fabricantes registrados
+                en Zephyr Surf Go.
+            </p>
+        </div>
+
+        <a asp-controller="PanelAdmin"
+           asp-action="RegistrarShaper"
+           class="shapers-create-button">
+            + Registrar shaper
+        </a>
+
+    </header>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="shapers-success">
+            <strong>Registro completado</strong>
+
+            <span>
+                @TempData["Mensaje"]
+            </span>
+        </div>
+    }
+
+    <div class="shapers-card">
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="shapers-empty">
+
+                <div class="shapers-empty-icon">
+                    S
+                </div>
+
+                <h2>No hay shapers registrados</h2>
+
+                <p>
+                    Registrá el primer fabricante para comenzar
+                    a administrar sus productos.
+                </p>
+
+                <a asp-controller="PanelAdmin"
+                   asp-action="RegistrarShaper">
+                    Registrar shaper
+                </a>
+
+            </div>
+        }
+        else
+        {
+            <div class="shapers-table-wrapper">
+
+                <table class="shapers-table">
+
+                    <thead>
+                        <tr>
+                            <th>Shaper</th>
+                            <th>Correo</th>
+                            <th>País</th>
+                            <th>Negocio</th>
+                            <th>Contacto</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var shaper in Model)
+                        {
+                            <tr>
+
+                                <td>
+                                    <div class="shaper-name-cell">
+
+                                        <div class="shaper-avatar">
+                                            @(string.IsNullOrWhiteSpace(shaper.Nombre)
+                                                ? "S"
+                                                : shaper.Nombre.Substring(0, 1).ToUpper())
+                                        </div>
+
+                                        <strong>
+                                            @shaper.Nombre
+                                        </strong>
+
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @shaper.Email
+                                </td>
+
+                                <td>
+                                    <span class="shaper-country">
+                                        @shaper.Pais
+                                    </span>
+                                </td>
+
+                                <td>
+                                    @shaper.NombreDeNegosio
+                                </td>
+
+                                <td>
+                                    @shaper.Contacto
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+
+    </div>
+
+    <a asp-controller="PanelAdmin"
+       asp-action="Index"
+       class="shapers-back">
+        ← Volver al panel
+    </a>
+
+</section>
+
+<style>
+    .shapers-page {
+        width: min(1200px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 55px 0 80px;
+    }
+
+    .shapers-header {
+        display: flex;
+        margin-bottom: 32px;
+        gap: 28px;
+        align-items: flex-end;
+        justify-content: space-between;
+    }
+
+    .shapers-eyebrow {
+        display: block;
+        margin-bottom: 8px;
+        color: #688076;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .shapers-header h1 {
+        margin: 0;
+        color: #17231f;
+        font-size: clamp(44px, 6vw, 66px);
+        line-height: 1;
+    }
+
+    .shapers-header p {
+        max-width: 600px;
+        margin: 14px 0 0;
+        color: #68736e;
+        line-height: 1.7;
+    }
+
+    .shapers-create-button {
+        display: inline-flex;
+        min-height: 48px;
+        padding: 0 22px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #1d654b;
+        color: #ffffff;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 10px 24px rgba(29, 101, 75, 0.20);
+        transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+        .shapers-create-button:hover {
+            transform: translateY(-2px);
+            background: #174f3c;
+            color: #ffffff;
+        }
+
+    .shapers-success {
+        display: flex;
+        margin-bottom: 20px;
+        padding: 16px 18px;
+        gap: 5px;
+        flex-direction: column;
+        border: 1px solid #b8d8ca;
+        border-radius: 12px;
+        background: #edf7f2;
+        color: #17583f;
+    }
+
+        .shapers-success span {
+            font-size: 14px;
+        }
+
+    .shapers-card {
+        overflow: hidden;
+        border: 1px solid #dce4e0;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow: 0 14px 40px rgba(26, 57, 46, 0.07);
+    }
+
+    .shapers-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .shapers-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .shapers-table th,
+        .shapers-table td {
+            padding: 18px 20px;
+            border-bottom: 1px solid #edf1ef;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .shapers-table th {
+            background: #f5f8f6;
+            color: #607069;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .shapers-table td {
+            color: #4f5b56;
+            font-size: 14px;
+        }
+
+        .shapers-table tbody tr {
+            transition: background 0.2s ease;
+        }
+
+            .shapers-table tbody tr:hover {
+                background: #f8faf9;
+            }
+
+            .shapers-table tbody tr:last-child td {
+                border-bottom: 0;
+            }
+
+    .shaper-name-cell {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .shaper-avatar {
+        display: flex;
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #e8f2ed;
+        color: #1d654b;
+        font-weight: 800;
+    }
+
+    .shaper-name-cell strong {
+        color: #18231f;
+    }
+
+    .shaper-country {
+        display: inline-flex;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #eef4f1;
+        color: #406354;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .shapers-empty {
+        padding: 70px 25px;
+        text-align: center;
+    }
+
+    .shapers-empty-icon {
+        display: flex;
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 20px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 18px;
+        background: #eaf3ef;
+        color: #1d654b;
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .shapers-empty h2 {
+        margin: 0 0 10px;
+        color: #17231f;
+    }
+
+    .shapers-empty p {
+        margin: 0 0 22px;
+        color: #6b7771;
+    }
+
+    .shapers-empty a {
+        color: #1d654b;
+        font-weight: 700;
+    }
+
+    .shapers-back {
+        display: inline-block;
+        margin-top: 24px;
+        color: #1d654b;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+        .shapers-back:hover {
+            text-decoration: underline;
+        }
+
+    @@media (max-width: 700px) {
+        .shapers-page {
+            width: min(100% - 24px, 1200px);
+            padding-top: 35px;
+        }
+
+        .shapers-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .shapers-create-button {
+            width: 100%;
+        }
+    }
+</style>

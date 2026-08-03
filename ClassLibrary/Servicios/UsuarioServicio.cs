@@ -5,6 +5,7 @@ using ClassLibrary.Persona;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace ClassLibrary.Servicios
 {
@@ -20,6 +21,8 @@ namespace ClassLibrary.Servicios
         string email, string nombre, Pais pais, string contrasenia, string confirmarContrasenia);
         Usuario BuscarPorId(int id);
 
+        List<Shaper> ObtenerShapers();
+
     }
     public class UsuarioServicio : IUsuarioServicio
     {
@@ -28,6 +31,14 @@ namespace ClassLibrary.Servicios
         public UsuarioServicio(IUsuarioRepositorio usuarioRepositorio)
         {
             _usuarioRepositorio = usuarioRepositorio;
+        }
+
+        public List<Shaper> ObtenerShapers()
+        {
+            return _usuarioRepositorio
+                .ObtenerTodos()
+                .OfType<Shaper>()
+                .ToList();
         }
 
         public Usuario Login(string email, string contrasenia)

@@ -14,13 +14,14 @@ public class LoginController : Controller
     {
         _usuarioServicio = usuarioServicio;
     }
-    public IActionResult GenerarHash()
-    {
-        string hash = BCrypt.Net.BCrypt.HashPassword("12345Aa");
-        return Content(hash);
-    }
+   
 
     public IActionResult Index()
+    {
+        return View();
+    }
+
+    public IActionResult AccesoDenegado()
     {
         return View();
     }
@@ -166,6 +167,16 @@ public class LoginController : Controller
 
             return View("Index");
         }
+    }
+
+    public IActionResult GenerarHash()
+    {
+        string adminHash = BCrypt.Net.BCrypt.HashPassword("Admin456");
+        string shaperHash = BCrypt.Net.BCrypt.HashPassword("Shaper456");
+
+        return Content(
+            $"ADMIN:\n{adminHash}\n\nSHAPER:\n{shaperHash}"
+        );
     }
 
     public async Task<IActionResult> Logout()
