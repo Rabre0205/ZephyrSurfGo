@@ -315,13 +315,17 @@ namespace ClassLibrary.Datos
                 );
             }
 
-            return new Usuario(
-                id,
-                email,
-                nombre,
-                pais,
-                contrasenia
-            );
+            Usuario usuario = new Usuario(
+     id,
+     email,
+     nombre,
+     pais,
+     contrasenia
+ );
+
+            usuario.TipoDeUsuario = tipo;
+
+            return usuario;
         }
     }
 }
