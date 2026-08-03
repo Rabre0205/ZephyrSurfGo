@@ -1,4 +1,5 @@
-﻿using ClassLibrary.Servicios;
+﻿using ClassLibrary.Persona;
+using ClassLibrary.Servicios;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication2.Models.PanelAdmin;
@@ -30,6 +31,63 @@ namespace WebApplication2.Controllers
             var shapers = _usuarioServicio.ObtenerShapers();
 
             return View(shapers);
+        }
+
+        [HttpGet]
+        public IActionResult EditarShaper(int id)
+        {
+            Shaper shaper = _usuarioServicio.ObtenerShaperPorId(id);
+
+            if (shaper == null)
+            {
+                return NotFound();
+            }
+
+            EditarShaperViewModel modelo = new EditarShaperViewModel
+            {
+                Id = shaper.Id,
+                Nombre = shaper.Nombre,
+                Email = shaper.Email,
+                Pais = shaper.Pais,
+                NombreDeNegosio = shaper.NombreDeNegosio,
+                Contacto = shaper.Contacto
+            };
+
+            return View(modelo);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditarShaper(EditarShaperViewModel modelo)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(modelo);
+            }
+
+            var resultado = _usuarioServicio.ActualizarShaper(
+                modelo.Id,
+                modelo.Email,
+                modelo.Nombre,
+                modelo.Pais,
+                modelo.NombreDeNegosio,
+                modelo.Contacto
+            );
+
+            if (!resultado.Exito)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    resultado.Error
+                );
+
+                return View(modelo);
+            }
+
+            TempData["Mensaje"] =
+                "Shaper actualizado correctamente.";
+
+            return RedirectToAction(nameof(Shapers));
         }
 
         [HttpGet]

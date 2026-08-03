@@ -132,13 +132,17 @@ CREATE TABLE Usuarios (
     Contacto         NVARCHAR(150)  NULL,
     LogoUrl          NVARCHAR(500)  NULL,
 
+     Activo BIT NOT NULL
+        CONSTRAINT DF_Usuarios_Activo DEFAULT 1,
+
+
     CONSTRAINT PK_Usuario_Id PRIMARY KEY (Id),
     CONSTRAINT UQ_Usuarios_Email UNIQUE (Email),
     CONSTRAINT FK_Usuarios_Paises FOREIGN KEY (PaisId) REFERENCES Paises(Id),
     CONSTRAINT FK_Usuarios_TiposDeUsuario FOREIGN KEY (TipoDeUsuarioId) REFERENCES TiposDeUsuario(Id),
 
     CONSTRAINT CK_Usuarios_DatosShaper CHECK (
-        ((TipoDeUsuarioId = 0 OR TipoDeUsuarioId = 2) AND NombreDeNegosio IS NOT NULL AND Contacto IS NOT NULL)
+        ((TipoDeUsuarioId = 0) AND NombreDeNegosio IS NOT NULL AND Contacto IS NOT NULL)
         OR
         (TipoDeUsuarioId IN (1, 2) AND NombreDeNegosio IS NULL AND Contacto IS NULL AND LogoUrl IS NULL)
     )

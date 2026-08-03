@@ -15,6 +15,15 @@ namespace ClassLibrary.Datos
         Usuario ObtenerPorEmail(string email);
         int InsertarUsuario(Usuario usuario);
         int InsertarShaper(Shaper shaper);
+
+        bool ActualizarShaper(
+            int id,
+            string email,
+            string nombre,
+            Pais pais,
+            string nombreDeNegosio,
+            string contacto
+        );
     }
 
     public class UsuarioRepositorio : IUsuarioRepositorio
@@ -267,6 +276,79 @@ namespace ClassLibrary.Datos
                 }
 
                 return Convert.ToInt32(resultado);
+            }
+        }
+
+        public bool ActualizarShaper(
+    int id,
+    string email,
+    string nombre,
+    Pais pais,
+    string nombreDeNegosio,
+    string contacto)
+        {
+            string sql = @"
+        UPDATE Usuarios
+        SET
+            Email = @Email,
+            Nombre = @Nombre,
+            PaisId = @PaisId,
+            NombreDeNegosio = @NombreDeNegosio,
+            Contacto = @Contacto
+        WHERE Id = @Id
+          AND TipoDeUsuarioId = @TipoShaper;
+    ";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add(
+                    "@Id",
+                    SqlDbType.Int
+                ).Value = id;
+
+                comando.Parameters.Add(
+                    "@Email",
+                    SqlDbType.NVarChar,
+                    150
+                ).Value = email.Trim();
+
+                comando.Parameters.Add(
+                    "@Nombre",
+                    SqlDbType.NVarChar,
+                    150
+                ).Value = nombre.Trim();
+
+                comando.Parameters.Add(
+                    "@PaisId",
+                    SqlDbType.Int
+                ).Value = Convert.ToInt32(pais);
+
+                comando.Parameters.Add(
+                    "@NombreDeNegosio",
+                    SqlDbType.NVarChar,
+                    150
+                ).Value = nombreDeNegosio.Trim();
+
+                comando.Parameters.Add(
+                    "@Contacto",
+                    SqlDbType.NVarChar,
+                    150
+                ).Value = contacto.Trim();
+
+                comando.Parameters.Add(
+                    "@TipoShaper",
+                    SqlDbType.Int
+                ).Value = Convert.ToInt32(
+                    TipoDeUsuario.Shaper
+                );
+
+                conexion.Open();
+
+                int filasAfectadas =
+                    comando.ExecuteNonQuery();
+
+                return filasAfectadas > 0;
             }
         }
 
