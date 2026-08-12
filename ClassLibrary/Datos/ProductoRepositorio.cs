@@ -18,6 +18,9 @@ namespace ClassLibrary.Datos
         bool EliminarTabla(int id, int shaperId);
 
         int InsertarLeash(Leash leash);
+        int ContarProductosPublicados();
+
+
         int InsertarPad(Pad pad);
         int InsertarQuilla(Quilla quilla);
         int InsertarTabla(Tabla tabla);
@@ -69,6 +72,24 @@ namespace ClassLibrary.Datos
             }
 
             return productos;
+        }
+
+        public int ContarProductosPublicados()
+        {
+            string sql = @"
+        SELECT COUNT(*)
+        FROM Productos;
+    ";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                conexion.Open();
+
+                return Convert.ToInt32(
+                    comando.ExecuteScalar()
+                );
+            }
         }
 
         // nuevo método en ProductoRepositorio, mismo estilo que ObtenerTodos()

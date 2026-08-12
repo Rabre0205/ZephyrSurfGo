@@ -1,10 +1,269 @@
-﻿@{
-    ViewData["Title"] = "En construcción";
+﻿@model WebApplication2.Models.PanelAdmin.EstadisticasAdminViewModel
+
+@{
+    ViewData["Title"] = "Estadísticas";
 }
 
-<h1>Sección en construcción</h1>
+<section class="stats-page">
 
-<a asp-controller="PanelAdmin"
-   asp-action="Index">
-    Volver al panel
-</a>
+    <header class="stats-header">
+        <span class="stats-eyebrow">
+            Administración
+        </span>
+
+        <h1>Estadísticas</h1>
+
+        <p>
+            Consultá las ventas, pedidos y actividad general
+            de Zephyr Surf Go.
+        </p>
+    </header>
+
+    <!-- RESUMEN ECONÓMICO -->
+    <section class="stats-section">
+
+        <div class="stats-section-title">
+            <span>Resumen</span>
+            <h2>Rendimiento de la plataforma</h2>
+        </div>
+
+        <div class="stats-grid">
+
+            <article class="stats-card">
+                <span>Ventas totales</span>
+
+                <strong>
+                    USD @Model.VentasTotales.ToString("N2")
+                </strong>
+            </article>
+
+            <article class="stats-card">
+                <span>Comisión generada</span>
+
+                <strong>
+                    USD @Model.ComisionTotal.ToString("N2")
+                </strong>
+            </article>
+
+            <article class="stats-card">
+                <span>Pedidos realizados</span>
+
+                <strong>
+                    @Model.TotalPedidos
+                </strong>
+            </article>
+
+            <article class="stats-card">
+                <span>Ticket promedio</span>
+
+                <strong>
+                    USD @Model.TicketPromedio.ToString("N2")
+                </strong>
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- ESTADOS DE PEDIDOS -->
+    <section class="stats-section">
+
+        <div class="stats-section-title">
+            <span>Pedidos</span>
+            <h2>Estado de los pedidos</h2>
+        </div>
+
+        <div class="stats-grid">
+
+            <article class="stats-card">
+                <span>Pendientes</span>
+                <strong>@Model.PedidosPendientes</strong>
+            </article>
+
+            <article class="stats-card">
+                <span>Aprobados</span>
+                <strong>@Model.PedidosAprobados</strong>
+            </article>
+
+            <article class="stats-card">
+                <span>Rechazados</span>
+                <strong>@Model.PedidosRechazados</strong>
+            </article>
+
+            <article class="stats-card">
+                <span>Cancelados</span>
+                <strong>@Model.PedidosCancelados</strong>
+            </article>
+
+            <article class="stats-card">
+                <span>Completados</span>
+                <strong>@Model.PedidosCompletados</strong>
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- ACTIVIDAD GENERAL -->
+    <section class="stats-section">
+
+        <div class="stats-section-title">
+            <span>Plataforma</span>
+            <h2>Actividad general</h2>
+        </div>
+
+        <div class="stats-grid">
+
+            <article class="stats-card">
+                <span>Shapers registrados</span>
+                <strong>@Model.TotalShapers</strong>
+            </article>
+
+            <article class="stats-card">
+                <span>Shapers activos</span>
+                <strong>@Model.ShapersActivos</strong>
+            </article>
+
+            <article class="stats-card">
+                <span>Clientes registrados</span>
+                <strong>@Model.TotalClientes</strong>
+            </article>
+
+            <article class="stats-card">
+                <span>Productos publicados</span>
+                <strong>@Model.TotalProductos</strong>
+            </article>
+
+        </div>
+
+    </section>
+
+    <a asp-controller="PanelAdmin"
+       asp-action="Index"
+       class="stats-back">
+        ← Volver al panel
+    </a>
+
+</section>
+
+<style>
+
+    .stats-page {
+        width: min(1200px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 55px 0 80px;
+    }
+
+    .stats-header {
+        margin-bottom: 40px;
+    }
+
+    .stats-eyebrow {
+        display: block;
+        margin-bottom: 8px;
+        color: #688076;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .stats-header h1 {
+        margin: 0;
+        color: #17231f;
+        font-size: clamp(44px, 6vw, 64px);
+        line-height: 1;
+    }
+
+    .stats-header p {
+        max-width: 620px;
+        margin: 14px 0 0;
+        color: #68736e;
+        font-size: 16px;
+        line-height: 1.7;
+    }
+
+    .stats-section {
+        margin-top: 45px;
+    }
+
+        .stats-section:first-of-type {
+            margin-top: 0;
+        }
+
+    .stats-section-title span {
+        color: #708078;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .stats-section-title h2 {
+        margin: 8px 0 22px;
+        color: #17231f;
+        font-size: 28px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .stats-card {
+        display: flex;
+        min-height: 150px;
+        padding: 24px;
+        flex-direction: column;
+        justify-content: space-between;
+        border: 1px solid #dce4e0;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow: 0 12px 35px rgba(26, 57, 46, 0.07);
+    }
+
+        .stats-card span {
+            color: #68756f;
+            font-size: 14px;
+        }
+
+        .stats-card strong {
+            margin-top: 20px;
+            color: #17231f;
+            font-size: 32px;
+            line-height: 1;
+        }
+
+    .stats-back {
+        display: inline-block;
+        margin-top: 40px;
+        color: #1d654b;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+        .stats-back:hover {
+            text-decoration: underline;
+        }
+
+    @@media (max-width: 900px) {
+
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 520px) {
+
+        .stats-page {
+            width: min(100% - 24px, 1200px);
+            padding-top: 35px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+</style>

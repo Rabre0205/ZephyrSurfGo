@@ -11,19 +11,52 @@ namespace WebApplication2.Controllers
     {
         private readonly IUsuarioServicio _usuarioServicio;
 
+        private readonly IProductoServicio _productoServicio;
+
+        private readonly IPedidoServicio _pedidoServicio;
+
         public PanelAdminController(
-            IUsuarioServicio usuarioServicio)
+    IUsuarioServicio usuarioServicio,
+    IProductoServicio productoServicio,
+    IPedidoServicio pedidoServicio)
         {
             _usuarioServicio = usuarioServicio;
+            _productoServicio = productoServicio;
+            _pedidoServicio = pedidoServicio;
         }
 
         public IActionResult Index()
         {
-            var shapers = _usuarioServicio.ObtenerShapers();
+            var resumenPedidos =
+                _pedidoServicio.ObtenerResumenAdministracion();
 
-            ViewBag.CantidadShapers = shapers.Count;
+            var modelo = new DashboardAdminViewModel
+            {
+                TotalShapers =
+                    _usuarioServicio.ContarShapers(
+                        string.Empty
+                    ),
 
-            return View();
+                ShapersActivos =
+                    _usuarioServicio.ContarShapersActivos(),
+
+                TotalClientes =
+                    _usuarioServicio.ContarClientes(),
+
+                TotalProductos =
+                    _productoServicio.ContarProductosPublicados(),
+
+                TotalPedidos =
+                    resumenPedidos.TotalPedidos,
+
+                VentasTotales =
+                    resumenPedidos.VentasTotales,
+
+                ComisionTotal =
+                    resumenPedidos.ComisionTotal
+            };
+
+            return View(modelo);
         }
 
         public IActionResult Shapers(
@@ -222,7 +255,68 @@ namespace WebApplication2.Controllers
 
         public IActionResult Estadisticas()
         {
-            return View();
+            var resumenPedidos =
+                _pedidoServicio.ObtenerResumenAdministracion();
+
+            decimal ticketPromedio = 0;
+
+            if (resumenPedidos.TotalPedidos > 0)
+            {
+                ticketPromedio =
+                    resumenPedidos.VentasTotales /
+                    resumenPedidos.TotalPedidos;
+            }
+
+            var modelo = new EstadisticasAdminViewModel
+            {
+                TotalPedidos =
+                    resumenPedidos.TotalPedidos,
+
+                VentasTotales =
+                    resumenPedidos.VentasTotales,
+
+                ComisionTotal =
+                    resumenPedidos.ComisionTotal,
+
+                TicketPromedio =
+                    ticketPromedio,
+
+                TotalShapers =
+                    _usuarioServicio.ContarShapers(
+                        string.Empty
+                    ),
+
+                ShapersActivos =
+                    _usuarioServicio.ContarShapersActivos(),
+
+                TotalClientes =
+                    _usuarioServicio.ContarClientes(),
+
+                TotalProductos =
+                    _productoServicio.ContarProductosPublicados(),
+
+                // 0 = Pendiente
+                PedidosPendientes =
+                    _pedidoServicio.ContarPedidosPorEstado(0),
+
+                // 1 = Aprobado
+                PedidosAprobados =
+                    _pedidoServicio.ContarPedidosPorEstado(1),
+
+                // 2 = Rechazado
+                PedidosRechazados =
+                    _pedidoServicio.ContarPedidosPorEstado(2),
+
+                // 3 = Cancelado
+                PedidosCancelados =
+                    _pedidoServicio.ContarPedidosPorEstado(3),
+
+                // 4 = Completado
+                PedidosCompletados =
+                    _pedidoServicio.ContarPedidosPorEstado(4)
+            };
+
+            return View(modelo);
         }
     }
 }

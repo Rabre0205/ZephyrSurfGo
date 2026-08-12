@@ -47,6 +47,10 @@ namespace ClassLibrary.Servicios
 
         Shaper ObtenerShaperPorId(int id);
 
+        int ContarClientes();
+
+        int ContarShapersActivos();
+
         (bool Exito, string Error) ActualizarShaper(
             int id,
             string email,
@@ -75,6 +79,20 @@ namespace ClassLibrary.Servicios
             IUsuarioRepositorio usuarioRepositorio)
         {
             _usuarioRepositorio = usuarioRepositorio;
+        }
+
+        public int ContarClientes()
+        {
+            return _usuarioRepositorio
+                .ContarUsuariosPorTipo(
+                    TipoDeUsuario.Cliente
+                );
+        }
+
+        public int ContarShapersActivos()
+        {
+            return _usuarioRepositorio
+                .ContarShapersActivos();
         }
 
         public List<Shaper> ObtenerShapers()

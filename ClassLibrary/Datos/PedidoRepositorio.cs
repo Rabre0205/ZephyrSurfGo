@@ -9,10 +9,32 @@ namespace ClassLibrary.Datos
 {
     public interface IPedidoRepositorio
     {
-        int Insertar(Pedido pedido, SqlConnection conexion, SqlTransaction transaccion);
-        void GuardarPreferenceId(int pedidoId, string preferenceId);
-        void ActualizarEstado(int pedidoId, byte nuevoEstadoId, string mercadoPagoPaymentId);
+
+        int ContarPedidosPorEstado(byte estadoId);
+
+        int Insertar(
+            Pedido pedido,
+            SqlConnection conexion,
+            SqlTransaction transaccion
+        );
+
+        void GuardarPreferenceId(
+            int pedidoId,
+            string preferenceId
+        );
+
+        void ActualizarEstado(
+            int pedidoId,
+            byte nuevoEstadoId,
+            string mercadoPagoPaymentId
+        );
+
         Pedido ObtenerPorId(int pedidoId);
+
+        (int TotalPedidos,
+         decimal VentasTotales,
+         decimal ComisionTotal)
+        ObtenerResumenAdministracion();
     }
 
     public class PedidoRepositorio : IPedidoRepositorio
@@ -61,6 +83,30 @@ namespace ClassLibrary.Datos
             return pedidoId;
         }
 
+        public int ContarPedidosPorEstado(byte estadoId)
+        {
+            string sql = @"
+        SELECT COUNT(*)
+        FROM Pedidos
+        WHERE EstadoPedidoId = @EstadoId;
+    ";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add(
+                    "@EstadoId",
+                    SqlDbType.TinyInt
+                ).Value = estadoId;
+
+                conexion.Open();
+
+                return Convert.ToInt32(
+                    comando.ExecuteScalar()
+                );
+            }
+        }
+
         public void GuardarPreferenceId(int pedidoId, string preferenceId)
         {
             string sql = "UPDATE Pedidos SET MercadoPagoPreferenceId = @PreferenceId WHERE Id = @PedidoId";
@@ -94,6 +140,60 @@ namespace ClassLibrary.Datos
         }
 
         //no implementado
+
+        public (
+    int TotalPedidos,
+    decimal VentasTotales,
+    decimal ComisionTotal
+) ObtenerResumenAdministracion()
+        {
+            string sql = @"
+        SELECT
+            COUNT(*) AS TotalPedidos,
+            COALESCE(SUM(Total), 0) AS VentasTotales,
+            COALESCE(SUM(ComisionPlataforma), 0) AS ComisionTotal
+        FROM Pedidos;
+    ";
+
+            using (SqlConnection conexion =
+                Conexion.ObtenerConexion())
+            using (SqlCommand comando =
+                new SqlCommand(sql, conexion))
+            {
+                conexion.Open();
+
+                using (SqlDataReader lector =
+                    comando.ExecuteReader())
+                {
+                    if (lector.Read())
+                    {
+                        int totalPedidos =
+                            Convert.ToInt32(
+                                lector["TotalPedidos"]
+                            );
+
+                        decimal ventasTotales =
+                            Convert.ToDecimal(
+                                lector["VentasTotales"]
+                            );
+
+                        decimal comisionTotal =
+                            Convert.ToDecimal(
+                                lector["ComisionTotal"]
+                            );
+
+                        return (
+                            totalPedidos,
+                            ventasTotales,
+                            comisionTotal
+                        );
+                    }
+                }
+            }
+
+            return (0, 0, 0);
+        }
+
         public Pedido ObtenerPorId(int pedidoId)
         {
             // SELECT + mapeo análogo al resto de tus repositorios — lo dejo

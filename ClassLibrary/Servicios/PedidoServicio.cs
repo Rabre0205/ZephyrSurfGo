@@ -12,6 +12,13 @@ namespace ClassLibrary.Servicios
     {
         Task<List<(Pedido Pedido, string UrlPago)>> CrearPedidosDesdeCarritoAsync(int clienteId);
         Task ProcesarNotificacionPagoAsync(string mercadoPagoPaymentId);
+
+        (int TotalPedidos,
+ decimal VentasTotales,
+ decimal ComisionTotal)
+ObtenerResumenAdministracion();
+
+        int ContarPedidosPorEstado(byte estadoId);
     }
 
     public class PedidoServicio : IPedidoServicio
@@ -20,6 +27,8 @@ namespace ClassLibrary.Servicios
         private readonly IProductoRepositorio _productoRepositorio;
         private readonly IPedidoRepositorio _pedidoRepositorio;
         private readonly IMercadoPagoServicio _mercadoPagoServicio;
+
+
         private readonly decimal _comision =
             decimal.Parse(Environment.GetEnvironmentVariable("MP_COMISION_PLATAFORMA"));
 
@@ -33,6 +42,22 @@ namespace ClassLibrary.Servicios
             _productoRepositorio = productoRepositorio;
             _pedidoRepositorio = pedidoRepositorio;
             _mercadoPagoServicio = mercadoPagoServicio;
+        }
+
+        public int ContarPedidosPorEstado(byte estadoId)
+        {
+            return _pedidoRepositorio
+                .ContarPedidosPorEstado(estadoId);
+        }
+
+        public (
+    int TotalPedidos,
+    decimal VentasTotales,
+    decimal ComisionTotal
+) ObtenerResumenAdministracion()
+        {
+            return _pedidoRepositorio
+                .ObtenerResumenAdministracion();
         }
 
         public async Task<List<(Pedido, string)>> CrearPedidosDesdeCarritoAsync(int clienteId)

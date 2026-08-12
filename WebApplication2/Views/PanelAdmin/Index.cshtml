@@ -1,4 +1,6 @@
-﻿@{
+﻿@model WebApplication2.Models.PanelAdmin.DashboardAdminViewModel
+
+@{
     ViewData["Title"] = "Panel administrador";
 }
 
@@ -7,9 +9,11 @@
     <header class="admin-header">
         <div>
             <span class="admin-eyebrow">Administración</span>
+
             <h1>Panel general</h1>
+
             <p>
-                Gestioná los shapers, productos, pedidos y ventas
+                Gestioná los shapers y consultá la actividad general
                 de Zephyr Surf Go.
             </p>
         </div>
@@ -18,8 +22,13 @@
     <section class="admin-stats">
 
         <article class="admin-stat-card">
-            <span class="admin-stat-label">Shapers registrados</span>
-            <strong>@ViewBag.CantidadShapers</strong>
+            <span class="admin-stat-label">
+                Shapers registrados
+            </span>
+
+            <strong>
+                @Model.TotalShapers
+            </strong>
 
             <a asp-controller="PanelAdmin"
                asp-action="Shapers">
@@ -28,28 +37,86 @@
         </article>
 
         <article class="admin-stat-card">
-            <span class="admin-stat-label">Productos publicados</span>
-            <strong>0</strong>
+            <span class="admin-stat-label">
+                Shapers activos
+            </span>
+
+            <strong>
+                @Model.ShapersActivos
+            </strong>
+
+            <a asp-controller="PanelAdmin"
+               asp-action="Shapers">
+                Ver shapers
+            </a>
+        </article>
+
+        <article class="admin-stat-card">
+            <span class="admin-stat-label">
+                Clientes registrados
+            </span>
+
+            <strong>
+                @Model.TotalClientes
+            </strong>
+
+            <span class="admin-stat-info">
+                Usuarios compradores
+            </span>
+        </article>
+
+        <article class="admin-stat-card">
+            <span class="admin-stat-label">
+                Productos publicados
+            </span>
+
+            <strong>
+                @Model.TotalProductos
+            </strong>
 
             <a asp-controller="PanelAdmin"
                asp-action="Productos">
-                Gestionar productos
+                Ver productos
             </a>
         </article>
 
         <article class="admin-stat-card">
-            <span class="admin-stat-label">Pedidos realizados</span>
-            <strong>0</strong>
+            <span class="admin-stat-label">
+                Pedidos realizados
+            </span>
+
+            <strong>
+                @Model.TotalPedidos
+            </strong>
+
+            <span class="admin-stat-info">
+                Pedidos registrados
+            </span>
+        </article>
+
+        <article class="admin-stat-card">
+            <span class="admin-stat-label">
+                Ventas totales
+            </span>
+
+            <strong>
+                USD @Model.VentasTotales.ToString("N2")
+            </strong>
 
             <a asp-controller="PanelAdmin"
-               asp-action="Pedidos">
-                Ver pedidos
+               asp-action="Estadisticas">
+                Ver estadísticas
             </a>
         </article>
 
         <article class="admin-stat-card">
-            <span class="admin-stat-label">Ventas totales</span>
-            <strong>USD 0</strong>
+            <span class="admin-stat-label">
+                Comisión generada
+            </span>
+
+            <strong>
+                USD @Model.ComisionTotal.ToString("N2")
+            </strong>
 
             <a asp-controller="PanelAdmin"
                asp-action="Estadisticas">
@@ -62,8 +129,13 @@
     <section class="admin-tools">
 
         <div class="admin-section-heading">
-            <span>Accesos rápidos</span>
-            <h2>Administración de la plataforma</h2>
+            <span>
+                Accesos rápidos
+            </span>
+
+            <h2>
+                Administración de la plataforma
+            </h2>
         </div>
 
         <div class="admin-tools-grid">
@@ -72,13 +144,18 @@
                asp-action="Shapers"
                class="admin-tool-card">
 
-                <div class="admin-tool-icon">S</div>
+                <div class="admin-tool-icon">
+                    S
+                </div>
 
                 <div>
-                    <h3>Gestionar shapers</h3>
+                    <h3>
+                        Gestionar shapers
+                    </h3>
+
                     <p>
-                        Consultá, registrá y administrá las cuentas
-                        de los fabricantes.
+                        Consultá, registrá, editá y administrá
+                        las cuentas de los fabricantes.
                     </p>
                 </div>
             </a>
@@ -87,28 +164,18 @@
                asp-action="Productos"
                class="admin-tool-card">
 
-                <div class="admin-tool-icon">P</div>
-
-                <div>
-                    <h3>Gestionar productos</h3>
-                    <p>
-                        Revisá las tablas y productos publicados
-                        en la plataforma.
-                    </p>
+                <div class="admin-tool-icon">
+                    P
                 </div>
-            </a>
-
-            <a asp-controller="PanelAdmin"
-               asp-action="Pedidos"
-               class="admin-tool-card">
-
-                <div class="admin-tool-icon">O</div>
 
                 <div>
-                    <h3>Ver pedidos</h3>
+                    <h3>
+                        Productos
+                    </h3>
+
                     <p>
-                        Accedé al estado y detalle de todos
-                        los pedidos realizados.
+                        Consultá los productos publicados
+                        en la plataforma.
                     </p>
                 </div>
             </a>
@@ -117,16 +184,40 @@
                asp-action="Estadisticas"
                class="admin-tool-card">
 
-                <div class="admin-tool-icon">E</div>
+                <div class="admin-tool-icon">
+                    E
+                </div>
 
                 <div>
-                    <h3>Estadísticas</h3>
+                    <h3>
+                        Estadísticas
+                    </h3>
+
                     <p>
                         Consultá ventas, comisiones y actividad
                         general de la plataforma.
                     </p>
                 </div>
             </a>
+
+            <div class="admin-tool-card">
+
+                <div class="admin-tool-icon">
+                    C
+                </div>
+
+                <div>
+                    <h3>
+                        Clientes
+                    </h3>
+
+                    <p>
+                        Actualmente hay
+                        <strong>@Model.TotalClientes</strong>
+                        clientes registrados.
+                    </p>
+                </div>
+            </div>
 
         </div>
 
@@ -139,6 +230,13 @@
         width: min(1200px, calc(100% - 40px));
         margin: 0 auto;
         padding: 55px 0 80px;
+    }
+
+    .admin-stat-info {
+        margin-top: auto;
+        color: #68756f;
+        font-size: 14px;
+        font-weight: 600;
     }
 
     .admin-header {

@@ -19,6 +19,11 @@ namespace ClassLibrary.Datos
 );
 
         int ContarShapers(string busqueda);
+
+        int ContarUsuariosPorTipo(TipoDeUsuario tipo);
+
+        int ContarShapersActivos();
+
         Usuario ObtenerPorId(int id);
         Usuario ObtenerPorEmail(string email);
         int InsertarUsuario(Usuario usuario);
@@ -501,6 +506,58 @@ namespace ClassLibrary.Datos
                 );
             }
         }
+
+        public int ContarUsuariosPorTipo(TipoDeUsuario tipo)
+        {
+            string sql = @"
+        SELECT COUNT(*)
+        FROM Usuarios
+        WHERE TipoDeUsuarioId = @Tipo;
+    ";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add(
+                    "@Tipo",
+                    SqlDbType.Int
+                ).Value = Convert.ToInt32(tipo);
+
+                conexion.Open();
+
+                return Convert.ToInt32(
+                    comando.ExecuteScalar()
+                );
+            }
+        }
+
+        public int ContarShapersActivos()
+        {
+            string sql = @"
+        SELECT COUNT(*)
+        FROM Usuarios
+        WHERE TipoDeUsuarioId = @TipoShaper
+          AND Activo = 1;
+    ";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add(
+                    "@TipoShaper",
+                    SqlDbType.Int
+                ).Value = Convert.ToInt32(
+                    TipoDeUsuario.Shaper
+                );
+
+                conexion.Open();
+
+                return Convert.ToInt32(
+                    comando.ExecuteScalar()
+                );
+            }
+        }
+
 
         private Usuario MapearUsuario(SqlDataReader lector)
         {
