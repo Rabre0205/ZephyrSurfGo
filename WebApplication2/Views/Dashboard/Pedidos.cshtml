@@ -1,12 +1,13 @@
-﻿@{
-    ViewData["Title"] = "Pedidos";
-}
-
-<h1>Pedidos</h1>
-
-<p>Aquí aparecerán los pedidos recibidos por el shaper.</p>
-
-<a asp-controller="Dashboard"
-   asp-action="Index">
-    Volver al Dashboard
-</a>
+@model WebApplication2.Models.Dashboard.PedidosShaperViewModel
+@{ Layout = null; ViewData["Title"] = "Pedidos recibidos"; }
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width"/>
+<title>Pedidos - Zephyr Surf Go</title><link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/></head>
+<body><partial name="_Navbar"/><main class="container py-5">
+<header class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-4"><div><small class="text-uppercase text-success fw-bold">Ventas</small><h1 class="display-4 fw-bold mb-1">Pedidos recibidos</h1><p class="text-secondary mb-0">Consultá únicamente los pedidos de tu negocio.</p></div><span class="badge text-bg-success fs-6">@Model.TotalResultados @(Model.TotalResultados==1?"pedido":"pedidos")</span></header>
+<form method="get" class="row g-2 mb-4"><div class="col-md"><input class="form-control" type="search" name="busqueda" value="@Model.Busqueda" placeholder="Número, cliente o correo..."/></div><div class="col-md-3"><select class="form-select" asp-for="EstadoId"><option value="">Todos los estados</option><option value="0">Pendiente</option><option value="1">Aprobado</option><option value="2">Rechazado</option><option value="3">Cancelado</option><option value="4">Completado</option></select></div><div class="col-auto"><button class="btn btn-success">Filtrar</button></div></form>
+@if(!Model.Pedidos.Any()){<section class="border rounded-4 p-5 text-center"><h2>Sin pedidos</h2><p class="text-secondary mb-0">Los pedidos de tus clientes aparecerán aquí.</p></section>}else{
+<div class="table-responsive border rounded-4"><table class="table align-middle mb-0"><thead class="table-light"><tr><th>Pedido</th><th>Fecha</th><th>Cliente</th><th>Estado</th><th>Total</th><th>Ingreso estimado</th><th></th></tr></thead><tbody>
+@foreach(var p in Model.Pedidos){<tr><td><strong>#@p.Id</strong></td><td>@p.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td><td><strong>@p.ClienteNombre</strong><br/><small class="text-secondary">@p.ClienteEmail</small></td><td>@p.EstadoNombre</td><td>USD @p.Total.ToString("N2")</td><td>USD @((p.Total-p.ComisionPlataforma).ToString("N2"))</td><td><a asp-action="DetallePedido" asp-route-id="@p.Id" class="btn btn-sm btn-outline-success">Ver detalle</a></td></tr>}</tbody></table></div>}
+@if(Model.TotalPaginas>1){<nav class="d-flex justify-content-center align-items-center gap-3 mt-4">@if(Model.TienePaginaAnterior){<a asp-route-busqueda="@Model.Busqueda" asp-route-estadoId="@Model.EstadoId" asp-route-pagina="@(Model.PaginaActual-1)" class="btn btn-outline-success">← Anterior</a>}<span>Página @Model.PaginaActual de @Model.TotalPaginas</span>@if(Model.TienePaginaSiguiente){<a asp-route-busqueda="@Model.Busqueda" asp-route-estadoId="@Model.EstadoId" asp-route-pagina="@(Model.PaginaActual+1)" class="btn btn-outline-success">Siguiente →</a>}</nav>}
+<a asp-action="Index" class="d-inline-block mt-4 text-success fw-bold text-decoration-none">← Volver al dashboard</a></main><script src="~/js/navbar.js"></script></body></html>

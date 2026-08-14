@@ -27,6 +27,13 @@ namespace ClassLibrary.Servicios
         List<PedidoAdminItem> ObtenerPedidosAdministracion(
             string busqueda, byte? estadoId, int pagina, int cantidadPorPagina);
         PedidoAdminDetalle ObtenerDetalleAdministracion(int pedidoId);
+        int ContarPedidosShaper(int shaperId, string busqueda, byte? estadoId);
+        List<PedidoAdminItem> ObtenerPedidosShaper(
+            int shaperId, string busqueda, byte? estadoId,
+            int pagina, int cantidadPorPagina);
+        PedidoAdminDetalle ObtenerDetalleShaper(int pedidoId, int shaperId);
+        (int TotalPedidos, int PedidosPendientes, decimal VentasConfirmadas,
+         decimal Comisiones) ObtenerResumenShaper(int shaperId);
 
         (
             int TotalPedidos,
@@ -81,6 +88,22 @@ namespace ClassLibrary.Servicios
 
         public PedidoAdminDetalle ObtenerDetalleAdministracion(int pedidoId) =>
             _pedidoRepositorio.ObtenerDetalleAdministracion(pedidoId);
+
+        public int ContarPedidosShaper(int shaperId, string busqueda, byte? estadoId) =>
+            _pedidoRepositorio.ContarPedidosShaper(shaperId, busqueda, estadoId);
+
+        public List<PedidoAdminItem> ObtenerPedidosShaper(
+            int shaperId, string busqueda, byte? estadoId,
+            int pagina, int cantidadPorPagina) =>
+            _pedidoRepositorio.ObtenerPedidosShaper(
+                shaperId, busqueda, estadoId, pagina, cantidadPorPagina);
+
+        public PedidoAdminDetalle ObtenerDetalleShaper(int pedidoId, int shaperId) =>
+            _pedidoRepositorio.ObtenerDetalleShaper(pedidoId, shaperId);
+
+        public (int TotalPedidos, int PedidosPendientes, decimal VentasConfirmadas,
+                decimal Comisiones) ObtenerResumenShaper(int shaperId) =>
+            _pedidoRepositorio.ObtenerResumenShaper(shaperId);
 
         public List<PedidoAdminItem> ObtenerPedidosAdministracion(
             int pagina,

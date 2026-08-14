@@ -3,6 +3,8 @@
     ViewData["Title"] = "Dashboard";
 }
 
+@model WebApplication2.Models.Dashboard.DashboardShaperViewModel
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -36,10 +38,10 @@
                     Facturación total
                 </span>
 
-                <strong>USD 0.00</strong>
+                <strong>USD @Model.VentasConfirmadas.ToString("N2")</strong>
 
                 <span class="resumen-detalle">
-                    Sin ventas registradas
+                    Comisión: USD @Model.Comisiones.ToString("N2") · Neto: USD @Model.IngresoNeto.ToString("N2")
                 </span>
             </article>
 
@@ -48,10 +50,10 @@
                     Pedidos pendientes
                 </span>
 
-                <strong>0</strong>
+                <strong>@Model.PedidosPendientes</strong>
 
                 <span class="resumen-detalle">
-                    No hay pedidos por preparar
+                    @Model.TotalPedidos pedidos registrados
                 </span>
             </article>
 
@@ -60,7 +62,7 @@
                     Productos publicados
                 </span>
 
-                <strong>0</strong>
+                <strong>@Model.ProductosPublicados</strong>
 
                 <a asp-controller="Productos"
                    asp-action="Index">

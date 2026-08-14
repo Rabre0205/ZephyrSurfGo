@@ -20,6 +20,13 @@ namespace ClassLibrary.Datos
         List<PedidoAdminItem> ObtenerPedidosAdministracion(
             string busqueda, byte? estadoId, int pagina, int cantidadPorPagina);
         PedidoAdminDetalle ObtenerDetalleAdministracion(int pedidoId);
+        int ContarPedidosShaper(int shaperId, string busqueda, byte? estadoId);
+        List<PedidoAdminItem> ObtenerPedidosShaper(
+            int shaperId, string busqueda, byte? estadoId,
+            int pagina, int cantidadPorPagina);
+        PedidoAdminDetalle ObtenerDetalleShaper(int pedidoId, int shaperId);
+        (int TotalPedidos, int PedidosPendientes, decimal VentasConfirmadas,
+         decimal Comisiones) ObtenerResumenShaper(int shaperId);
 
         int Insertar(
             Pedido pedido,
@@ -312,6 +319,124 @@ namespace ClassLibrary.Datos
                 });
             }
             return detalle;
+        }
+
+        public int ContarPedidosShaper(int shaperId, string busqueda, byte? estadoId)
+        {
+            const string sql = @"
+                SELECT COUNT(*) FROM Pedidos p
+                INNER JOIN Usuarios c ON c.Id = p.ClienteId
+                WHERE p.ShaperId = @ShaperId
+                  AND (@Busqueda = '' OR c.Nombre LIKE '%' + @Busqueda + '%'
+                       OR c.Email LIKE '%' + @Busqueda + '%'
+                       OR CONVERT(NVARCHAR(20), p.Id) = @Busqueda)
+                  AND (@EstadoId IS NULL OR p.EstadoPedidoId = @EstadoId);";
+            using var conexion = Conexion.ObtenerConexion();
+            using var comando = new SqlCommand(sql, conexion);
+            comando.Parameters.Add("@ShaperId", SqlDbType.Int).Value = shaperId;
+            AgregarFiltrosPedidos(comando, busqueda, estadoId);
+            conexion.Open();
+            return Convert.ToInt32(comando.ExecuteScalar());
+        }
+
+        public List<PedidoAdminItem> ObtenerPedidosShaper(
+            int shaperId, string busqueda, byte? estadoId,
+            int pagina, int cantidadPorPagina)
+        {
+            var pedidos = new List<PedidoAdminItem>();
+            const string sql = @"
+                SELECT p.Id,p.EstadoPedidoId,e.Nombre EstadoNombre,p.Total,
+                       p.ComisionPlataforma,p.FechaCreacion,
+                       c.Nombre ClienteNombre,c.Email ClienteEmail,
+                       s.Nombre ShaperNombre,s.NombreDeNegosio NegocioShaper
+                FROM Pedidos p
+                INNER JOIN Usuarios c ON c.Id=p.ClienteId
+                INNER JOIN Usuarios s ON s.Id=p.ShaperId
+                INNER JOIN EstadosPedido e ON e.Id=p.EstadoPedidoId
+                WHERE p.ShaperId=@ShaperId
+                  AND (@Busqueda='' OR c.Nombre LIKE '%' + @Busqueda + '%'
+                       OR c.Email LIKE '%' + @Busqueda + '%'
+                       OR CONVERT(NVARCHAR(20),p.Id)=@Busqueda)
+                  AND (@EstadoId IS NULL OR p.EstadoPedidoId=@EstadoId)
+                ORDER BY p.FechaCreacion DESC,p.Id DESC
+                OFFSET @Offset ROWS FETCH NEXT @Cantidad ROWS ONLY;";
+            using var conexion = Conexion.ObtenerConexion();
+            using var comando = new SqlCommand(sql, conexion);
+            comando.Parameters.Add("@ShaperId", SqlDbType.Int).Value = shaperId;
+            AgregarFiltrosPedidos(comando, busqueda, estadoId);
+            comando.Parameters.Add("@Offset", SqlDbType.Int).Value = (pagina - 1) * cantidadPorPagina;
+            comando.Parameters.Add("@Cantidad", SqlDbType.Int).Value = cantidadPorPagina;
+            conexion.Open();
+            using var lector = comando.ExecuteReader();
+            while (lector.Read()) pedidos.Add(MapearPedidoAdmin(lector));
+            return pedidos;
+        }
+
+        public PedidoAdminDetalle ObtenerDetalleShaper(int pedidoId, int shaperId)
+        {
+            const string cabecera = @"
+                SELECT p.Id,p.EstadoPedidoId,e.Nombre EstadoNombre,p.Total,p.ComisionPlataforma,
+                       p.FechaCreacion,p.MercadoPagoPreferenceId,p.MercadoPagoPaymentId,
+                       c.Nombre ClienteNombre,c.Email ClienteEmail,
+                       s.Nombre ShaperNombre,s.NombreDeNegosio NegocioShaper
+                FROM Pedidos p INNER JOIN Usuarios c ON c.Id=p.ClienteId
+                INNER JOIN Usuarios s ON s.Id=p.ShaperId
+                INNER JOIN EstadosPedido e ON e.Id=p.EstadoPedidoId
+                WHERE p.Id=@Id AND p.ShaperId=@ShaperId;";
+            using var conexion = Conexion.ObtenerConexion();
+            conexion.Open();
+            PedidoAdminDetalle detalle;
+            using (var comando = new SqlCommand(cabecera, conexion))
+            {
+                comando.Parameters.Add("@Id", SqlDbType.Int).Value = pedidoId;
+                comando.Parameters.Add("@ShaperId", SqlDbType.Int).Value = shaperId;
+                using var lector = comando.ExecuteReader();
+                if (!lector.Read()) return null;
+                var item = MapearPedidoAdmin(lector);
+                detalle = new PedidoAdminDetalle
+                {
+                    Id=item.Id,ClienteNombre=item.ClienteNombre,ClienteEmail=item.ClienteEmail,
+                    ShaperNombre=item.ShaperNombre,NegocioShaper=item.NegocioShaper,
+                    EstadoId=item.EstadoId,EstadoNombre=item.EstadoNombre,Total=item.Total,
+                    ComisionPlataforma=item.ComisionPlataforma,FechaCreacion=item.FechaCreacion,
+                    MercadoPagoPreferenceId=lector["MercadoPagoPreferenceId"]==DBNull.Value?string.Empty:Convert.ToString(lector["MercadoPagoPreferenceId"])??string.Empty,
+                    MercadoPagoPaymentId=lector["MercadoPagoPaymentId"]==DBNull.Value?string.Empty:Convert.ToString(lector["MercadoPagoPaymentId"])??string.Empty
+                };
+            }
+            using (var comando = new SqlCommand("SELECT ProductoId,TituloSnapshot,PrecioUnitarioSnapshot,Cantidad FROM PedidoItems WHERE PedidoId=@Id ORDER BY Id", conexion))
+            {
+                comando.Parameters.Add("@Id", SqlDbType.Int).Value = pedidoId;
+                using var lector = comando.ExecuteReader();
+                while (lector.Read()) detalle.Items.Add(new PedidoItem
+                {
+                    ProductoId=Convert.ToInt32(lector["ProductoId"]),
+                    TituloSnapshot=Convert.ToString(lector["TituloSnapshot"])??string.Empty,
+                    PrecioUnitarioSnapshot=(double)Convert.ToDecimal(lector["PrecioUnitarioSnapshot"]),
+                    Cantidad=Convert.ToInt32(lector["Cantidad"])
+                });
+            }
+            return detalle;
+        }
+
+        public (int TotalPedidos, int PedidosPendientes, decimal VentasConfirmadas,
+                decimal Comisiones) ObtenerResumenShaper(int shaperId)
+        {
+            const string sql = @"
+                SELECT COUNT(*) TotalPedidos,
+                       COALESCE(SUM(CASE WHEN EstadoPedidoId=0 THEN 1 ELSE 0 END),0) PedidosPendientes,
+                       COALESCE(SUM(CASE WHEN EstadoPedidoId IN (1,4) THEN Total ELSE 0 END),0) VentasConfirmadas,
+                       COALESCE(SUM(CASE WHEN EstadoPedidoId IN (1,4) THEN ComisionPlataforma ELSE 0 END),0) Comisiones
+                FROM Pedidos WHERE ShaperId=@ShaperId;";
+            using var conexion = Conexion.ObtenerConexion();
+            using var comando = new SqlCommand(sql, conexion);
+            comando.Parameters.Add("@ShaperId", SqlDbType.Int).Value = shaperId;
+            conexion.Open();
+            using var lector = comando.ExecuteReader();
+            if (!lector.Read()) return (0, 0, 0, 0);
+            return (Convert.ToInt32(lector["TotalPedidos"]),
+                    Convert.ToInt32(lector["PedidosPendientes"]),
+                    Convert.ToDecimal(lector["VentasConfirmadas"]),
+                    Convert.ToDecimal(lector["Comisiones"]));
         }
 
         private static void AgregarFiltrosPedidos(SqlCommand comando, string busqueda, byte? estadoId)

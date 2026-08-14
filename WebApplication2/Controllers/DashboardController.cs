@@ -1,24 +1,79 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using ClassLibrary.Servicios;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using WebApplication2.Models.Dashboard;
 
 namespace WebApplication2.Controllers
 {
     [Authorize(Roles = "Shaper")]
     public class DashboardController : Controller
     {
+        private readonly IPedidoServicio _pedidoServicio;
+        private readonly IProductoServicio _productoServicio;
+
+        public DashboardController(
+            IPedidoServicio pedidoServicio,
+            IProductoServicio productoServicio)
+        {
+            _pedidoServicio = pedidoServicio;
+            _productoServicio = productoServicio;
+        }
+
         public IActionResult Index()
         {
-            return View();
+            int shaperId = ObtenerUsuarioId();
+            var resumen = _pedidoServicio.ObtenerResumenShaper(shaperId);
+            var modelo = new DashboardShaperViewModel
+            {
+                TotalPedidos = resumen.TotalPedidos,
+                PedidosPendientes = resumen.PedidosPendientes,
+                VentasConfirmadas = resumen.VentasConfirmadas,
+                Comisiones = resumen.Comisiones,
+                ProductosPublicados = _productoServicio.BuscarPorShaper(shaperId).Count,
+                PedidosRecientes = _pedidoServicio.ObtenerPedidosShaper(
+                    shaperId, string.Empty, null, 1, 5)
+            };
+            return View(modelo);
         }
 
-        public IActionResult Pedidos()
+        public IActionResult Pedidos(
+            string busqueda = "", byte? estadoId = null, int pagina = 1)
         {
-            return View();
+            const int cantidadPorPagina = 20;
+            int shaperId = ObtenerUsuarioId();
+            busqueda = busqueda?.Trim() ?? string.Empty;
+            pagina = Math.Max(1, pagina);
+            int total = _pedidoServicio.ContarPedidosShaper(shaperId, busqueda, estadoId);
+            int paginas = (int)Math.Ceiling(total / (double)cantidadPorPagina);
+            if (paginas > 0 && pagina > paginas) pagina = paginas;
+
+            return View(new PedidosShaperViewModel
+            {
+                Pedidos = _pedidoServicio.ObtenerPedidosShaper(
+                    shaperId, busqueda, estadoId, pagina, cantidadPorPagina),
+                Busqueda = busqueda,
+                EstadoId = estadoId,
+                PaginaActual = pagina,
+                TotalPaginas = paginas,
+                TotalResultados = total
+            });
         }
 
-        public IActionResult Facturacion()
+        public IActionResult DetallePedido(int id)
         {
-            return View();
+            var pedido = _pedidoServicio.ObtenerDetalleShaper(id, ObtenerUsuarioId());
+            return pedido == null ? NotFound() : View(pedido);
+        }
+
+        public IActionResult Facturacion() => View();
+
+        private int ObtenerUsuarioId()
+        {
+            string? valor = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(valor, out int id))
+                throw new InvalidOperationException("No se pudo identificar al shaper autenticado.");
+            return id;
         }
     }
 }
