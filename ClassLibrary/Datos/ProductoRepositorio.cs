@@ -20,6 +20,12 @@ namespace ClassLibrary.Datos
         int InsertarLeash(Leash leash);
         int ContarProductosPublicados();
 
+        int ContarProductosAdministracion(string busqueda, string tipo, string estado);
+        List<ProductoAdminItem> ObtenerProductosAdministracion(
+            string busqueda, string tipo, string estado,
+            int pagina, int cantidadPorPagina);
+        bool CambiarEstadoProducto(int id, bool oculto);
+
 
         int InsertarPad(Pad pad);
         int InsertarQuilla(Quilla quilla);
@@ -55,7 +61,8 @@ namespace ClassLibrary.Datos
                         LEFT JOIN Pads    pa ON pa.ProductoId = p.Id
                         LEFT JOIN Quillas q ON q.ProductoId = p.Id
                         LEFT JOIN Tablas  t ON t.ProductoId = p.Id
-                        LEFT JOIN Trajes  tr ON tr.ProductoId = p.Id";
+                        LEFT JOIN Trajes  tr ON tr.ProductoId = p.Id
+                        WHERE p.DELETED = 0";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
@@ -78,7 +85,8 @@ namespace ClassLibrary.Datos
         {
             string sql = @"
         SELECT COUNT(*)
-        FROM Productos;
+        FROM Productos
+        WHERE DELETED = 0;
     ";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
@@ -90,6 +98,124 @@ namespace ClassLibrary.Datos
                     comando.ExecuteScalar()
                 );
             }
+        }
+
+        public int ContarProductosAdministracion(string busqueda, string tipo, string estado)
+        {
+            const string sql = @"
+                SELECT COUNT(*)
+                FROM Productos p
+                INNER JOIN Usuarios u ON u.Id = p.ShaperId
+                WHERE (@Busqueda = '' OR p.Titulo LIKE '%' + @Busqueda + '%'
+                       OR u.Nombre LIKE '%' + @Busqueda + '%'
+                       OR u.NombreDeNegosio LIKE '%' + @Busqueda + '%')
+                  AND (@Tipo = '' OR p.TipoProducto = @Tipo)
+                  AND (@Estado = ''
+                       OR (@Estado = 'publicados' AND p.DELETED = 0)
+                       OR (@Estado = 'ocultos' AND p.DELETED = 1));";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                AgregarFiltrosAdministracion(comando, busqueda, tipo, estado);
+                conexion.Open();
+                return Convert.ToInt32(comando.ExecuteScalar());
+            }
+        }
+
+        public List<ProductoAdminItem> ObtenerProductosAdministracion(
+            string busqueda, string tipo, string estado,
+            int pagina, int cantidadPorPagina)
+        {
+            var productos = new List<ProductoAdminItem>();
+            const string sql = @"
+                SELECT p.Id, p.Titulo, p.TipoProducto, p.Precio, p.ShaperId,
+                       p.ImagenUrl, p.DELETED,
+                       u.Nombre AS ShaperNombre, u.NombreDeNegosio AS NegocioShaper,
+                       CASE p.TipoProducto
+                           WHEN 'Leash' THEN l.Stock WHEN 'Pad' THEN pa.Stock
+                           WHEN 'Quilla' THEN q.Stock WHEN 'Traje' THEN tr.Stock
+                           ELSE NULL END AS Stock,
+                       CASE
+                           WHEN p.DELETED = 1 THEN CAST(0 AS BIT)
+                           WHEN p.TipoProducto = 'Tabla' THEN t.Disponible
+                           WHEN p.TipoProducto = 'Leash' AND l.Stock > 0 THEN CAST(1 AS BIT)
+                           WHEN p.TipoProducto = 'Pad' AND pa.Stock > 0 THEN CAST(1 AS BIT)
+                           WHEN p.TipoProducto = 'Quilla' AND q.Stock > 0 THEN CAST(1 AS BIT)
+                           WHEN p.TipoProducto = 'Traje' AND tr.Stock > 0 THEN CAST(1 AS BIT)
+                           ELSE CAST(0 AS BIT) END AS Disponible
+                FROM Productos p
+                INNER JOIN Usuarios u ON u.Id = p.ShaperId
+                LEFT JOIN Leashes l ON l.ProductoId = p.Id
+                LEFT JOIN Pads pa ON pa.ProductoId = p.Id
+                LEFT JOIN Quillas q ON q.ProductoId = p.Id
+                LEFT JOIN Tablas t ON t.ProductoId = p.Id
+                LEFT JOIN Trajes tr ON tr.ProductoId = p.Id
+                WHERE (@Busqueda = '' OR p.Titulo LIKE '%' + @Busqueda + '%'
+                       OR u.Nombre LIKE '%' + @Busqueda + '%'
+                       OR u.NombreDeNegosio LIKE '%' + @Busqueda + '%')
+                  AND (@Tipo = '' OR p.TipoProducto = @Tipo)
+                  AND (@Estado = ''
+                       OR (@Estado = 'publicados' AND p.DELETED = 0)
+                       OR (@Estado = 'ocultos' AND p.DELETED = 1))
+                ORDER BY p.Id DESC
+                OFFSET @Desplazamiento ROWS FETCH NEXT @Cantidad ROWS ONLY;";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                AgregarFiltrosAdministracion(comando, busqueda, tipo, estado);
+                comando.Parameters.Add("@Desplazamiento", SqlDbType.Int).Value =
+                    (pagina - 1) * cantidadPorPagina;
+                comando.Parameters.Add("@Cantidad", SqlDbType.Int).Value = cantidadPorPagina;
+                conexion.Open();
+
+                using (SqlDataReader lector = comando.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        productos.Add(new ProductoAdminItem
+                        {
+                            Id = Convert.ToInt32(lector["Id"]),
+                            Titulo = Convert.ToString(lector["Titulo"]) ?? string.Empty,
+                            TipoProducto = Convert.ToString(lector["TipoProducto"]) ?? string.Empty,
+                            Precio = Convert.ToDecimal(lector["Precio"]),
+                            ShaperId = Convert.ToInt32(lector["ShaperId"]),
+                            ShaperNombre = Convert.ToString(lector["ShaperNombre"]) ?? string.Empty,
+                            NegocioShaper = lector["NegocioShaper"] == DBNull.Value
+                                ? string.Empty : Convert.ToString(lector["NegocioShaper"]) ?? string.Empty,
+                            Stock = lector["Stock"] == DBNull.Value
+                                ? null : Convert.ToInt32(lector["Stock"]),
+                            Disponible = Convert.ToBoolean(lector["Disponible"]),
+                            Oculto = Convert.ToBoolean(lector["DELETED"]),
+                            ImagenUrl = lector["ImagenUrl"] == DBNull.Value
+                                ? string.Empty : Convert.ToString(lector["ImagenUrl"]) ?? string.Empty
+                        });
+                    }
+                }
+            }
+            return productos;
+        }
+
+        public bool CambiarEstadoProducto(int id, bool oculto)
+        {
+            const string sql = "UPDATE Productos SET DELETED = @Oculto WHERE Id = @Id;";
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add("@Oculto", SqlDbType.Bit).Value = oculto;
+                comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+                conexion.Open();
+                return comando.ExecuteNonQuery() == 1;
+            }
+        }
+
+        private static void AgregarFiltrosAdministracion(
+            SqlCommand comando, string busqueda, string tipo, string estado)
+        {
+            comando.Parameters.Add("@Busqueda", SqlDbType.NVarChar, 150).Value = busqueda ?? string.Empty;
+            comando.Parameters.Add("@Tipo", SqlDbType.NVarChar, 20).Value = tipo ?? string.Empty;
+            comando.Parameters.Add("@Estado", SqlDbType.NVarChar, 20).Value = estado ?? string.Empty;
         }
 
         // nuevo método en ProductoRepositorio, mismo estilo que ObtenerTodos()
@@ -114,7 +240,8 @@ namespace ClassLibrary.Datos
             LEFT JOIN Quillas q ON q.ProductoId = p.Id
             LEFT JOIN Tablas  t ON t.ProductoId = p.Id
             LEFT JOIN Trajes  tr ON tr.ProductoId = p.Id
-            WHERE p.ShaperId = @ShaperId";
+            WHERE p.ShaperId = @ShaperId
+              AND p.DELETED = 0";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
@@ -176,7 +303,8 @@ namespace ClassLibrary.Datos
         LEFT JOIN Tablas t ON t.ProductoId = p.Id
         LEFT JOIN Trajes tr ON tr.ProductoId = p.Id
 
-        WHERE p.Id = @Id;
+        WHERE p.Id = @Id
+          AND p.DELETED = 0;
     ";
 
             using (SqlConnection conexion = Conexion.ObtenerConexion())

@@ -21,6 +21,10 @@ namespace ClassLibrary.Datos
         int ContarShapers(string busqueda);
 
         int ContarUsuariosPorTipo(TipoDeUsuario tipo);
+        int ContarClientes(string busqueda);
+        List<ClienteAdminItem> ObtenerClientesPaginados(
+            string busqueda, int pagina, int cantidadPorPagina);
+        bool CambiarEstadoCliente(int id, bool activo);
 
         int ContarShapersActivos();
 
@@ -531,6 +535,82 @@ namespace ClassLibrary.Datos
             }
         }
 
+        public int ContarClientes(string busqueda)
+        {
+            const string sql = @"
+                SELECT COUNT(*) FROM Usuarios
+                WHERE TipoDeUsuarioId = @TipoCliente
+                  AND (@Busqueda = '' OR Nombre LIKE '%' + @Busqueda + '%'
+                       OR Email LIKE '%' + @Busqueda + '%');";
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add("@TipoCliente", SqlDbType.Int).Value = (int)TipoDeUsuario.Cliente;
+                comando.Parameters.Add("@Busqueda", SqlDbType.NVarChar, 150).Value = busqueda;
+                conexion.Open();
+                return Convert.ToInt32(comando.ExecuteScalar());
+            }
+        }
+
+        public List<ClienteAdminItem> ObtenerClientesPaginados(
+            string busqueda, int pagina, int cantidadPorPagina)
+        {
+            var clientes = new List<ClienteAdminItem>();
+            const string sql = @"
+                SELECT u.Id, u.Nombre, u.Email, u.PaisId, u.Activo,
+                       COUNT(p.Id) AS TotalPedidos,
+                       COALESCE(SUM(p.Total), 0) AS GastoTotal
+                FROM Usuarios u
+                LEFT JOIN Pedidos p ON p.ClienteId = u.Id
+                WHERE u.TipoDeUsuarioId = @TipoCliente
+                  AND (@Busqueda = '' OR u.Nombre LIKE '%' + @Busqueda + '%'
+                       OR u.Email LIKE '%' + @Busqueda + '%')
+                GROUP BY u.Id, u.Nombre, u.Email, u.PaisId, u.Activo
+                ORDER BY u.Nombre, u.Id
+                OFFSET @Desplazamiento ROWS FETCH NEXT @Cantidad ROWS ONLY;";
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add("@TipoCliente", SqlDbType.Int).Value = (int)TipoDeUsuario.Cliente;
+                comando.Parameters.Add("@Busqueda", SqlDbType.NVarChar, 150).Value = busqueda;
+                comando.Parameters.Add("@Desplazamiento", SqlDbType.Int).Value = (pagina - 1) * cantidadPorPagina;
+                comando.Parameters.Add("@Cantidad", SqlDbType.Int).Value = cantidadPorPagina;
+                conexion.Open();
+                using (SqlDataReader lector = comando.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        clientes.Add(new ClienteAdminItem
+                        {
+                            Id = Convert.ToInt32(lector["Id"]),
+                            Nombre = Convert.ToString(lector["Nombre"]) ?? string.Empty,
+                            Email = Convert.ToString(lector["Email"]) ?? string.Empty,
+                            Pais = (Pais)Convert.ToInt32(lector["PaisId"]),
+                            Activo = Convert.ToBoolean(lector["Activo"]),
+                            TotalPedidos = Convert.ToInt32(lector["TotalPedidos"]),
+                            GastoTotal = Convert.ToDecimal(lector["GastoTotal"])
+                        });
+                    }
+                }
+            }
+            return clientes;
+        }
+
+        public bool CambiarEstadoCliente(int id, bool activo)
+        {
+            const string sql = @"UPDATE Usuarios SET Activo = @Activo
+                                 WHERE Id = @Id AND TipoDeUsuarioId = @TipoCliente;";
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add("@Activo", SqlDbType.Bit).Value = activo;
+                comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+                comando.Parameters.Add("@TipoCliente", SqlDbType.Int).Value = (int)TipoDeUsuario.Cliente;
+                conexion.Open();
+                return comando.ExecuteNonQuery() == 1;
+            }
+        }
+
         public int ContarShapersActivos()
         {
             string sql = @"
@@ -644,4 +724,3 @@ namespace ClassLibrary.Datos
         }
     }
 }
- 

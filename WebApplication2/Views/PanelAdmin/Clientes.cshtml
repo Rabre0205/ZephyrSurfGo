@@ -1,0 +1,65 @@
+@model WebApplication2.Models.PanelAdmin.ClientesAdminViewModel
+@{ ViewData["Title"] = "Gestión de clientes"; }
+
+<section class="clients-page">
+    <header class="clients-header">
+        <div><span>Administración</span><h1>Clientes</h1><p>Consultá y administrá las cuentas compradoras.</p></div>
+        <strong class="count">@Model.TotalResultados @(Model.TotalResultados == 1 ? "cliente" : "clientes")</strong>
+    </header>
+
+    @if (TempData["Mensaje"] != null) { <div class="notice success">@TempData["Mensaje"]</div> }
+    @if (TempData["Error"] != null) { <div class="notice error">@TempData["Error"]</div> }
+
+    <form asp-action="Clientes" method="get" class="search">
+        <input type="search" name="busqueda" value="@Model.Busqueda" placeholder="Buscar por nombre o correo..." />
+        <button>Buscar</button>
+        @if (!string.IsNullOrWhiteSpace(Model.Busqueda)) { <a asp-action="Clientes">Limpiar</a> }
+    </form>
+
+    <div class="card">
+        @if (!Model.Clientes.Any())
+        {
+            <div class="empty"><h2>No se encontraron clientes</h2><p>Los clientes registrados aparecerán aquí.</p></div>
+        }
+        else
+        {
+            <div class="table-wrap"><table>
+                <thead><tr><th>Cliente</th><th>País</th><th>Pedidos</th><th>Gasto total</th><th>Estado</th><th>Acción</th></tr></thead>
+                <tbody>
+                @foreach (var cliente in Model.Clientes)
+                {
+                    <tr>
+                        <td><div class="person"><strong>@cliente.Nombre</strong><span>@cliente.Email</span></div></td>
+                        <td>@cliente.Pais</td><td>@cliente.TotalPedidos</td>
+                        <td><strong>USD @cliente.GastoTotal.ToString("N2")</strong></td>
+                        <td><span class="status @(cliente.Activo ? "active" : "blocked")">@(cliente.Activo ? "Activo" : "Bloqueado")</span></td>
+                        <td><form asp-action="CambiarEstadoCliente" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@cliente.Id" />
+                            <input type="hidden" name="activar" value="@(!cliente.Activo)" />
+                            <input type="hidden" name="busqueda" value="@Model.Busqueda" />
+                            <input type="hidden" name="pagina" value="@Model.PaginaActual" />
+                            <button class="toggle @(cliente.Activo ? "block" : "enable")" onclick="return confirm('@(cliente.Activo ? "¿Bloquear este cliente?" : "¿Activar este cliente?")');">
+                                @(cliente.Activo ? "Bloquear" : "Activar")
+                            </button>
+                        </form></td>
+                    </tr>
+                }
+                </tbody>
+            </table></div>
+        }
+    </div>
+
+    @if (Model.TotalPaginas > 1) {
+        <nav class="pagination">
+            @if(Model.TienePaginaAnterior){<a asp-action="Clientes" asp-route-busqueda="@Model.Busqueda" asp-route-pagina="@(Model.PaginaActual-1)">← Anterior</a>}else{<span>← Anterior</span>}
+            <strong>Página @Model.PaginaActual de @Model.TotalPaginas</strong>
+            @if(Model.TienePaginaSiguiente){<a asp-action="Clientes" asp-route-busqueda="@Model.Busqueda" asp-route-pagina="@(Model.PaginaActual+1)">Siguiente →</a>}else{<span>Siguiente →</span>}
+        </nav>
+    }
+    <a asp-action="Index" class="back">← Volver al panel</a>
+</section>
+
+<style>
+.clients-page{width:min(1200px,calc(100% - 40px));margin:auto;padding:55px 0 80px}.clients-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px}.clients-header span{color:#688076;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase}.clients-header h1{margin:8px 0 0;font-size:clamp(42px,6vw,68px);color:#17231f}.clients-header p{color:#68736e}.count{padding:10px 16px;border-radius:999px;background:#eaf3ef;color:#1c684c}.notice{padding:14px 18px;margin-bottom:16px;border-radius:12px}.success{background:#dff4e8;color:#17633f}.error{background:#fde1e1;color:#9e2e2e}.search{display:flex;gap:10px;margin-bottom:20px}.search input{flex:1;padding:12px;border:1px solid #d6dfdb;border-radius:10px}.search button,.search a{padding:12px 18px;border:0;border-radius:10px;font-weight:700;text-decoration:none}.search button{background:#1c684c;color:white}.search a{background:#eaf3ef;color:#1c684c}.card{overflow:hidden;border:1px solid #dce4e0;border-radius:18px;box-shadow:0 12px 35px rgba(26,57,46,.07)}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{padding:16px;border-bottom:1px solid #edf1ef;text-align:left}th{background:#f6f9f7;color:#63706a;font-size:12px;text-transform:uppercase}.person{display:flex;flex-direction:column}.person span{color:#77817c;font-size:13px}.status{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}.active{background:#d9f3e5;color:#17633f}.blocked{background:#fde1e1;color:#9e2e2e}.toggle{padding:8px 12px;border:0;border-radius:9px;font-weight:700}.block{background:#fde1e1;color:#9e2e2e}.enable{background:#d9f3e5;color:#17633f}.empty{padding:65px;text-align:center}.pagination{display:flex;justify-content:center;gap:18px;margin-top:24px}.pagination a{background:#1c684c;color:white;padding:10px 14px;border-radius:10px;text-decoration:none}.pagination span{color:#a7afab}.back{display:inline-block;margin-top:28px;color:#1c684c;font-weight:700;text-decoration:none}
+</style>

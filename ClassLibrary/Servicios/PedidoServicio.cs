@@ -10,13 +10,29 @@ namespace ClassLibrary.Servicios
 {
     public interface IPedidoServicio
     {
-        Task<List<(Pedido Pedido, string UrlPago)>> CrearPedidosDesdeCarritoAsync(int clienteId);
-        Task ProcesarNotificacionPagoAsync(string mercadoPagoPaymentId);
+        Task<List<(Pedido Pedido, string UrlPago)>>
+            CrearPedidosDesdeCarritoAsync(int clienteId);
 
-        (int TotalPedidos,
- decimal VentasTotales,
- decimal ComisionTotal)
-ObtenerResumenAdministracion();
+        Task ProcesarNotificacionPagoAsync(
+            string mercadoPagoPaymentId
+        );
+
+        int ContarPedidos();
+        int ContarPedidos(string busqueda, byte? estadoId);
+
+        List<PedidoAdminItem> ObtenerPedidosAdministracion(
+            int pagina,
+            int cantidadPorPagina
+        );
+        List<PedidoAdminItem> ObtenerPedidosAdministracion(
+            string busqueda, byte? estadoId, int pagina, int cantidadPorPagina);
+        PedidoAdminDetalle ObtenerDetalleAdministracion(int pedidoId);
+
+        (
+            int TotalPedidos,
+            decimal VentasTotales,
+            decimal ComisionTotal
+        ) ObtenerResumenAdministracion();
 
         int ContarPedidosPorEstado(byte estadoId);
     }
@@ -48,6 +64,33 @@ ObtenerResumenAdministracion();
         {
             return _pedidoRepositorio
                 .ContarPedidosPorEstado(estadoId);
+        }
+
+        public int ContarPedidos()
+        {
+            return _pedidoRepositorio.ContarPedidos();
+        }
+
+        public int ContarPedidos(string busqueda, byte? estadoId) =>
+            _pedidoRepositorio.ContarPedidos(busqueda, estadoId);
+
+        public List<PedidoAdminItem> ObtenerPedidosAdministracion(
+            string busqueda, byte? estadoId, int pagina, int cantidadPorPagina) =>
+            _pedidoRepositorio.ObtenerPedidosAdministracion(
+                busqueda, estadoId, pagina, cantidadPorPagina);
+
+        public PedidoAdminDetalle ObtenerDetalleAdministracion(int pedidoId) =>
+            _pedidoRepositorio.ObtenerDetalleAdministracion(pedidoId);
+
+        public List<PedidoAdminItem> ObtenerPedidosAdministracion(
+            int pagina,
+            int cantidadPorPagina)
+        {
+            return _pedidoRepositorio
+                .ObtenerPedidosAdministracion(
+                    pagina,
+                    cantidadPorPagina
+                );
         }
 
         public (

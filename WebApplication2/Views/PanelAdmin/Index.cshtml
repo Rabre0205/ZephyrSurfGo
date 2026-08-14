@@ -89,9 +89,10 @@
                 @Model.TotalPedidos
             </strong>
 
-            <span class="admin-stat-info">
-                Pedidos registrados
-            </span>
+            <a asp-controller="PanelAdmin"
+               asp-action="Pedidos">
+                Gestionar pedidos
+            </a>
         </article>
 
         <article class="admin-stat-card">
@@ -200,7 +201,9 @@
                 </div>
             </a>
 
-            <div class="admin-tool-card">
+            <a asp-controller="PanelAdmin"
+               asp-action="Clientes"
+               class="admin-tool-card">
 
                 <div class="admin-tool-icon">
                     C
@@ -217,7 +220,7 @@
                         clientes registrados.
                     </p>
                 </div>
-            </div>
+            </a>
 
         </div>
 

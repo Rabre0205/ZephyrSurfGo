@@ -16,6 +16,12 @@ namespace ClassLibrary.Servicios
 
         int ContarProductosPublicados();
 
+        int ContarProductosAdministracion(string busqueda, string tipo, string estado);
+        List<ProductoAdminItem> ObtenerProductosAdministracion(
+            string busqueda, string tipo, string estado,
+            int pagina, int cantidadPorPagina);
+        bool CambiarEstadoProducto(int id, bool oculto);
+
         int AgregarTabla(
             string titulo,
             string subtitulo,
@@ -57,6 +63,24 @@ namespace ClassLibrary.Servicios
         public int ContarProductosPublicados()
         {
             return _productoRepositorio.ContarProductosPublicados();
+        }
+
+        public int ContarProductosAdministracion(string busqueda, string tipo, string estado)
+        {
+            return _productoRepositorio.ContarProductosAdministracion(busqueda, tipo, estado);
+        }
+
+        public List<ProductoAdminItem> ObtenerProductosAdministracion(
+            string busqueda, string tipo, string estado,
+            int pagina, int cantidadPorPagina)
+        {
+            return _productoRepositorio.ObtenerProductosAdministracion(
+                busqueda, tipo, estado, pagina, cantidadPorPagina);
+        }
+
+        public bool CambiarEstadoProducto(int id, bool oculto)
+        {
+            return _productoRepositorio.CambiarEstadoProducto(id, oculto);
         }
 
         public List<Tabla> ObtenerTablasDelShaper(int shaperId)

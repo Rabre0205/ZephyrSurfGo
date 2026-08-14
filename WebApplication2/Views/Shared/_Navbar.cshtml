@@ -160,11 +160,15 @@
 
                     <div class="profile-menu-divider"></div>
 
-                    <a asp-controller="Login"
-                       asp-action="Logout"
-                       class="logout-link">
-                        Salir del perfil
-                    </a>
+                    <form asp-controller="Login"
+                          asp-action="Logout"
+                          method="post"
+                          class="logout-form">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="logout-link">
+                            Salir del perfil
+                        </button>
+                    </form>
 
                 </div>
 

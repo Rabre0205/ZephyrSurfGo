@@ -363,3 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 **/.env
+
+# User-generated product images
+WebApplication2/wwwroot/uploads/

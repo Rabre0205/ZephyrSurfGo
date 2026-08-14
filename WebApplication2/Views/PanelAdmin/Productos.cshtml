@@ -1,10 +1,193 @@
-﻿@{
-    ViewData["Title"] = "En construcción";
+@model WebApplication2.Models.PanelAdmin.ProductosAdminViewModel
+
+@{
+    ViewData["Title"] = "Gestión de productos";
 }
 
-<h1>Sección en construcción</h1>
+<section class="products-page">
+    <header class="products-header">
+        <div>
+            <span class="eyebrow">Administración</span>
+            <h1>Productos</h1>
+            <p>Supervisá los productos publicados por los shapers.</p>
+        </div>
+        <span class="result-count">@Model.TotalResultados @(Model.TotalResultados == 1 ? "producto" : "productos")</span>
+    </header>
 
-<a asp-controller="PanelAdmin"
-   asp-action="Index">
-    Volver al panel
-</a>
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="notice success">@TempData["Mensaje"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="notice error">@TempData["Error"]</div>
+    }
+
+    <form asp-action="Productos" method="get" class="filters">
+        <input type="search" name="busqueda" value="@Model.Busqueda"
+               placeholder="Buscar producto, shaper o negocio..." />
+        <select asp-for="Tipo">
+            <option value="">Todos los tipos</option>
+            @foreach (string tipo in Model.Tipos)
+            {
+                <option value="@tipo">@tipo</option>
+            }
+        </select>
+        <select asp-for="Estado">
+            <option value="">Todos los estados</option>
+            <option value="publicados">Publicados</option>
+            <option value="ocultos">Ocultos</option>
+        </select>
+        <button type="submit">Filtrar</button>
+        @if (!string.IsNullOrWhiteSpace(Model.Busqueda) ||
+             !string.IsNullOrWhiteSpace(Model.Tipo) ||
+             !string.IsNullOrWhiteSpace(Model.Estado))
+        {
+            <a asp-action="Productos">Limpiar</a>
+        }
+    </form>
+
+    <div class="products-card">
+        @if (!Model.Productos.Any())
+        {
+            <div class="empty">
+                <div class="empty-icon">P</div>
+                <h2>No se encontraron productos</h2>
+                <p>Probá modificando los filtros de búsqueda.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Tipo</th>
+                            <th>Shaper</th>
+                            <th>Precio</th>
+                            <th>Disponibilidad</th>
+                            <th>Publicación</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var producto in Model.Productos)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="product-cell">
+                                        @if (!string.IsNullOrWhiteSpace(producto.ImagenUrl))
+                                        {
+                                            <img src="@producto.ImagenUrl" alt="" />
+                                        }
+                                        else
+                                        {
+                                            <span class="image-placeholder">P</span>
+                                        }
+                                        <strong>@producto.Titulo</strong>
+                                    </div>
+                                </td>
+                                <td><span class="type">@producto.TipoProducto</span></td>
+                                <td>
+                                    <div class="seller">
+                                        <strong>@(string.IsNullOrWhiteSpace(producto.NegocioShaper)
+                                            ? producto.ShaperNombre : producto.NegocioShaper)</strong>
+                                        <span>@producto.ShaperNombre</span>
+                                    </div>
+                                </td>
+                                <td><strong>USD @producto.Precio.ToString("N2")</strong></td>
+                                <td>
+                                    <span class="status @(producto.Disponible ? "available" : "unavailable")">
+                                        @(producto.Disponible ? "Disponible" : "Sin disponibilidad")
+                                    </span>
+                                    @if (producto.Stock.HasValue)
+                                    {
+                                        <small class="stock">Stock: @producto.Stock</small>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="status @(producto.Oculto ? "hidden" : "published")">
+                                        @(producto.Oculto ? "Oculto" : "Publicado")
+                                    </span>
+                                </td>
+                                <td>
+                                    <form asp-action="CambiarEstadoProducto" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@producto.Id" />
+                                        <input type="hidden" name="ocultar" value="@(!producto.Oculto)" />
+                                        <input type="hidden" name="busqueda" value="@Model.Busqueda" />
+                                        <input type="hidden" name="tipo" value="@Model.Tipo" />
+                                        <input type="hidden" name="estado" value="@Model.Estado" />
+                                        <input type="hidden" name="pagina" value="@Model.PaginaActual" />
+                                        <button class="toggle @(producto.Oculto ? "show" : "hide")" type="submit"
+                                                onclick="return confirm('@(producto.Oculto ? "¿Publicar nuevamente este producto?" : "¿Ocultar este producto del catálogo?")');">
+                                            @(producto.Oculto ? "Publicar" : "Ocultar")
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav class="pagination">
+            @if (Model.TienePaginaAnterior)
+            {
+                <a asp-action="Productos" asp-route-busqueda="@Model.Busqueda"
+                   asp-route-tipo="@Model.Tipo" asp-route-estado="@Model.Estado"
+                   asp-route-pagina="@(Model.PaginaActual - 1)">← Anterior</a>
+            }
+            else { <span class="disabled">← Anterior</span> }
+            <span>Página @Model.PaginaActual de @Model.TotalPaginas</span>
+            @if (Model.TienePaginaSiguiente)
+            {
+                <a asp-action="Productos" asp-route-busqueda="@Model.Busqueda"
+                   asp-route-tipo="@Model.Tipo" asp-route-estado="@Model.Estado"
+                   asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente →</a>
+            }
+            else { <span class="disabled">Siguiente →</span> }
+        </nav>
+    }
+
+    <a asp-action="Index" class="back">← Volver al panel</a>
+</section>
+
+<style>
+    .products-page { width:min(1300px,calc(100% - 40px)); margin:0 auto; padding:55px 0 80px; }
+    .products-header { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; margin-bottom:28px; }
+    .eyebrow { display:block; color:#688076; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+    .products-header h1 { margin:0; color:#17231f; font-size:clamp(42px,6vw,68px); line-height:1; }
+    .products-header p { margin:14px 0 0; color:#68736e; }
+    .result-count { padding:10px 16px; border-radius:999px; background:#eaf3ef; color:#1c684c; font-weight:700; }
+    .notice { padding:14px 18px; margin-bottom:18px; border-radius:12px; font-weight:600; }
+    .notice.success { background:#dff4e8; color:#17633f; } .notice.error { background:#fde1e1; color:#9e2e2e; }
+    .filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+    .filters input { flex:1 1 300px; } .filters input,.filters select { padding:12px 14px; border:1px solid #d6dfdb; border-radius:10px; background:white; }
+    .filters button,.filters a { padding:12px 18px; border:0; border-radius:10px; font-weight:700; text-decoration:none; }
+    .filters button { background:#1c684c; color:white; } .filters a { color:#1c684c; background:#eaf3ef; }
+    .products-card { overflow:hidden; border:1px solid #dce4e0; border-radius:18px; background:white; box-shadow:0 12px 35px rgba(26,57,46,.07); }
+    .table-wrapper { overflow-x:auto; } table { width:100%; border-collapse:collapse; }
+    th,td { padding:16px; border-bottom:1px solid #edf1ef; text-align:left; vertical-align:middle; }
+    th { background:#f6f9f7; color:#63706a; font-size:12px; letter-spacing:1px; text-transform:uppercase; }
+    tbody tr:hover { background:#fafcfb; }
+    .product-cell { display:flex; align-items:center; gap:12px; min-width:210px; }
+    .product-cell img,.image-placeholder { width:48px; height:48px; border-radius:10px; object-fit:cover; }
+    .image-placeholder { display:flex; align-items:center; justify-content:center; background:#eaf3ef; color:#1c684c; font-weight:800; }
+    .seller { display:flex; flex-direction:column; gap:3px; } .seller span,.stock { display:block; color:#77817c; font-size:12px; margin-top:4px; }
+    .type,.status { display:inline-flex; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700; white-space:nowrap; }
+    .type { background:#edf1ef; color:#56615c; } .available,.published { background:#d9f3e5; color:#17633f; }
+    .unavailable { background:#fff3cd; color:#806000; } .hidden { background:#fde1e1; color:#9e2e2e; }
+    .toggle { padding:8px 12px; border:0; border-radius:9px; font-weight:700; cursor:pointer; }
+    .toggle.hide { background:#fde1e1; color:#9e2e2e; } .toggle.show { background:#d9f3e5; color:#17633f; }
+    .empty { padding:70px 25px; text-align:center; } .empty-icon { display:flex; width:58px; height:58px; margin:0 auto 18px; align-items:center; justify-content:center; border-radius:16px; background:#eaf3ef; color:#1c684c; font-weight:800; }
+    .pagination { display:flex; justify-content:center; align-items:center; gap:18px; margin-top:24px; }
+    .pagination a { padding:10px 14px; border-radius:10px; background:#1c684c; color:white; font-weight:700; text-decoration:none; }
+    .disabled { color:#a7afab; } .back { display:inline-block; margin-top:28px; color:#1c684c; font-weight:700; text-decoration:none; }
+    @@media(max-width:720px) { .products-page{width:min(100% - 24px,1300px);padding-top:35px}.products-header{align-items:flex-start;flex-direction:column}.pagination{gap:7px;font-size:13px} }
+</style>

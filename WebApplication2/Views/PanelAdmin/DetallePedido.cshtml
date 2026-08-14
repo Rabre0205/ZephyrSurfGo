@@ -1,0 +1,21 @@
+@model ClassLibrary.Pedidos.PedidoAdminDetalle
+@{ ViewData["Title"] = $"Pedido #{Model.Id}"; }
+
+<section class="order-detail">
+    <header><span>Administración · Pedidos</span><h1>Pedido #@Model.Id</h1><p>@Model.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p></header>
+    <div class="summary">
+        <article><small>Cliente</small><strong>@Model.ClienteNombre</strong><span>@Model.ClienteEmail</span></article>
+        <article><small>Shaper</small><strong>@(string.IsNullOrWhiteSpace(Model.NegocioShaper)?Model.ShaperNombre:Model.NegocioShaper)</strong><span>@Model.ShaperNombre</span></article>
+        <article><small>Estado</small><strong>@Model.EstadoNombre</strong></article>
+        <article><small>Total</small><strong>USD @Model.Total.ToString("N2")</strong><span>Comisión: USD @Model.ComisionPlataforma.ToString("N2")</span></article>
+    </div>
+    <section class="items"><h2>Productos</h2>
+        <table><thead><tr><th>Producto</th><th>Precio unitario</th><th>Cantidad</th><th>Subtotal</th></tr></thead>
+        <tbody>@foreach(var item in Model.Items){<tr><td>@item.TituloSnapshot</td><td>USD @item.PrecioUnitarioSnapshot.ToString("N2")</td><td>@item.Cantidad</td><td><strong>USD @((item.PrecioUnitarioSnapshot*item.Cantidad).ToString("N2"))</strong></td></tr>}</tbody></table>
+    </section>
+    <section class="payment"><h2>Mercado Pago</h2><p><strong>Preference ID:</strong> @(string.IsNullOrWhiteSpace(Model.MercadoPagoPreferenceId)?"No registrado":Model.MercadoPagoPreferenceId)</p><p><strong>Payment ID:</strong> @(string.IsNullOrWhiteSpace(Model.MercadoPagoPaymentId)?"No registrado":Model.MercadoPagoPaymentId)</p></section>
+    <a asp-action="Pedidos" class="back">← Volver a pedidos</a>
+</section>
+<style>
+.order-detail{width:min(1100px,calc(100% - 40px));margin:auto;padding:55px 0 80px}.order-detail header span{color:#688076;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase}.order-detail h1{font-size:clamp(42px,6vw,64px);margin:8px 0;color:#17231f}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:30px 0}.summary article,.items,.payment{padding:22px;border:1px solid #dce4e0;border-radius:16px;background:white;box-shadow:0 10px 28px rgba(26,57,46,.05)}.summary article{display:flex;flex-direction:column;gap:6px}.summary small,.summary span{color:#77817c}.items,.payment{margin-top:18px}.items table{width:100%;border-collapse:collapse}.items th,.items td{padding:14px;border-bottom:1px solid #edf1ef;text-align:left}.items th{color:#63706a;font-size:12px;text-transform:uppercase}.payment p{overflow-wrap:anywhere}.back{display:inline-block;margin-top:28px;color:#1c684c;font-weight:700;text-decoration:none}@@media(max-width:800px){.summary{grid-template-columns:1fr 1fr}}@@media(max-width:520px){.summary{grid-template-columns:1fr}.items{overflow-x:auto}}
+</style>

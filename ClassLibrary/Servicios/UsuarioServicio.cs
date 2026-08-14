@@ -48,6 +48,10 @@ namespace ClassLibrary.Servicios
         Shaper ObtenerShaperPorId(int id);
 
         int ContarClientes();
+        int ContarClientes(string busqueda);
+        List<ClienteAdminItem> ObtenerClientesPaginados(
+            string busqueda, int pagina, int cantidadPorPagina);
+        bool CambiarEstadoCliente(int id, bool activo);
 
         int ContarShapersActivos();
 
@@ -88,6 +92,16 @@ namespace ClassLibrary.Servicios
                     TipoDeUsuario.Cliente
                 );
         }
+
+        public int ContarClientes(string busqueda) =>
+            _usuarioRepositorio.ContarClientes(busqueda);
+
+        public List<ClienteAdminItem> ObtenerClientesPaginados(
+            string busqueda, int pagina, int cantidadPorPagina) =>
+            _usuarioRepositorio.ObtenerClientesPaginados(busqueda, pagina, cantidadPorPagina);
+
+        public bool CambiarEstadoCliente(int id, bool activo) =>
+            _usuarioRepositorio.CambiarEstadoCliente(id, activo);
 
         public int ContarShapersActivos()
         {

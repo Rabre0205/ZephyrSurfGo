@@ -320,6 +320,24 @@ nav#navbar {
     color: #ff6b6b !important;
 }
 
+.logout-form {
+    margin: 0;
+}
+
+.logout-form .logout-link {
+    width: 100%;
+    padding: 12px 16px;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.logout-form .logout-link:hover {
+    background: rgba(255,255,255,.08);
+}
+
 
 /* ==========================================
    DASHBOARD SHAPER

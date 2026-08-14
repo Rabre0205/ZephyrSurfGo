@@ -179,6 +179,8 @@ public class LoginController : Controller
         );
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(
