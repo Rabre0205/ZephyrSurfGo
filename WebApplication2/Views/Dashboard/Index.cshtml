@@ -86,16 +86,30 @@
                     </div>
                 </div>
 
-                <div class="panel-vacio">
-                    <span>📦</span>
-
-                    <h3>Todavía no tenés pedidos</h3>
-
-                    <p>
-                        Cuando un cliente compre una tabla,
-                        el pedido aparecerá en esta sección.
-                    </p>
-                </div>
+                @if (!Model.PedidosRecientes.Any())
+                {
+                    <div class="panel-vacio">
+                        <span>📦</span>
+                        <h3>Todavía no tenés pedidos</h3>
+                        <p>Cuando un cliente compre una tabla, el pedido aparecerá en esta sección.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="dashboard-lista">
+                        @foreach (var pedido in Model.PedidosRecientes)
+                        {
+                            <a asp-action="DetallePedido" asp-route-id="@pedido.Id" class="dashboard-lista-item">
+                                <span>
+                                    <strong>Pedido #@pedido.Id</strong>
+                                    <small>@pedido.ClienteNombre · @pedido.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                                </span>
+                                <span class="dashboard-lista-total">USD @pedido.Total.ToString("N2")<small>@pedido.EstadoNombre</small></span>
+                            </a>
+                        }
+                        <a asp-action="Pedidos" class="dashboard-panel-link">Ver todos los pedidos →</a>
+                    </div>
+                }
 
             </section>
 
@@ -111,16 +125,23 @@
                     </div>
                 </div>
 
-                <div class="panel-vacio">
-                    <span>💳</span>
-
-                    <h3>Sin movimientos</h3>
-
-                    <p>
-                        La facturación aparecerá cuando tengas
-                        ventas confirmadas.
-                    </p>
-                </div>
+                @if (Model.VentasConfirmadas == 0)
+                {
+                    <div class="panel-vacio">
+                        <span>💳</span>
+                        <h3>Sin movimientos</h3>
+                        <p>La facturación aparecerá cuando tengas ventas confirmadas.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="facturacion-resumen-panel">
+                        <div><span>Ventas confirmadas</span><strong>USD @Model.VentasConfirmadas.ToString("N2")</strong></div>
+                        <div><span>Comisión de plataforma</span><strong>USD @Model.Comisiones.ToString("N2")</strong></div>
+                        <div class="facturacion-neto"><span>Ingreso neto</span><strong>USD @Model.IngresoNeto.ToString("N2")</strong></div>
+                        <a asp-action="Facturacion" class="dashboard-panel-link">Ver detalle de facturación →</a>
+                    </div>
+                }
 
             </section>
 

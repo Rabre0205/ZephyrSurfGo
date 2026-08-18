@@ -66,7 +66,26 @@ namespace WebApplication2.Controllers
             return pedido == null ? NotFound() : View(pedido);
         }
 
-        public IActionResult Facturacion() => View();
+        public IActionResult Facturacion()
+        {
+            int shaperId = ObtenerUsuarioId();
+            var resumen = _pedidoServicio.ObtenerResumenShaper(shaperId);
+            var aprobados = _pedidoServicio.ObtenerPedidosShaper(
+                shaperId, string.Empty, 1, 1, 50);
+            var completados = _pedidoServicio.ObtenerPedidosShaper(
+                shaperId, string.Empty, 4, 1, 50);
+
+            return View(new FacturacionShaperViewModel
+            {
+                VentasConfirmadas = resumen.VentasConfirmadas,
+                Comisiones = resumen.Comisiones,
+                Movimientos = aprobados
+                    .Concat(completados)
+                    .OrderByDescending(pedido => pedido.FechaCreacion)
+                    .Take(50)
+                    .ToList()
+            });
+        }
 
         private int ObtenerUsuarioId()
         {

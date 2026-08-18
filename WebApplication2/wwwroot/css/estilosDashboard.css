@@ -171,6 +171,75 @@ body {
         line-height: 1.6;
     }
 
+.dashboard-lista {
+    display: flex;
+    flex-direction: column;
+    padding-top: 8px;
+}
+
+.dashboard-lista-item {
+    display: flex;
+    padding: 16px 4px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    border-bottom: 1px solid var(--dashboard-borde);
+    color: var(--dashboard-texto);
+    text-decoration: none;
+}
+
+.dashboard-lista-item:hover {
+    color: var(--dashboard-principal);
+}
+
+.dashboard-lista-item span,
+.dashboard-lista-item small {
+    display: block;
+}
+
+.dashboard-lista-item small {
+    margin-top: 4px;
+    color: var(--dashboard-suave);
+    font-size: 0.8rem;
+}
+
+.dashboard-lista-total {
+    flex-shrink: 0;
+    text-align: right;
+    font-weight: 700;
+}
+
+.dashboard-panel-link {
+    display: inline-block;
+    margin-top: 18px;
+    color: var(--dashboard-principal);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.facturacion-resumen-panel {
+    display: grid;
+    gap: 14px;
+    padding-top: 22px;
+}
+
+.facturacion-resumen-panel > div {
+    display: flex;
+    padding: 14px 0;
+    justify-content: space-between;
+    gap: 18px;
+    border-bottom: 1px solid var(--dashboard-borde);
+    color: var(--dashboard-suave);
+}
+
+.facturacion-resumen-panel strong {
+    color: var(--dashboard-texto);
+}
+
+.facturacion-resumen-panel .facturacion-neto strong {
+    color: var(--dashboard-principal);
+}
+
 @media (max-width: 850px) {
     .dashboard-resumen,
     .dashboard-contenido {

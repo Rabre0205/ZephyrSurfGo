@@ -1,12 +1,66 @@
-﻿@{
-    ViewData["Title"] = "Facturación";
-}
+@model WebApplication2.Models.Dashboard.FacturacionShaperViewModel
+@{ Layout = null; ViewData["Title"] = "Facturación"; }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Facturación - Zephyr Surf Go</title>
+    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body>
+    <partial name="_Navbar" />
+    <main class="container py-5">
+        <header class="mb-4">
+            <small class="text-uppercase text-success fw-bold">Ventas</small>
+            <h1 class="display-4 fw-bold mb-1">Facturación</h1>
+            <p class="text-secondary mb-0">Resumen informativo de tus ventas aprobadas y completadas.</p>
+        </header>
 
-<h1>Facturación</h1>
+        <section class="row g-3 mb-4">
+            <div class="col-md-4"><article class="border rounded-4 p-4 h-100"><span class="text-secondary">Ventas confirmadas</span><strong class="d-block fs-3 mt-3">USD @Model.VentasConfirmadas.ToString("N2")</strong></article></div>
+            <div class="col-md-4"><article class="border rounded-4 p-4 h-100"><span class="text-secondary">Comisión de plataforma</span><strong class="d-block fs-3 mt-3">USD @Model.Comisiones.ToString("N2")</strong></article></div>
+            <div class="col-md-4"><article class="border border-success rounded-4 p-4 h-100"><span class="text-secondary">Ingreso neto</span><strong class="d-block fs-3 mt-3 text-success">USD @Model.IngresoNeto.ToString("N2")</strong></article></div>
+        </section>
 
-<p>Aquí aparecerán las ventas, ingresos y estadísticas.</p>
+        @if (!Model.Movimientos.Any())
+        {
+            <section class="border rounded-4 p-5 text-center">
+                <h2>Sin ventas confirmadas</h2>
+                <p class="text-secondary mb-0">Los movimientos aparecerán cuando un pedido sea aprobado o completado.</p>
+            </section>
+        }
+        else
+        {
+            <section>
+                <h2 class="h4 mb-3">Últimos movimientos</h2>
+                <div class="table-responsive border rounded-4">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light"><tr><th>Pedido</th><th>Fecha</th><th>Cliente</th><th>Estado</th><th>Venta</th><th>Comisión</th><th>Neto</th><th></th></tr></thead>
+                        <tbody>
+                        @foreach (var movimiento in Model.Movimientos)
+                        {
+                            <tr>
+                                <td><strong>#@movimiento.Id</strong></td>
+                                <td>@movimiento.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@movimiento.ClienteNombre</td>
+                                <td>@movimiento.EstadoNombre</td>
+                                <td>USD @movimiento.Total.ToString("N2")</td>
+                                <td>USD @movimiento.ComisionPlataforma.ToString("N2")</td>
+                                <td><strong>USD @((movimiento.Total - movimiento.ComisionPlataforma).ToString("N2"))</strong></td>
+                                <td><a asp-action="DetallePedido" asp-route-id="@movimiento.Id" class="btn btn-sm btn-outline-success">Ver</a></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
 
-<a asp-controller="Dashboard"
-   asp-action="Index">
-    Volver al Dashboard
-</a>
+        <p class="alert alert-light border mt-4 mb-0">Esta pantalla es de solo lectura y no realiza cobros, transferencias ni cambios de estado.</p>
+        <a asp-action="Index" class="d-inline-block mt-4 text-success fw-bold text-decoration-none">← Volver al dashboard</a>
+    </main>
+    <script src="~/js/navbar.js" asp-append-version="true"></script>
+</body>
+</html>
