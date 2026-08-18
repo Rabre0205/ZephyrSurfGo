@@ -66,6 +66,13 @@ namespace ClassLibrary.Servicios
 
         bool CambiarEstadoShaper(int id, bool activo);
 
+        (bool Exito, string Error) ActualizarCuenta(
+            int id, string email, string nombre, Pais pais);
+
+        (bool Exito, string Error) CambiarContrasenia(
+            int id, string contraseniaActual,
+            string nuevaContrasenia, string confirmarContrasenia);
+
         List<Shaper> ObtenerShapersPaginados(
     string busqueda,
     int pagina,
@@ -470,6 +477,61 @@ namespace ClassLibrary.Servicios
         public Usuario BuscarPorId(int id)
         {
             return _usuarioRepositorio.ObtenerPorId(id);
+        }
+
+        public (bool Exito, string Error) ActualizarCuenta(
+            int id, string email, string nombre, Pais pais)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(nombre))
+                return (false, "Completá el nombre y el correo.");
+
+            Usuario usuario = _usuarioRepositorio.ObtenerPorId(id);
+            if (usuario == null || usuario.TipoDeUsuario == TipoDeUsuario.Administrador)
+                return (false, "No se encontró una cuenta habilitada para esta configuración.");
+
+            Usuario usuarioConCorreo = _usuarioRepositorio.ObtenerPorEmail(email.Trim());
+            if (usuarioConCorreo != null && usuarioConCorreo.Id != id)
+                return (false, "Ya existe otra cuenta registrada con ese correo.");
+
+            bool actualizado = _usuarioRepositorio.ActualizarCuenta(
+                id, email.Trim(), nombre.Trim(), pais);
+
+            return actualizado
+                ? (true, string.Empty)
+                : (false, "No se pudo actualizar la información de la cuenta.");
+        }
+
+        public (bool Exito, string Error) CambiarContrasenia(
+            int id, string contraseniaActual,
+            string nuevaContrasenia, string confirmarContrasenia)
+        {
+            if (string.IsNullOrWhiteSpace(contraseniaActual) ||
+                string.IsNullOrWhiteSpace(nuevaContrasenia) ||
+                string.IsNullOrWhiteSpace(confirmarContrasenia))
+                return (false, "Completá todos los campos de contraseña.");
+
+            if (nuevaContrasenia.Length < 8)
+                return (false, "La nueva contraseña debe tener al menos 8 caracteres.");
+
+            if (nuevaContrasenia != confirmarContrasenia)
+                return (false, "La nueva contraseña y su confirmación no coinciden.");
+
+            Usuario usuario = _usuarioRepositorio.ObtenerPorId(id);
+            if (usuario == null || usuario.TipoDeUsuario == TipoDeUsuario.Administrador)
+                return (false, "No se encontró una cuenta habilitada para esta configuración.");
+
+            if (!BCrypt.Net.BCrypt.Verify(contraseniaActual, usuario.Contrasenia))
+                return (false, "La contraseña actual es incorrecta.");
+
+            if (BCrypt.Net.BCrypt.Verify(nuevaContrasenia, usuario.Contrasenia))
+                return (false, "La nueva contraseña debe ser diferente de la actual.");
+
+            string hash = BCrypt.Net.BCrypt.HashPassword(nuevaContrasenia);
+            bool actualizada = _usuarioRepositorio.ActualizarContrasenia(id, hash);
+
+            return actualizada
+                ? (true, string.Empty)
+                : (false, "No se pudo cambiar la contraseña.");
         }
 
         public Shaper ObtenerShaperPorId(int id)

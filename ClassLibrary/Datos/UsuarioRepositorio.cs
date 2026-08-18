@@ -35,6 +35,8 @@ namespace ClassLibrary.Datos
 
 
         bool CambiarEstadoShaper(int id, bool activo);
+        bool ActualizarCuenta(int id, string email, string nombre, Pais pais);
+        bool ActualizarContrasenia(int id, string contraseniaHash);
         bool ActualizarShaper(
             int id,
             string email,
@@ -135,6 +137,44 @@ namespace ClassLibrary.Datos
             }
 
             return null;
+        }
+
+        public bool ActualizarCuenta(int id, string email, string nombre, Pais pais)
+        {
+            const string sql = @"
+                UPDATE Usuarios
+                SET Email = @Email, Nombre = @Nombre, PaisId = @PaisId
+                WHERE Id = @Id AND TipoDeUsuarioId <> @TipoAdministrador;";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+                comando.Parameters.Add("@Email", SqlDbType.NVarChar, 150).Value = email;
+                comando.Parameters.Add("@Nombre", SqlDbType.NVarChar, 150).Value = nombre;
+                comando.Parameters.Add("@PaisId", SqlDbType.Int).Value = Convert.ToInt32(pais);
+                comando.Parameters.Add("@TipoAdministrador", SqlDbType.Int).Value = Convert.ToInt32(TipoDeUsuario.Administrador);
+                conexion.Open();
+                return comando.ExecuteNonQuery() == 1;
+            }
+        }
+
+        public bool ActualizarContrasenia(int id, string contraseniaHash)
+        {
+            const string sql = @"
+                UPDATE Usuarios
+                SET Contrasenia = @Contrasenia
+                WHERE Id = @Id AND TipoDeUsuarioId <> @TipoAdministrador;";
+
+            using (SqlConnection conexion = Conexion.ObtenerConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+                comando.Parameters.Add("@Contrasenia", SqlDbType.NVarChar, 255).Value = contraseniaHash;
+                comando.Parameters.Add("@TipoAdministrador", SqlDbType.Int).Value = Convert.ToInt32(TipoDeUsuario.Administrador);
+                conexion.Open();
+                return comando.ExecuteNonQuery() == 1;
+            }
         }
 
         public Usuario? Login(string email, string contrasenia)

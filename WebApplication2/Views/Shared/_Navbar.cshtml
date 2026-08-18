@@ -169,10 +169,19 @@
                             Mi página
                         </a>
                     }
-                    else
+                    else if (esCliente)
                     {
-                        <a href="#">
-                            Perfil
+                        <a asp-controller="Configuracion"
+                           asp-action="Index">
+                            Configuración
+                        </a>
+                    }
+
+                    @if (esShaper)
+                    {
+                        <a asp-controller="Configuracion"
+                           asp-action="Index">
+                            Configuración
                         </a>
                     }
 
