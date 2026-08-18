@@ -27,6 +27,10 @@
 
     <partial name="_Navbar" />
 
+    <form id="realCartToken" hidden>
+        @Html.AntiForgeryToken()
+    </form>
+
     <!-- ── HERO ── -->
     <section id="hero">
         <div class="hero-bg-grad"></div>
@@ -154,8 +158,106 @@
 
     <div class="section-divider"></div>
 
-    <!-- ── TABLAS DESTACADAS ── -->
+    <!-- Catálogo real del shaper seleccionado -->
     <section id="tablas">
+        <p class="section-eyebrow reveal">Catálogo del shaper</p>
+        <h2 class="section-title reveal">Tablas de @nombreNegocio</h2>
+        <p class="section-sub reveal">Elegí una tabla y mirá sus imágenes de frente y dorso.</p>
+
+        @if (Model.Productos.Count == 0)
+        {
+            <div class="reveal" style="padding:4rem 1rem;text-align:center;border:1px solid rgba(255,255,255,.12);">
+                <h3>Este shaper todavía no publicó productos</h3>
+                <p>Podés volver al listado y explorar otro perfil.</p>
+                <a asp-controller="Surf" asp-action="Shapers" class="btn-ghost-white">Ver otros shapers</a>
+            </div>
+        }
+        else
+        {
+            <div class="boards-grid">
+                @foreach (var producto in Model.Tablas)
+                {
+                    var tabla = producto;
+                    string productoId = $"producto-{producto.Id}";
+                    string categoria = $"{producto.Subtitulo} · {tabla.EstiloDeSurf}";
+                    string especificaciones = $"{tabla.Altura} · {tabla.Volumen:0.#}L · {tabla.SistemaDeEncaje}";
+
+                    <article class="board-card reveal">
+                        <div class="board-visual" style="background:linear-gradient(135deg,#0a1828,#0d2040);">
+                            <div class="board-bg-circle"></div>
+                            <div class="board-shape-wrap" data-board-gallery>
+                                <img src="@(string.IsNullOrWhiteSpace(producto.ImagenUrl) ? Url.Content("~/img/tabla.png") : producto.ImagenUrl)"
+                                     data-front="@producto.ImagenUrl" data-back="@tabla.ImagenAtrasUrl"
+                                     alt="Frente de @producto.Titulo" class="master-board-img"
+                                     onerror="this.src='@Url.Content("~/img/tabla.png")'" />
+                            </div>
+                            <span class="board-badge">Tabla</span>
+                        </div>
+                        <div class="board-info">
+                            <p class="board-cat">@categoria</p>
+                            <p class="board-name">@producto.Titulo</p>
+                            <p class="board-spec">@especificaciones</p>
+                            <p class="board-desc">@producto.Descripcion</p>
+                            <div class="board-footer">
+                                <span class="board-price">USD @producto.Precio.ToString("N2")</span>
+                                <button class="btn-add-small" type="button"
+                                        onclick="addToCart('@productoId', '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(producto.Titulo))', @producto.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture))">
+                                    Agregar
+                                </button>
+                            </div>
+                            <div class="board-footer" style="margin-top:.75rem;justify-content:flex-start;gap:.5rem;">
+                                <button class="btn-add-small" type="button" onclick="showCatalogBoardSide(this, 'front')">Frente</button>
+                                <button class="btn-add-small" type="button" onclick="showCatalogBoardSide(this, 'back')" @(string.IsNullOrWhiteSpace(tabla.ImagenAtrasUrl) ? "disabled" : null)>Dorso</button>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+
+            <p class="section-eyebrow reveal" style="margin-top:5rem;">Complementos</p>
+            <h2 class="section-title reveal">Accesorios de @nombreNegocio</h2>
+            <p class="section-sub reveal">Solo se muestran accesorios publicados por este shaper.</p>
+
+            @if (Model.Accesorios.Count == 0)
+            {
+                <p class="reveal" style="padding:2rem 0;">Este shaper todavía no publicó accesorios.</p>
+            }
+            else
+            {
+                <div class="boards-grid">
+                    @foreach (var accesorio in Model.Accesorios)
+                    {
+                        string tipo = accesorio.GetType().Name;
+                        <article class="board-card reveal">
+                            <div class="board-visual" style="background:linear-gradient(135deg,#101820,#183044);">
+                                <div class="board-shape-wrap">
+                                    <img src="@(string.IsNullOrWhiteSpace(accesorio.ImagenUrl) ? Url.Content("~/img/tabla.png") : accesorio.ImagenUrl)"
+                                         alt="@accesorio.Titulo" class="master-board-img"
+                                         onerror="this.src='@Url.Content("~/img/tabla.png")'" />
+                                </div>
+                                <span class="board-badge">@tipo</span>
+                            </div>
+                            <div class="board-info">
+                                <p class="board-cat">@tipo · @accesorio.Subtitulo</p>
+                                <p class="board-name">@accesorio.Titulo</p>
+                                <p class="board-desc">@accesorio.Descripcion</p>
+                                <div class="board-footer">
+                                    <span class="board-price">USD @accesorio.Precio.ToString("N2")</span>
+                                    <button class="btn-add-small" type="button"
+                                            onclick="addToCart('producto-@accesorio.Id', '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(accesorio.Titulo))', @accesorio.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture))">Agregar</button>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        }
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Diseño anterior conservado temporalmente como referencia, fuera de la interfaz -->
+    <section id="tablas-demo" style="display:none" aria-hidden="true">
         <p class="section-eyebrow reveal">Catálogo selecto</p>
         <h2 class="section-title reveal">Tablas Master</h2>
         <p class="section-sub reveal">
@@ -279,7 +381,7 @@
         <div class="rec-intro reveal">
             <p class="section-eyebrow">Personalizá tu experiencia</p>
             <h2 class="section-title">Creá tu tabla ideal</h2>
-            <p class="section-sub">Respondé unas preguntas y el sistema de Master te recomienda la tabla perfecta para tu nivel, físico y tipo de ola.</p>
+            <p class="section-sub">Respondé unas preguntas y el sistema de @nombreNegocio te recomienda la tabla perfecta para tu nivel, físico y tipo de ola.</p>
         </div>
 
         <!-- Progress dots -->
@@ -308,7 +410,7 @@
                 <div class="result-header reveal">
                     <div class="rec-tag">✓ Análisis completado</div>
                     <h3 id="resultTitle">Tu tabla ideal es...</h3>
-                    <p id="resultSub">Basado en tus respuestas, Master recomienda:</p>
+                    <p id="resultSub">Basado en tus respuestas, @nombreNegocio recomienda:</p>
                 </div>
                 <div class="result-card">
                     <div class="result-visual">
@@ -346,7 +448,7 @@
 
             <p class="section-sub">
                 Seleccioná el modelo, las medidas, la construcción,
-                las quillas y los detalles de tu nueva tabla Master.
+                las quillas y los detalles de tu nueva tabla de @nombreNegocio.
             </p>
         </div>
 
@@ -523,8 +625,15 @@
                     <select class="custom-select"
                             id="customModel">
 
-                        <optgroup label="Master Surfboards">
-                            <option value="gaucho" selected>
+                        <optgroup id="dynamicShaperModels" label="@nombreNegocio">
+                            @foreach (var tabla in Model.Tablas)
+                            {
+                                <option value="producto-@tabla.Id">@tabla.Titulo</option>
+                            }
+                        </optgroup>
+
+                        <optgroup id="legacyDemoModels" label="Modelos de demostración">
+                            <option value="gaucho">
                                 El Gaucho
                             </option>
 
@@ -1139,7 +1248,77 @@
         <!-- ═══════════════════════════════════════════════════════
          ADD ACCESSORIES
     ════════════════════════════════════════════════════════ -->
-        <section class="custom-accessories-section">
+        <section class="custom-accessories-section" id="dynamicAccessories">
+            <p class="section-eyebrow">Accesorios compatibles</p>
+            <h3 class="custom-accessories-title">Completá tu tabla</h3>
+            <div class="accessory-tabs">
+                <button type="button" class="accessory-tab active" data-accessory-tab="fins" onclick="changeAccessoryTab('fins')">Quillas</button>
+                <button type="button" class="accessory-tab" data-accessory-tab="leash" onclick="changeAccessoryTab('leash')">Leash</button>
+                <button type="button" class="accessory-tab" data-accessory-tab="pads" onclick="changeAccessoryTab('pads')">Pads</button>
+            </div>
+            <div class="accessory-content">
+                <div class="accessory-panel active" id="accessoryFins">
+                    <div class="accessory-products-grid">
+                        @foreach (var quilla in Model.Quillas)
+                        {
+                            <article class="accessory-product" data-accessory-id="producto-@quilla.Id"
+                                     data-accessory-name="@quilla.Titulo"
+                                     data-accessory-price="@quilla.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                     data-accessory-type="fin"
+                                     data-accessory-image="@quilla.ImagenUrl"
+                                     data-fin-system="@quilla.SistemaDeEncaje"
+                                     onclick="selectAccessory(this)">
+                                <img src="@(string.IsNullOrWhiteSpace(quilla.ImagenUrl) ? Url.Content("~/img/tabla.png") : quilla.ImagenUrl)" alt="@quilla.Titulo" />
+                                <h4>@quilla.Titulo</h4>
+                                <p>@quilla.SistemaDeEncaje · @quilla.Descripcion</p>
+                                <strong>USD @quilla.Precio.ToString("N2")</strong>
+                            </article>
+                        }
+                        @if (Model.Quillas.Count == 0) { <p>No hay quillas publicadas por este shaper.</p> }
+                    </div>
+                </div>
+                <div class="accessory-panel" id="accessoryLeash">
+                    <div class="accessory-products-grid">
+                        @foreach (var leash in Model.Leashes)
+                        {
+                            <article class="accessory-product" data-accessory-id="producto-@leash.Id"
+                                     data-accessory-name="@leash.Titulo"
+                                     data-accessory-price="@leash.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                     data-accessory-type="leash"
+                                     data-accessory-image="@leash.ImagenUrl"
+                                     onclick="selectAccessory(this)">
+                                <img src="@(string.IsNullOrWhiteSpace(leash.ImagenUrl) ? Url.Content("~/img/tabla.png") : leash.ImagenUrl)" alt="@leash.Titulo" />
+                                <h4>@leash.Titulo</h4>
+                                <p>Recomendado hasta @leash.LargoDeTablaRecomendado pies · @leash.Descripcion</p>
+                                <strong>USD @leash.Precio.ToString("N2")</strong>
+                            </article>
+                        }
+                        @if (Model.Leashes.Count == 0) { <p>No hay leash publicados por este shaper.</p> }
+                    </div>
+                </div>
+                <div class="accessory-panel" id="accessoryPads">
+                    <div class="accessory-products-grid">
+                        @foreach (var pad in Model.Pads)
+                        {
+                            <article class="accessory-product" data-accessory-id="producto-@pad.Id"
+                                     data-accessory-name="@pad.Titulo"
+                                     data-accessory-price="@pad.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                     data-accessory-type="pad"
+                                     data-accessory-image="@pad.ImagenUrl"
+                                     onclick="selectAccessory(this)">
+                                <img src="@(string.IsNullOrWhiteSpace(pad.ImagenUrl) ? Url.Content("~/img/tabla.png") : pad.ImagenUrl)" alt="@pad.Titulo" />
+                                <h4>@pad.Titulo</h4>
+                                <p>@pad.Largo × @pad.Ancho · @pad.Material</p>
+                                <strong>USD @pad.Precio.ToString("N2")</strong>
+                            </article>
+                        }
+                        @if (Model.Pads.Count == 0) { <p>No hay pads publicados por este shaper.</p> }
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="custom-accessories-section" id="legacyAccessories" style="display:none" aria-hidden="true">
 
             <h3 class="custom-accessories-title">
                 Agregar accesorios
@@ -1445,7 +1624,7 @@
         <div class="reveal" style="max-width:560px;margin:0 auto;">
             <p style="font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:.75rem;">Último paso</p>
             <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,5vw,4.5rem);color:#fff;line-height:1;margin-bottom:1rem;">Listo para pedir?</h2>
-            <p style="font-size:.95rem;color:rgba(255,255,255,.4);line-height:1.8;font-weight:300;margin-bottom:2.5rem;">Revisá tu selección, completá tus datos de surf y confirmá el pedido. Francisco se comunica en 24hs para cerrar los detalles.</p>
+            <p style="font-size:.95rem;color:rgba(255,255,255,.4);line-height:1.8;font-weight:300;margin-bottom:2.5rem;">Revisá tu selección y completá tus datos de surf. @Model.Shaper.Nombre podrá comunicarse contigo para cerrar los detalles.</p>
             <a asp-controller="Carrito"
                asp-action="Index"
                class="btn-gold"
@@ -1509,6 +1688,37 @@
             Todos los derechos reservados.
         </p>
     </footer>
+
+    <script>
+        window.shaperPageData = {
+            shaperId: @Model.Shaper.Id,
+            shaperName: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(nombreNegocio)),
+            cartAddUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Agregar", "Carrito"))),
+            cartUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Index", "Carrito"))),
+            boards: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Tablas.Select(tabla => new
+            {
+                key = $"producto-{tabla.Id}",
+                name = tabla.Titulo,
+                cat = $"{tabla.Subtitulo} · {tabla.EstiloDeSurf}",
+                spec = $"{tabla.Altura} · {tabla.Volumen:0.#}L · {tabla.SistemaDeEncaje}",
+                vol = tabla.Volumen,
+                price = tabla.Precio,
+                experience = tabla.Experiencia.ToString(),
+                wave = tabla.TipoDeOla.ToString(),
+                style = tabla.EstiloDeSurf.ToString(),
+                weightMin = tabla.PesoMinimo,
+                weightMax = tabla.PesoMaximo,
+                description = tabla.Descripcion,
+                frontImage = tabla.ImagenUrl,
+                backImage = tabla.ImagenAtrasUrl,
+                finSystem = tabla.SistemaDeEncaje.ToString()
+            })))
+        };
+
+        const legacyModels = document.getElementById('legacyDemoModels');
+        if (legacyModels && window.shaperPageData.boards.length > 0) legacyModels.remove();
+        document.getElementById('legacyAccessories')?.remove();
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 

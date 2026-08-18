@@ -161,9 +161,20 @@
                         </a>
                     }
 
-                    <a href="#">
-                        Perfil
-                    </a>
+                    @if (esShaper)
+                    {
+                        <a asp-controller="Shaper"
+                           asp-action="Detalle"
+                           asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
+                            Mi página
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="#">
+                            Perfil
+                        </a>
+                    }
 
                     <div class="profile-menu-divider"></div>
 
@@ -212,7 +223,7 @@
                 <span>Carrito</span>
 
                 <span class="cart-badge">
-                    0
+                    @await Component.InvokeAsync("CarritoCantidad")
                 </span>
 
             </a>

@@ -22,7 +22,7 @@ namespace ClassLibrary.Datos
             var items = new List<CarritoItemDetallado>();
 
             string sql = @"
-            SELECT ci.ProductoId, p.TipoProducto, p.Titulo, p.Precio, p.ShaperId, ci.Cantidad
+            SELECT ci.ProductoId, p.TipoProducto, p.Titulo, p.Precio, p.ShaperId, ci.Cantidad, p.ImagenUrl
             FROM CarritoItems ci
             INNER JOIN Productos p ON p.Id = ci.ProductoId
             WHERE ci.UsuarioId = @UsuarioId AND p.DELETED = 0";
@@ -44,7 +44,8 @@ namespace ClassLibrary.Datos
                             Titulo = lector.GetString(2),
                             Precio = (double)lector.GetDecimal(3),
                             ShaperId = lector.GetInt32(4),
-                            Cantidad = lector.GetInt32(5)
+                            Cantidad = lector.GetInt32(5),
+                            ImagenUrl = lector.IsDBNull(6) ? string.Empty : lector.GetString(6)
                         });
                     }
                 }
@@ -71,7 +72,14 @@ namespace ClassLibrary.Datos
         MERGE CarritoItems AS destino
         USING (SELECT @UsuarioId AS UsuarioId, @ProductoId AS ProductoId) AS origen
         ON destino.UsuarioId = origen.UsuarioId AND destino.ProductoId = origen.ProductoId
-        WHEN MATCHED THEN UPDATE SET Cantidad = destino.Cantidad + @Cantidad
+        WHEN MATCHED THEN UPDATE SET Cantidad =
+            CASE
+                WHEN EXISTS (
+                    SELECT 1 FROM Productos
+                    WHERE Id = @ProductoId AND TipoProducto = 'Tabla'
+                ) THEN 1
+                ELSE destino.Cantidad + @Cantidad
+            END
         WHEN NOT MATCHED THEN INSERT (UsuarioId, ProductoId, Cantidad)
             VALUES (@UsuarioId, @ProductoId, @Cantidad);";
 

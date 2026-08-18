@@ -37,14 +37,62 @@ function updateBadge() {
 }
 updateBadge();
 
-const BOARDS = {
+const DEMO_BOARDS = {
     gaucho: { name: 'El Gaucho', cat: 'Shortboard · Performance', spec: '6\'2" × 18¾" × 2⅜"', vol: '28.5L', price: 780 },
     pampeano: { name: 'El Pampeano', cat: 'Mid-Length · Versátil', spec: '7\'0" × 20½" × 2¾"', vol: '42L', price: 660 },
     charrua: { name: 'El Charrúa', cat: 'Longboard · Clásico', spec: '9\'2" × 22½" × 3"', vol: '75L', price: 950 },
     playero: { name: 'El Playero', cat: 'Fish · Retro', spec: '5\'10" × 20¾" × 2½"', vol: '35L', price: 590 },
 };
 
-function addToCart(id, name, price) {
+const dynamicBoards = Array.isArray(window.shaperPageData?.boards)
+    ? window.shaperPageData.boards
+    : [];
+
+const BOARDS = dynamicBoards.length > 0
+    ? Object.fromEntries(dynamicBoards.map(board => [board.key, {
+        ...board,
+        vol: `${board.vol}L`
+    }]))
+    : DEMO_BOARDS;
+
+async function addToCart(id, name, price) {
+    const realProduct = /^producto-(\d+)$/.exec(String(id));
+    const cartAddUrl = window.shaperPageData?.cartAddUrl;
+
+    if (realProduct && cartAddUrl) {
+        const token = document.querySelector('#realCartToken input[name="__RequestVerificationToken"]')?.value;
+        const body = new URLSearchParams({
+            productoId: realProduct[1],
+            cantidad: '1',
+            __RequestVerificationToken: token || ''
+        });
+
+        try {
+            const response = await fetch(cartAddUrl, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body
+            });
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const result = await response.json();
+            document.querySelectorAll('.cart-badge').forEach(badge => {
+                badge.textContent = result.cantidadCarrito;
+                badge.style.display = '';
+            });
+            showToast(result.mensaje || `"${name}" agregado al carrito`);
+            return;
+        } catch (error) {
+            console.error('No se pudo agregar el producto al carrito real.', error);
+            showToast('No se pudo agregar el producto. Intentá nuevamente.');
+            return;
+        }
+    }
+
     const cart = getCart();
     const ex = cart.find(i => i.id === id);
     if (ex) ex.qty += 1;
@@ -117,7 +165,40 @@ function updateBoardImages() {
         bottomPaint.style.backgroundImage = 'none';
     }
 
+    const selectedModel = getSelectedValue('customModel');
+    const selectedBoard = dynamicBoards.find(board => board.key === selectedModel);
+    const deckBase = document.getElementById('deckBase');
+    const bottomBase = document.getElementById('bottomBase');
+
+    if (selectedBoard) {
+        if (deckBase && selectedBoard.frontImage) deckBase.src = selectedBoard.frontImage;
+        if (bottomBase) bottomBase.src = selectedBoard.backImage || selectedBoard.frontImage || bottomBase.src;
+    }
+
+    filterCompatibleFins(selectedBoard?.finSystem);
+
     updateBoardAccessories();
+}
+
+function filterCompatibleFins(finSystem) {
+    document.querySelectorAll('#accessoryFins .accessory-product').forEach(card => {
+        const compatible = !finSystem || card.dataset.finSystem === finSystem;
+        card.hidden = !compatible;
+        if (!compatible && card.classList.contains('selected')) {
+            card.classList.remove('selected');
+            selectedAccessories.delete(card.dataset.accessoryId);
+        }
+    });
+}
+
+function showCatalogBoardSide(button, side) {
+    const card = button.closest('.board-card');
+    const image = card?.querySelector('[data-board-gallery] img');
+    if (!image) return;
+    const nextImage = side === 'back' ? image.dataset.back : image.dataset.front;
+    if (!nextImage) return;
+    image.src = nextImage;
+    image.alt = `${side === 'back' ? 'Dorso' : 'Frente'} de la tabla`;
 }
 
 const CUSTOM_MODEL_PRICES = {
@@ -156,7 +237,8 @@ const CUSTOM_MODEL_PRICES = {
     sugar: 870,
     'full-strength': 990,
     'mid-strength': 960,
-    'twin-strength': 980
+    'twin-strength': 980,
+    ...Object.fromEntries(dynamicBoards.map(board => [board.key, board.price]))
 };
 
 const CUSTOM_EXTRA_PRICES = {
@@ -442,9 +524,13 @@ function updateBoardAccessories() {
 
         const selectedFin =
             Array.from(selectedAccessories.values())
-                .find(item => item.id.startsWith('fins-'));
+                .find(item => item.type === 'fin' || item.id.startsWith('fins-'));
 
         if (selectedFin) {
+
+            if (selectedFin.image) {
+                finImage.src = selectedFin.image;
+            } else {
 
             switch (selectedFin.id) {
 
@@ -465,11 +551,15 @@ function updateBoardAccessories() {
                     break;
             }
 
+            }
+
         }
 
-        finImage.src =
-            BOARD_IMAGE_PATH +
-            FIN_IMAGES[finSetup];
+        if (!selectedFin || !selectedFin.image) {
+            finImage.src =
+                BOARD_IMAGE_PATH +
+                FIN_IMAGES[finSetup];
+        }
 
     }
 
@@ -872,6 +962,42 @@ function computeRecommendation() {
     const { experience, waves, weight, style, goal, priority } = answers;
     const wt = weight || 72;
 
+    if (dynamicBoards.length > 0) {
+        const experienceMap = {
+            beginner: ['SinExperiencia', 'Iniciado'],
+            intermediate: ['Intermedio'],
+            advanced: ['Avanzado'],
+            expert: ['Avanzado']
+        };
+        const waveMap = {
+            small: ['Chica', 'Plana'],
+            medium: ['Chica', 'Power'],
+            powerful: ['Power'],
+            varies: ['Plana', 'Chica', 'Power']
+        };
+        const styleMap = {
+            performance: ['Agresivo'],
+            cruisy: ['Fluido', 'Recreativo'],
+            versatile: ['Versatil'],
+            fun: ['Recreativo', 'Fluido']
+        };
+
+        const scored = dynamicBoards.map(board => {
+            let score = 0;
+            if ((experienceMap[experience] || []).includes(board.experience)) score += 4;
+            if ((waveMap[waves] || []).includes(board.wave)) score += 3;
+            if ((styleMap[style] || []).includes(board.style)) score += 3;
+            if (wt >= board.weightMin && wt <= board.weightMax) score += 4;
+            else score -= Math.min(3, Math.abs(wt - Math.max(board.weightMin, Math.min(wt, board.weightMax))) / 10);
+
+            const targetVolume = wt * (experience === 'beginner' ? .65 : experience === 'intermediate' ? .55 : experience === 'advanced' ? .42 : .36);
+            score += Math.max(0, 3 - Math.abs(board.vol - targetVolume) / 8);
+            return [board.key, score];
+        });
+
+        return scored.sort((a, b) => b[1] - a[1])[0][0];
+    }
+
     // Scoring
     const scores = { gaucho: 0, pampeano: 0, charrua: 0, playero: 0 };
 
@@ -939,7 +1065,7 @@ function showResult() {
     document.getElementById('resultCat').textContent = b.cat;
     document.getElementById('resultName').textContent = b.name;
     document.getElementById('resultSpec').textContent = b.spec;
-    document.getElementById('resultWhy').textContent = RESULT_REASONS[best];
+    document.getElementById('resultWhy').textContent = b.description || RESULT_REASONS[best] || 'Esta tabla es la que mejor coincide con tus respuestas y características.';
     document.getElementById('resultPrice').textContent = `USD ${b.price}`;
     document.getElementById('resultSpecStats').innerHTML = `
       <div><div class="rspec-num">${b.vol}</div><div class="rspec-label">Volumen</div></div>
@@ -948,12 +1074,13 @@ function showResult() {
 
     // Board SVG
     const colors = { gaucho: '#c9a84c', pampeano: '#4394e0', charrua: '#2ec27e', playero: '#9060c8' };
-    const col = colors[best];
+    const col = colors[best] || '#4394e0';
+    const shaperLabel = window.shaperPageData?.shaperName || 'ZEPHYR';
     document.getElementById('resultBoardSvg').innerHTML = `
       <svg width="90" height="280" viewBox="0 0 90 280" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 12px 28px rgba(0,0,0,.7))">
         <path d="M45 5 C62 28, 70 75, 70 140 C70 195 62 248 45 274 C28 248 20 195 20 140 C20 75 28 28 45 5Z" fill="${col}" opacity=".85"/>
         <line x1="45" y1="7" x2="45" y2="272" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
-        <text x="45" y="100" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="8" fill="rgba(255,255,255,.6)" letter-spacing="1">MASTER</text>
+        <text x="45" y="100" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7" fill="rgba(255,255,255,.6)" letter-spacing="1">${shaperLabel.substring(0, 12).toUpperCase()}</text>
       </svg>
     `;
 }
@@ -961,7 +1088,7 @@ function showResult() {
 function addResultToCart() {
     if (!recommendedBoard) return;
     const b = BOARDS[recommendedBoard];
-    addToCart(recommendedBoard + '_rec', b.name, b.price);
+    addToCart(recommendedBoard, b.name, b.price);
 }
 
 function applyRecommendedBoard() {
@@ -1229,6 +1356,8 @@ function selectAccessory(card) {
         id: accessoryId,
         name: accessoryName,
         price: accessoryPrice,
+        type: card.dataset.accessoryType || '',
+        image: card.dataset.accessoryImage || '',
         option: accessorySelect
             ? accessorySelect.value
             : ''

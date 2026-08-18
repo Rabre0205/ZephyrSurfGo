@@ -73,43 +73,39 @@
 
                     <article class="cart-item">
 
-                        <div class="cart-item-info">
-                            <span class="cart-item-type">
-                                @item.TipoProducto
-                            </span>
-
-                            <h2>@item.Titulo</h2>
-
-                            <p>
-                                Precio unitario:
-                                USD @item.Precio.ToString("N2")
-                            </p>
-
-                            <p>
-                                Cantidad: @item.Cantidad
-                            </p>
-
-                            <strong>
-                                Subtotal:
-                                USD @subtotal.ToString("N2")
-                            </strong>
+                        <div class="item-thumb">
+                            @if (!string.IsNullOrWhiteSpace(item.ImagenUrl))
+                            {
+                                <img src="@item.ImagenUrl" alt="@item.Titulo" style="width:100%;height:100%;object-fit:contain;" />
+                            }
+                            else
+                            {
+                                <svg width="42" height="78" viewBox="0 0 42 120" fill="none" aria-hidden="true">
+                                    <path d="M21 2C34 19 39 46 39 70C39 94 33 111 21 118C9 111 3 94 3 70C3 46 8 19 21 2Z" fill="#4394e0" />
+                                </svg>
+                            }
                         </div>
 
-                        <form asp-controller="Carrito"
-                              asp-action="Eliminar"
-                              method="post">
+                        <div class="item-body">
+                            <p class="item-country">@item.TipoProducto</p>
+                            <h2 class="item-name">@item.Titulo</h2>
+                            <p class="item-maker">Precio unitario: USD @item.Precio.ToString("N2")</p>
+                            <div class="item-qty">
+                                <span class="qty-val">Cantidad: @item.Cantidad</span>
+                            </div>
+                        </div>
 
-                            @Html.AntiForgeryToken()
-
-                            <input type="hidden"
-                                   name="productoId"
-                                   value="@item.ProductoId" />
-
-                            <button type="submit"
-                                    class="btn-remove">
-                                Quitar
-                            </button>
-                        </form>
+                        <div class="item-right">
+                            <div>
+                                <div class="item-price">USD @subtotal.ToString("N2")</div>
+                                <div class="item-price-unit">Subtotal</div>
+                            </div>
+                            <form asp-controller="Carrito" asp-action="Eliminar" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productoId" value="@item.ProductoId" />
+                                <button type="submit" class="btn-remove">Quitar</button>
+                            </form>
+                        </div>
 
                     </article>
                 }
@@ -276,7 +272,6 @@
         <p class="footer-copy">© 2025 Zephyr Surf Go — Todos los derechos reservados.</p>
     </footer>
 
-    <
     <script src="~/js/navbar.js" asp-append-version="true"></script>
 
 </body>

@@ -27,11 +27,48 @@ namespace WebApplication2.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Agregar(int productoId, int cantidad = 1)
         {
             int clienteId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            var itemsActuales = _carritoRepositorio.ObtenerPorUsuario(clienteId);
+            var itemExistente = itemsActuales.FirstOrDefault(item => item.ProductoId == productoId);
+
+            if (itemExistente?.TipoProducto == "Tabla")
+            {
+                const string mensaje = "Esta tabla ya está en tu carrito. Las tablas únicas solo pueden agregarse una vez.";
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new
+                    {
+                        agregado = false,
+                        mensaje,
+                        cantidadCarrito = itemsActuales.Sum(item => item.Cantidad)
+                    });
+                }
+
+                TempData["Mensaje"] = mensaje;
+                return RedirectToAction("Index");
+            }
+
             _carritoRepositorio.AgregarItem(clienteId, productoId, cantidad);
-            TempData["Mensaje"] = "Producto agregado al carrito.";
+
+            var itemsActualizados = _carritoRepositorio.ObtenerPorUsuario(clienteId);
+            const string mensajeAgregado = "Producto agregado al carrito.";
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new
+                {
+                    agregado = true,
+                    mensaje = mensajeAgregado,
+                    cantidadCarrito = itemsActualizados.Sum(item => item.Cantidad)
+                });
+            }
+
+            TempData["Mensaje"] = mensajeAgregado;
             return RedirectToAction("Index");
         }
 
