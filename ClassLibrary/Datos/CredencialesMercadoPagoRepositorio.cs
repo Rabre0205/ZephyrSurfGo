@@ -9,7 +9,7 @@ namespace ClassLibrary.Datos
     public interface ICredencialesMercadoPagoRepositorio
     {
         void Guardar(int usuarioId, long mpUserId, string accessTokenCifrado, string refreshTokenCifrado, DateTime expira);
-        ClassLibrary.Pagos.CredencialesMercadoPago ObtenerPorUsuarioId(int usuarioId);
+        ClassLibrary.Pagos.CredencialesMercadoPago? ObtenerPorUsuarioId(int usuarioId);
     }
 
     public class CredencialesMercadoPagoRepositorio : ICredencialesMercadoPagoRepositorio
@@ -40,7 +40,7 @@ namespace ClassLibrary.Datos
             }
         }
 
-        public ClassLibrary.Pagos.CredencialesMercadoPago ObtenerPorUsuarioId(int usuarioId)
+        public ClassLibrary.Pagos.CredencialesMercadoPago? ObtenerPorUsuarioId(int usuarioId)
         {
             string sql = @"SELECT MercadoPagoUserId, AccessTokenCifrado, RefreshTokenCifrado, TokenExpira
                         FROM CredencialesMercadoPago WHERE UsuarioId = @UsuarioId";

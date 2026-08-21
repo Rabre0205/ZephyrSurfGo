@@ -12,8 +12,8 @@ namespace ClassLibrary.Pedidos
         public byte EstadoPedidoId { get; set; }
         public double Total { get; set; }
         public double ComisionPlataforma { get; set; }
-        public string MercadoPagoPreferenceId { get; set; }
-        public string MercadoPagoPaymentId { get; set; }
+        public string MercadoPagoPreferenceId { get; set; } = string.Empty;
+        public string MercadoPagoPaymentId { get; set; } = string.Empty;
         public List<PedidoItem> Items { get; set; } = new List<PedidoItem>();
     }
 }

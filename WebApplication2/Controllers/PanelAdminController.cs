@@ -113,7 +113,7 @@ namespace WebApplication2.Controllers
         [HttpGet]
         public IActionResult EditarShaper(int id)
         {
-            Shaper shaper = _usuarioServicio.ObtenerShaperPorId(id);
+            Shaper? shaper = _usuarioServicio.ObtenerShaperPorId(id);
 
             if (shaper == null)
             {

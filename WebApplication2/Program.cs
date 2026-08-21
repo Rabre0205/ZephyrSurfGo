@@ -72,6 +72,10 @@ namespace WebApplication2
                 app.UseHsts();
             }
 
+            app.UseStatusCodePagesWithReExecute(
+                "/Home/Error",
+                "?statusCode={0}");
+
             app.UseHttpsRedirection();
 
             // serve static files (wwwroot)

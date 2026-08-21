@@ -107,6 +107,12 @@ namespace WebApplication2.Controllers
         private async Task RenovarSesion(int usuarioId)
         {
             var usuario = _usuarioServicio.BuscarPorId(usuarioId);
+            if (usuario == null)
+            {
+                throw new InvalidOperationException(
+                    "No se pudo renovar la sesión del usuario.");
+            }
+
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, usuario.Id.ToString()),

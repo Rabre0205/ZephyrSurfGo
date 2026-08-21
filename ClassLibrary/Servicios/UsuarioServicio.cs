@@ -10,7 +10,7 @@ namespace ClassLibrary.Servicios
 {
     public interface IUsuarioServicio
     {
-        Usuario Login(
+        Usuario? Login(
             string email,
             string contrasenia
         );
@@ -41,11 +41,11 @@ namespace ClassLibrary.Servicios
             string confirmarContrasenia
         );
 
-        Usuario BuscarPorId(int id);
+        Usuario? BuscarPorId(int id);
 
         List<Shaper> ObtenerShapers();
 
-        Shaper ObtenerShaperPorId(int id);
+        Shaper? ObtenerShaperPorId(int id);
 
         int ContarClientes();
         int ContarClientes(string busqueda);
@@ -124,11 +124,11 @@ namespace ClassLibrary.Servicios
                 .ToList();
         }
 
-        public Usuario Login(
+        public Usuario? Login(
     string email,
     string contrasenia)
         {
-            Usuario usuario =
+            Usuario? usuario =
                 _usuarioRepositorio.ObtenerPorEmail(email);
 
             if (usuario == null)
@@ -202,7 +202,7 @@ namespace ClassLibrary.Servicios
                 );
             }
 
-            Usuario existente =
+            Usuario? existente =
                 _usuarioRepositorio.ObtenerPorEmail(
                     email.Trim()
                 );
@@ -302,7 +302,7 @@ namespace ClassLibrary.Servicios
                 );
             }
 
-            Usuario existente =
+            Usuario? existente =
                 _usuarioRepositorio.ObtenerPorEmail(
                     email.Trim()
                 );
@@ -390,7 +390,7 @@ namespace ClassLibrary.Servicios
                 );
             }
 
-            Usuario existente =
+            Usuario? existente =
                 _usuarioRepositorio.ObtenerPorEmail(
                     email.Trim()
                 );
@@ -474,7 +474,7 @@ namespace ClassLibrary.Servicios
                 .ContarShapers(textoBusqueda);
         }
 
-        public Usuario BuscarPorId(int id)
+        public Usuario? BuscarPorId(int id)
         {
             return _usuarioRepositorio.ObtenerPorId(id);
         }
@@ -485,11 +485,11 @@ namespace ClassLibrary.Servicios
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(nombre))
                 return (false, "Completá el nombre y el correo.");
 
-            Usuario usuario = _usuarioRepositorio.ObtenerPorId(id);
+            Usuario? usuario = _usuarioRepositorio.ObtenerPorId(id);
             if (usuario == null || usuario.TipoDeUsuario == TipoDeUsuario.Administrador)
                 return (false, "No se encontró una cuenta habilitada para esta configuración.");
 
-            Usuario usuarioConCorreo = _usuarioRepositorio.ObtenerPorEmail(email.Trim());
+            Usuario? usuarioConCorreo = _usuarioRepositorio.ObtenerPorEmail(email.Trim());
             if (usuarioConCorreo != null && usuarioConCorreo.Id != id)
                 return (false, "Ya existe otra cuenta registrada con ese correo.");
 
@@ -516,7 +516,7 @@ namespace ClassLibrary.Servicios
             if (nuevaContrasenia != confirmarContrasenia)
                 return (false, "La nueva contraseña y su confirmación no coinciden.");
 
-            Usuario usuario = _usuarioRepositorio.ObtenerPorId(id);
+            Usuario? usuario = _usuarioRepositorio.ObtenerPorId(id);
             if (usuario == null || usuario.TipoDeUsuario == TipoDeUsuario.Administrador)
                 return (false, "No se encontró una cuenta habilitada para esta configuración.");
 
@@ -534,9 +534,9 @@ namespace ClassLibrary.Servicios
                 : (false, "No se pudo cambiar la contraseña.");
         }
 
-        public Shaper ObtenerShaperPorId(int id)
+        public Shaper? ObtenerShaperPorId(int id)
         {
-            Usuario usuario =
+            Usuario? usuario =
                 _usuarioRepositorio.ObtenerPorId(id);
 
             return usuario as Shaper;
@@ -564,7 +564,7 @@ namespace ClassLibrary.Servicios
                 );
             }
 
-            Usuario usuarioConEseCorreo =
+            Usuario? usuarioConEseCorreo =
                 _usuarioRepositorio.ObtenerPorEmail(
                     email.Trim()
                 );

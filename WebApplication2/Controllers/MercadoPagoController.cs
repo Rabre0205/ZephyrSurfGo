@@ -17,7 +17,13 @@ namespace WebApplication2.Controllers
         [Authorize(Roles = "Shaper")]
         public IActionResult ConectarCuenta()
         {
-            int shaperId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (!int.TryParse(
+                    User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    out int shaperId))
+            {
+                return Unauthorized();
+            }
+
             string url = _mercadoPagoServicio.ObtenerUrlAutorizacion(shaperId);
             return Redirect(url);
         }
@@ -25,11 +31,18 @@ namespace WebApplication2.Controllers
         [Authorize(Roles = "Shaper")]
         public async Task<IActionResult> Callback(string code, string state)
         {
-            int shaperId = int.Parse(state);
+            if (string.IsNullOrWhiteSpace(code) ||
+                !int.TryParse(state, out int shaperId))
+            {
+                TempData["Error"] =
+                    "No se pudo validar la respuesta de Mercado Pago.";
+                return RedirectToAction("Index", "Dashboard");
+            }
+
             await _mercadoPagoServicio.ProcesarCallbackAsync(code, shaperId);
 
             TempData["Mensaje"] = "Tu cuenta de MercadoPago quedó conectada.";
-            return RedirectToAction("Dashboard", "Admin");
+            return RedirectToAction("Index", "Dashboard");
         }
     }
 }

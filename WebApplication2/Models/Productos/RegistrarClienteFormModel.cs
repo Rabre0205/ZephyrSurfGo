@@ -2,10 +2,10 @@
 {
     public class RegistrarClienteFormModel
     {
-        public string Email { get; set; }
-        public string Contrasenia { get; set; }
-        public string ConfirmarContrasenia { get; set; }
-        public string Nombre { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string Contrasenia { get; set; } = string.Empty;
+        public string ConfirmarContrasenia { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
         public byte Pais { get; set; }
     }
 }

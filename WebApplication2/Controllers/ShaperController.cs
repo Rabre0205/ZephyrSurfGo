@@ -41,7 +41,7 @@ namespace WebApplication2.Controllers
                 return Forbid();
             }
 
-            Shaper shaper = _usuarioServicio.ObtenerShaperPorId(id);
+            Shaper? shaper = _usuarioServicio.ObtenerShaperPorId(id);
 
             if (shaper == null || !shaper.Activo)
             {

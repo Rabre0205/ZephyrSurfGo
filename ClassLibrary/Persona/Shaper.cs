@@ -8,7 +8,7 @@ namespace ClassLibrary.Persona
 
         public string Contacto { get; set; }
 
-        public string LogoUrl { get; set; }
+        public string? LogoUrl { get; set; }
 
         public Shaper(
             int id,
@@ -18,7 +18,7 @@ namespace ClassLibrary.Persona
             Pais pais,
             string nombreDeNegosio,
             string contacto,
-            string logoUrl)
+            string? logoUrl)
             : base(id, email, nombre, pais, contrasenia)
         {
             TipoDeUsuario = TipoDeUsuario.Shaper;
@@ -35,7 +35,7 @@ namespace ClassLibrary.Persona
             Pais pais,
             string nombreDeNegosio,
             string contacto,
-            string logoUrl)
+            string? logoUrl)
             : base(email, nombre, pais, contrasenia)
         {
             TipoDeUsuario = TipoDeUsuario.Shaper;

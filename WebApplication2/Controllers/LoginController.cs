@@ -43,7 +43,7 @@ public class LoginController : Controller
 
         try
         {
-            Usuario usuario = _usuarioServicio.Login(
+            Usuario? usuario = _usuarioServicio.Login(
                 email.Trim(),
                 password
             );
@@ -141,7 +141,7 @@ public class LoginController : Controller
                 return View("Index");
             }
 
-            Usuario usuario = _usuarioServicio.BuscarPorId(
+            Usuario? usuario = _usuarioServicio.BuscarPorId(
                 resultado.UsuarioId
             );
 

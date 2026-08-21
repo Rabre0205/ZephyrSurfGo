@@ -6,7 +6,7 @@
     string nombreNegocio = Model.Shaper.NombreDeNegosio;
     string pais = Model.Shaper.Pais.ToString();
     string contacto = Model.Shaper.Contacto;
-    string logoUrl = Model.Shaper.LogoUrl;
+    string logoUrl = Model.Shaper.LogoUrl ?? string.Empty;
 
     ViewData["Title"] = nombreNegocio;
 }

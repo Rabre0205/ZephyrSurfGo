@@ -16,7 +16,7 @@ namespace ClassLibrary
     public class Sistema
     {
 
-        private static Sistema _instancia;
+        private static Sistema? _instancia;
 
         private readonly UsuarioRepositorio usuarioRepositorio;
 

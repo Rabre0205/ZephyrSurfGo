@@ -7,8 +7,8 @@ namespace ClassLibrary.Carrito
     public class CarritoItemDetallado
     {
         public int ProductoId { get; set; }
-        public string TipoProducto { get; set; }
-        public string Titulo { get; set; }
+        public string TipoProducto { get; set; } = string.Empty;
+        public string Titulo { get; set; } = string.Empty;
         public string ImagenUrl { get; set; } = string.Empty;
         public double Precio { get; set; }
         public int ShaperId { get; set; }

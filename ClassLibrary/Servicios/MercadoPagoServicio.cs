@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
+using System.Globalization;
 namespace ClassLibrary.Servicios
 {
     public interface IMercadoPagoServicio
@@ -21,15 +22,28 @@ namespace ClassLibrary.Servicios
     {
         private readonly ICredencialesMercadoPagoRepositorio _credencialesRepositorio;
         private readonly ICifradoServicio _cifradoServicio;
-        private readonly string _clientId = Environment.GetEnvironmentVariable("MP_CLIENT_ID");
-        private readonly string _clientSecret = Environment.GetEnvironmentVariable("MP_CLIENT_SECRET");
-        private readonly string _redirectUri = Environment.GetEnvironmentVariable("MP_REDIRECT_URI");
-        private readonly decimal _comision = decimal.Parse(Environment.GetEnvironmentVariable("MP_COMISION_PLATAFORMA"));
+        private readonly string _clientId;
+        private readonly string _clientSecret;
+        private readonly string _redirectUri;
+        private readonly decimal _comision;
 
         public MercadoPagoServicio(ICredencialesMercadoPagoRepositorio credencialesRepositorio, ICifradoServicio cifradoServicio)
         {
             _credencialesRepositorio = credencialesRepositorio;
             _cifradoServicio = cifradoServicio;
+            _clientId = ObtenerVariableRequerida("MP_CLIENT_ID");
+            _clientSecret = ObtenerVariableRequerida("MP_CLIENT_SECRET");
+            _redirectUri = ObtenerVariableRequerida("MP_REDIRECT_URI");
+
+            if (!decimal.TryParse(
+                    ObtenerVariableRequerida("MP_COMISION_PLATAFORMA"),
+                    NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
+                    out _comision))
+            {
+                throw new InvalidOperationException(
+                    "MP_COMISION_PLATAFORMA debe contener un número válido.");
+            }
         }
 
         public string ObtenerUrlAutorizacion(int shaperId)
@@ -57,7 +71,9 @@ namespace ClassLibrary.Servicios
 
             var datos = JsonSerializer.Deserialize<MercadoPagoTokenResponse>(
                 await respuesta.Content.ReadAsStringAsync(),
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                ?? throw new InvalidOperationException(
+                    "Mercado Pago devolvió una respuesta vacía o inválida.");
 
             _credencialesRepositorio.Guardar(
                 shaperId,
@@ -66,6 +82,12 @@ namespace ClassLibrary.Servicios
                 _cifradoServicio.Cifrar(datos.RefreshToken),
                 DateTime.UtcNow.AddSeconds(datos.ExpiresIn));
         }
+
+        private static string ObtenerVariableRequerida(string nombre) =>
+            Environment.GetEnvironmentVariable(nombre) is { Length: > 0 } valor
+                ? valor
+                : throw new InvalidOperationException(
+                    $"Falta configurar la variable de entorno {nombre}.");
 
         public async Task<string> CrearPreferenciaAsync(Pedido pedido)
         {

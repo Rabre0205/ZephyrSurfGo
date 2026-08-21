@@ -28,8 +28,8 @@ namespace ClassLibrary.Datos
 
         int ContarShapersActivos();
 
-        Usuario ObtenerPorId(int id);
-        Usuario ObtenerPorEmail(string email);
+        Usuario? ObtenerPorId(int id);
+        Usuario? ObtenerPorEmail(string email);
         int InsertarUsuario(Usuario usuario);
         int InsertarShaper(Shaper shaper);
 

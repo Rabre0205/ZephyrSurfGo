@@ -57,7 +57,7 @@ namespace WebApplication2.Controllers
             {
                 imagenFrontalUrl =
                     await GuardarImagenAsync(
-                        modelo.ImagenFrontal
+                        modelo.ImagenFrontal!
                     );
 
                 if (modelo.ImagenTrasera != null)

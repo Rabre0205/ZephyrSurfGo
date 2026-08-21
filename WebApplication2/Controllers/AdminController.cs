@@ -26,14 +26,9 @@ namespace WebApplication2.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult AgregarTabla(TablaFormModel modelo)
         {
-            if (modelo == null)
-            {
-                ViewBag.Error = "No se recibieron datos del formulario.";
-                return Redirect("admin/admin");
-            }
-
             if (modelo.ImagenFrontal == null || modelo.ImagenFrontal.Length == 0)
             {
                 ViewBag.Error = "La imagen frontal es obligatoria.";
@@ -58,13 +53,11 @@ namespace WebApplication2.Controllers
                 return View(modelo);
             }
 
-            //hardcodear shaperId mientras no haya login
-            //int? shaperId = HttpContext.Session.GetInt32("UsuarioId");
-            int shaperId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            shaperId = 2;
-            if (shaperId == null)
+            if (!int.TryParse(
+                    User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    out int shaperId))
             {
-                return RedirectToAction("Login", "Cuenta");
+                return Unauthorized();
             }
 
             int idGenerado;
@@ -107,14 +100,9 @@ namespace WebApplication2.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult RegistrarCliente(RegistrarClienteFormModel modelo)
         {
-            if (modelo == null)
-            {
-                ViewBag.Error = "No se recibieron datos del formulario.";
-                return View(modelo);
-            }
-
             var resultado = _usuarioServicio.RegistrarCliente(
                 modelo.Email,
                 modelo.Nombre,

@@ -8,8 +8,8 @@ namespace ClassLibrary.Pagos
     {
         public int UsuarioId { get; set; }
         public long MercadoPagoUserId { get; set; }
-        public string AccessTokenCifrado { get; set; }
-        public string RefreshTokenCifrado { get; set; }
+        public string AccessTokenCifrado { get; set; } = string.Empty;
+        public string RefreshTokenCifrado { get; set; } = string.Empty;
         public DateTime TokenExpira { get; set; }
     }
 }

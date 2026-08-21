@@ -38,7 +38,7 @@ namespace ClassLibrary.Servicios
             int pesoMaximo,
             Experiencia experiencia,
             IFormFile imagenFrontal,
-            IFormFile imagenTrasera
+            IFormFile? imagenTrasera
         );
     }
 
@@ -114,7 +114,7 @@ namespace ClassLibrary.Servicios
             int pesoMaximo,
             Experiencia experiencia,
             IFormFile imagenFrontal,
-            IFormFile imagenTrasera)
+            IFormFile? imagenTrasera)
         {
             if (imagenFrontal == null || imagenFrontal.Length == 0)
             {

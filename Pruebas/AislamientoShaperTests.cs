@@ -112,6 +112,6 @@ public class AislamientoShaperTests
         public int ContarProductosAdministracion(string busqueda, string tipo, string estado) => 0;
         public List<ProductoAdminItem> ObtenerProductosAdministracion(string busqueda, string tipo, string estado, int pagina, int cantidadPorPagina) => new();
         public bool CambiarEstadoProducto(int id, bool oculto) => false;
-        public int AgregarTabla(string titulo, string subtitulo, double precio, string descripcion, int shaperId, string altura, int ancho, double volumen, SistemaDeEncaje sistemaDeEncaje, TipoDeOla tipoDeOla, EstiloDeSurf estiloDeSurf, int pesoMinimo, int pesoMaximo, Experiencia experiencia, IFormFile imagenFrontal, IFormFile imagenTrasera) => 0;
+        public int AgregarTabla(string titulo, string subtitulo, double precio, string descripcion, int shaperId, string altura, int ancho, double volumen, SistemaDeEncaje sistemaDeEncaje, TipoDeOla tipoDeOla, EstiloDeSurf estiloDeSurf, int pesoMinimo, int pesoMaximo, Experiencia experiencia, IFormFile imagenFrontal, IFormFile? imagenTrasera) => 0;
     }
 }

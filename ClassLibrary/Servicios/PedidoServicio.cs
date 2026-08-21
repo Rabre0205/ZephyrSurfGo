@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text;
+using System.Globalization;
 
 namespace ClassLibrary.Servicios
 {
@@ -52,8 +53,7 @@ namespace ClassLibrary.Servicios
         private readonly IMercadoPagoServicio _mercadoPagoServicio;
 
 
-        private readonly decimal _comision =
-            decimal.Parse(Environment.GetEnvironmentVariable("MP_COMISION_PLATAFORMA"));
+        private readonly decimal _comision;
 
         public PedidoServicio(
             ICarritoRepositorio carritoRepositorio,
@@ -65,6 +65,19 @@ namespace ClassLibrary.Servicios
             _productoRepositorio = productoRepositorio;
             _pedidoRepositorio = pedidoRepositorio;
             _mercadoPagoServicio = mercadoPagoServicio;
+
+            string? comisionConfigurada =
+                Environment.GetEnvironmentVariable("MP_COMISION_PLATAFORMA");
+
+            if (!decimal.TryParse(
+                    comisionConfigurada,
+                    NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
+                    out _comision))
+            {
+                throw new InvalidOperationException(
+                    "MP_COMISION_PLATAFORMA debe contener un número válido.");
+            }
         }
 
         public int ContarPedidosPorEstado(byte estadoId)

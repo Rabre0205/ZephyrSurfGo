@@ -7,7 +7,7 @@ namespace ClassLibrary.Datos
     {
         public static SqlConnection ObtenerConexion()
         {
-            string cadena = Environment.GetEnvironmentVariable("SURFDB_CONNECTION_STRING");
+            string? cadena = Environment.GetEnvironmentVariable("SURFDB_CONNECTION_STRING");
             if (string.IsNullOrEmpty(cadena))
                 throw new Exception("Falta configurar SURFDB_CONNECTION_STRING en las variables de entorno.");
 
