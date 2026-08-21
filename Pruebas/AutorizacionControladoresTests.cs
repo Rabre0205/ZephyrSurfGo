@@ -30,12 +30,16 @@ public class AutorizacionControladoresTests
     [InlineData(typeof(PanelAdminController), nameof(PanelAdminController.CambiarEstadoShaper))]
     [InlineData(typeof(ConfiguracionController), nameof(ConfiguracionController.ActualizarCuenta))]
     [InlineData(typeof(ConfiguracionController), nameof(ConfiguracionController.CambiarContrasenia))]
+    [InlineData(typeof(AdminController), nameof(AdminController.AgregarTabla))]
+    [InlineData(typeof(AdminController), nameof(AdminController.RegistrarCliente))]
     public void LasOperacionesQueModificanDatosUsanPostYAntiforgery(
         Type controlador,
         string nombreAccion)
     {
         var accion = controlador.GetMethods(BindingFlags.Instance | BindingFlags.Public)
-            .Single(metodo => metodo.Name == nombreAccion);
+            .Single(metodo =>
+                metodo.Name == nombreAccion &&
+                metodo.GetCustomAttribute<HttpPostAttribute>() != null);
 
         Assert.NotNull(accion.GetCustomAttribute<HttpPostAttribute>());
         Assert.NotNull(accion.GetCustomAttribute<ValidateAntiForgeryTokenAttribute>());
