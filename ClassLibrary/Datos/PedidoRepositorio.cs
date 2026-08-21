@@ -25,6 +25,8 @@ namespace ClassLibrary.Datos
             int shaperId, string busqueda, byte? estadoId,
             int pagina, int cantidadPorPagina);
         PedidoAdminDetalle ObtenerDetalleShaper(int pedidoId, int shaperId);
+        List<PedidoAdminItem> ObtenerPedidosCliente(int clienteId);
+        PedidoAdminDetalle? ObtenerDetalleCliente(int pedidoId, int clienteId);
         (int TotalPedidos, int PedidosPendientes, decimal VentasConfirmadas,
          decimal Comisiones) ObtenerResumenShaper(int shaperId);
 
@@ -416,6 +418,42 @@ namespace ClassLibrary.Datos
                 });
             }
             return detalle;
+        }
+
+        public List<PedidoAdminItem> ObtenerPedidosCliente(int clienteId)
+        {
+            var pedidos = new List<PedidoAdminItem>();
+            const string sql = @"
+                SELECT p.Id,p.EstadoPedidoId,e.Nombre EstadoNombre,p.Total,
+                       p.ComisionPlataforma,p.FechaCreacion,
+                       c.Nombre ClienteNombre,c.Email ClienteEmail,
+                       s.Nombre ShaperNombre,s.NombreDeNegosio NegocioShaper
+                FROM Pedidos p
+                INNER JOIN Usuarios c ON c.Id=p.ClienteId
+                INNER JOIN Usuarios s ON s.Id=p.ShaperId
+                INNER JOIN EstadosPedido e ON e.Id=p.EstadoPedidoId
+                WHERE p.ClienteId=@ClienteId
+                ORDER BY p.FechaCreacion DESC,p.Id DESC;";
+            using var conexion = Conexion.ObtenerConexion();
+            using var comando = new SqlCommand(sql, conexion);
+            comando.Parameters.Add("@ClienteId", SqlDbType.Int).Value = clienteId;
+            conexion.Open();
+            using var lector = comando.ExecuteReader();
+            while (lector.Read()) pedidos.Add(MapearPedidoAdmin(lector));
+            return pedidos;
+        }
+
+        public PedidoAdminDetalle? ObtenerDetalleCliente(int pedidoId, int clienteId)
+        {
+            const string sql = "SELECT COUNT(*) FROM Pedidos WHERE Id=@Id AND ClienteId=@ClienteId";
+            using var conexion = Conexion.ObtenerConexion();
+            using var comando = new SqlCommand(sql, conexion);
+            comando.Parameters.Add("@Id", SqlDbType.Int).Value = pedidoId;
+            comando.Parameters.Add("@ClienteId", SqlDbType.Int).Value = clienteId;
+            conexion.Open();
+            return Convert.ToInt32(comando.ExecuteScalar()) == 1
+                ? ObtenerDetalleAdministracion(pedidoId)
+                : null;
         }
 
         public (int TotalPedidos, int PedidosPendientes, decimal VentasConfirmadas,

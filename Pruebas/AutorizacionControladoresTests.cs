@@ -12,6 +12,7 @@ public class AutorizacionControladoresTests
     [InlineData(typeof(DashboardController), "Shaper")]
     [InlineData(typeof(PanelAdminController), "Administrador")]
     [InlineData(typeof(ConfiguracionController), "Cliente,Shaper")]
+    [InlineData(typeof(MisPedidosController), "Cliente")]
     public void CadaAreaExigeLosRolesEsperados(Type controlador, string rolesEsperados)
     {
         var autorizacion = controlador.GetCustomAttribute<AuthorizeAttribute>();
