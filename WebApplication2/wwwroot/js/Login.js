@@ -1,8 +1,12 @@
 ﻿/* ── Tab switch ── */
 function switchTab(tab) {
     const tabs = document.querySelectorAll('.auth-tab');
-    tabs[0].classList.toggle('active', tab === 'login');
-    tabs[1].classList.toggle('active', tab === 'register');
+    tabs.forEach((button, index) => {
+        button.classList.toggle(
+            'active',
+            index === (tab === 'login' ? 0 : 1)
+        );
+    });
 
     document.getElementById('panelLogin').classList.toggle('hidden', tab !== 'login');
     document.getElementById('panelRegister').classList.toggle('hidden', tab !== 'register');
