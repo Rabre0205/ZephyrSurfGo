@@ -344,6 +344,12 @@ body {
     text-align: center;
 }
 
+.item-qty form { margin: 0; }
+.qty-btn:disabled { opacity: .35; cursor: not-allowed; }
+.cart-stock-warning { margin: .65rem 0 0; color: #b42318; font-size: .76rem; }
+.cart-checkout-warning { margin: .8rem 0 0; color: #b42318; font-size: .78rem; line-height: 1.45; }
+.btn-checkout:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
 .item-right {
     display: flex;
     flex-direction: column;

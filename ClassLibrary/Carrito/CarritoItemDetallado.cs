@@ -13,5 +13,7 @@ namespace ClassLibrary.Carrito
         public double Precio { get; set; }
         public int ShaperId { get; set; }
         public int Cantidad { get; set; }
+        public int? StockDisponible { get; set; }
+        public bool Disponible { get; set; }
     }
 }

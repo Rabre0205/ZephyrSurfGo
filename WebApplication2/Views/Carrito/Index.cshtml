@@ -91,8 +91,36 @@
                             <h2 class="item-name">@item.Titulo</h2>
                             <p class="item-maker">Precio unitario: USD @item.Precio.ToString("N2")</p>
                             <div class="item-qty">
-                                <span class="qty-val">Cantidad: @item.Cantidad</span>
+                                @if (item.TipoProducto == "Tabla")
+                                {
+                                    <span class="qty-val">1 · pieza única</span>
+                                }
+                                else
+                                {
+                                    <form asp-controller="Carrito" asp-action="ActualizarCantidad" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="productoId" value="@item.ProductoId" />
+                                        <input type="hidden" name="cantidad" value="@(item.Cantidad - 1)" />
+                                        <button type="submit" class="qty-btn" aria-label="Reducir cantidad">−</button>
+                                    </form>
+                                    <span class="qty-val">@item.Cantidad</span>
+                                    <form asp-controller="Carrito" asp-action="ActualizarCantidad" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="productoId" value="@item.ProductoId" />
+                                        <input type="hidden" name="cantidad" value="@(item.Cantidad + 1)" />
+                                        <button type="submit" class="qty-btn" aria-label="Aumentar cantidad"
+                                                disabled="@(!item.Disponible || (item.StockDisponible.HasValue && item.Cantidad >= item.StockDisponible.Value))">+</button>
+                                    </form>
+                                    @if (item.StockDisponible.HasValue)
+                                    {
+                                        <span class="item-price-unit">Stock: @item.StockDisponible</span>
+                                    }
+                                }
                             </div>
+                            @if (!item.Disponible)
+                            {
+                                <p class="cart-stock-warning">Sin disponibilidad suficiente. Ajustá la cantidad o quitá el producto.</p>
+                            }
                         </div>
 
                         <div class="item-right">
@@ -112,6 +140,8 @@
 
             </div>
 
+            bool carritoDisponible = Model.All(item => item.Disponible);
+
             <aside class="cart-summary">
 
                 <div class="summary-line total">
@@ -129,10 +159,16 @@
                     @Html.AntiForgeryToken()
 
                     <button type="submit"
-                            class="btn-checkout">
+                            class="btn-checkout"
+                            disabled="@(!carritoDisponible)">
                         Finalizar compra →
                     </button>
                 </form>
+
+                @if (!carritoDisponible)
+                {
+                    <p class="cart-checkout-warning">Revisá los productos sin disponibilidad antes de continuar.</p>
+                }
 
                 <a asp-controller="Surf"
                    asp-action="Home"
