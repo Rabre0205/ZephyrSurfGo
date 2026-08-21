@@ -70,9 +70,10 @@ public class LoginController : Controller
 
             return RedirectToAction("Home", "Surf");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ViewBag.Error = ex.ToString();
+            ViewBag.Error =
+                "Ocurrió un error al iniciar sesión. Intentá nuevamente.";
             return View("Index");
         }
     }
@@ -167,16 +168,6 @@ public class LoginController : Controller
 
             return View("Index");
         }
-    }
-
-    public IActionResult GenerarHash()
-    {
-        string adminHash = BCrypt.Net.BCrypt.HashPassword("Admin456");
-        string shaperHash = BCrypt.Net.BCrypt.HashPassword("Shaper456");
-
-        return Content(
-            $"ADMIN:\n{adminHash}\n\nSHAPER:\n{shaperHash}"
-        );
     }
 
     [HttpPost]
