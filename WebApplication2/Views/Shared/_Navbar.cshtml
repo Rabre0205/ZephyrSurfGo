@@ -133,7 +133,7 @@
 
                 <button type="button"
                         class="profile-button"
-                        aria-label="Abrir menú del perfil"
+                        aria-label="Abrir menú de mi cuenta"
                         aria-expanded="false">
 
                     <svg width="20"
@@ -166,14 +166,14 @@
                         <a asp-controller="Shaper"
                            asp-action="Detalle"
                            asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
-                            Mi página
+                            Ver mi página pública
                         </a>
                     }
                     else if (esCliente)
                     {
                         <a asp-controller="Configuracion"
                            asp-action="Index">
-                            Configuración
+                            Configurar mi cuenta
                         </a>
                     }
 
@@ -181,7 +181,7 @@
                     {
                         <a asp-controller="Configuracion"
                            asp-action="Index">
-                            Configuración
+                            Configurar mi cuenta
                         </a>
                     }
 
@@ -193,7 +193,7 @@
                           class="logout-form">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="logout-link">
-                            Salir del perfil
+                            Cerrar sesión
                         </button>
                     </form>
 

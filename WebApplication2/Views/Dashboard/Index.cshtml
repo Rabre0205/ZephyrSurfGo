@@ -31,6 +31,37 @@
 
     <section class="dashboard">
 
+        <header class="shaper-bienvenida">
+            <div>
+                <span class="shaper-etiqueta">Panel de trabajo</span>
+                <h1>Hola, @User.Identity?.Name</h1>
+                <p>Desde acá podés publicar tus tablas, revisar pedidos y consultar tus ventas.</p>
+            </div>
+            <a asp-controller="Productos" asp-action="Crear" class="accion-principal-grande">
+                <span aria-hidden="true">＋</span> Publicar una tabla
+            </a>
+        </header>
+
+        <nav class="acciones-rapidas" aria-label="Acciones rápidas">
+            <a asp-controller="Dashboard" asp-action="Pedidos">
+                <strong>Revisar pedidos</strong>
+                <span>Consultá qué compras necesitan atención.</span>
+            </a>
+            <a asp-controller="Productos" asp-action="Index">
+                <strong>Administrar productos</strong>
+                <span>Editá fotos, precios y descripciones.</span>
+            </a>
+            <a asp-controller="Shaper" asp-action="Detalle"
+               asp-route-id="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value">
+                <strong>Ver mi página pública</strong>
+                <span>Comprobá lo que ven tus clientes.</span>
+            </a>
+            <a asp-controller="Configuracion" asp-action="Index">
+                <strong>Configurar mi cuenta</strong>
+                <span>Actualizá tus datos o contraseña.</span>
+            </a>
+        </nav>
+
         <div class="dashboard-resumen">
 
             <article class="resumen-card">
@@ -92,6 +123,7 @@
                         <span>📦</span>
                         <h3>Todavía no tenés pedidos</h3>
                         <p>Cuando un cliente compre una tabla, el pedido aparecerá en esta sección.</p>
+                        <a asp-controller="Productos" asp-action="Index" class="dashboard-panel-link">Revisar mis productos →</a>
                     </div>
                 }
                 else
