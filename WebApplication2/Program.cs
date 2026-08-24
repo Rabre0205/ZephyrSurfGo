@@ -3,6 +3,7 @@ using ClassLibrary.Servicios;
 using CloudinaryDotNet;
 using dotenv.net;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 
 namespace WebApplication2
 {
@@ -42,11 +43,45 @@ namespace WebApplication2
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>
             {
-                options.LoginPath = "/Login/Index";
+                options.LoginPath = "/Login";
                 options.LogoutPath = "/Login/Logout";
                 options.AccessDeniedPath = "/Login/AccesoDenegado";
                 options.ExpireTimeSpan = TimeSpan.FromDays(7);
                 options.SlidingExpiration = true;
+            })
+            .AddCookie("GoogleTemporal", options =>
+            {
+                options.Cookie.Name = "Zephyr.Google.Temporal";
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+            })
+            .AddGoogle(options =>
+            {
+                options.SignInScheme = "GoogleTemporal";
+                options.ClientId = builder.Configuration["Authentication:Google:ClientId"]
+                    ?? throw new InvalidOperationException("Falta configurar Authentication:Google:ClientId.");
+                options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
+                    ?? throw new InvalidOperationException("Falta configurar Authentication:Google:ClientSecret.");
+                options.Events.OnCreatingTicket = context =>
+                {
+                    if (context.User.TryGetProperty("verified_email", out var verificado) ||
+                        context.User.TryGetProperty("email_verified", out verificado))
+                    {
+                        bool correoVerificado = verificado.ValueKind switch
+                        {
+                            System.Text.Json.JsonValueKind.True => true,
+                            System.Text.Json.JsonValueKind.String =>
+                                bool.TryParse(verificado.GetString(), out bool valor) && valor,
+                            _ => false
+                        };
+
+                        context.Identity?.AddClaim(
+                            new System.Security.Claims.Claim(
+                                "google_email_verified",
+                                correoVerificado.ToString().ToLowerInvariant()));
+                    }
+
+                    return Task.CompletedTask;
+                };
             });
 
             // If you have Razor Pages:

@@ -117,7 +117,9 @@ namespace WebApplication2.Controllers
             {
                 new(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
                 new(ClaimTypes.Name, usuario.Nombre),
-                new(ClaimTypes.Role, usuario.TipoDeUsuario.ToString())
+                new(ClaimTypes.Role, usuario.TipoDeUsuario.ToString()),
+                new("metodo_autenticacion",
+                    User.FindFirstValue("metodo_autenticacion") ?? "Password")
             };
             var identidad = new ClaimsIdentity(
                 claims, CookieAuthenticationDefaults.AuthenticationScheme);

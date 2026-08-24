@@ -43,6 +43,8 @@ namespace ClassLibrary.Servicios
 
         Usuario? BuscarPorId(int id);
 
+        Usuario? BuscarPorEmail(string email);
+
         List<Shaper> ObtenerShapers();
 
         Shaper? ObtenerShaperPorId(int id);
@@ -477,6 +479,16 @@ namespace ClassLibrary.Servicios
         public Usuario? BuscarPorId(int id)
         {
             return _usuarioRepositorio.ObtenerPorId(id);
+        }
+
+        public Usuario? BuscarPorEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return null;
+            }
+
+            return _usuarioRepositorio.ObtenerPorEmail(email.Trim());
         }
 
         public (bool Exito, string Error) ActualizarCuenta(

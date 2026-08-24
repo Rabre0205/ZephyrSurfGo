@@ -1,0 +1,56 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Completar registro con Google";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Completar registro — Zephyr Surf Go</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/estilosLogin.css" asp-append-version="true" />
+</head>
+<body class="google-completar-page">
+    <main class="google-completar-card">
+        <span class="auth-visual-eyebrow">Un último paso</span>
+        <h1>Completá tu cuenta</h1>
+        <p>Google confirmó tu identidad. Necesitamos estos datos para configurar tu experiencia local.</p>
+
+        <div class="google-cuenta">
+            <strong>@ViewBag.NombreGoogle</strong>
+            <span>@ViewBag.EmailGoogle</span>
+        </div>
+
+        @if (ViewBag.ErrorGoogle != null)
+        {
+            <div class="auth-alert" style="display:block;">@ViewBag.ErrorGoogle</div>
+        }
+
+        <form asp-controller="Login" asp-action="CompletarRegistroGoogle" method="post">
+            @Html.AntiForgeryToken()
+            <div class="field-group">
+                <div class="field">
+                    <label for="googlePais">País</label>
+                    <div class="field-input-wrap">
+                        <select id="googlePais" name="pais" required>
+                            <option value="">Seleccioná tu país</option>
+                            <option value="Argentina">Argentina</option>
+                            <option value="Brasil">Brasil</option>
+                            <option value="Uruguay">Uruguay</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label class="check-field">
+                    <input type="checkbox" name="aceptaTerminos" value="true" required />
+                    <span>Acepto los Términos y Condiciones y la Política de Privacidad de Zephyr Surf Go.</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn-auth">Crear cuenta y continuar</button>
+        </form>
+    </main>
+</body>
+</html>

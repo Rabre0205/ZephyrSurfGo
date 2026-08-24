@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using System.Security.Cryptography;
 using System.Security.Claims;
 using ClassLibrary.Enums;
 using ClassLibrary.Persona;
@@ -16,6 +18,8 @@ public class LoginController : Controller
     }
    
 
+    [HttpGet("/Login")]
+    [HttpGet("/Login/Index")]
     public IActionResult Index()
     {
         return View();
@@ -24,6 +28,130 @@ public class LoginController : Controller
     public IActionResult AccesoDenegado()
     {
         return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult IniciarConGoogle()
+    {
+        var propiedades = new AuthenticationProperties
+        {
+            RedirectUri = Url.Action(nameof(GoogleCallback))
+        };
+
+        return Challenge(propiedades, GoogleDefaults.AuthenticationScheme);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GoogleCallback()
+    {
+        var resultado = await HttpContext.AuthenticateAsync("GoogleTemporal");
+
+        if (!resultado.Succeeded || resultado.Principal == null)
+        {
+            TempData["ErrorGoogle"] = "No se pudo completar el acceso con Google.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        string? email = resultado.Principal.FindFirstValue(ClaimTypes.Email);
+        string? nombre = resultado.Principal.FindFirstValue(ClaimTypes.Name);
+        string? emailVerificado = resultado.Principal.FindFirstValue("google_email_verified");
+
+        if (string.IsNullOrWhiteSpace(email) ||
+            !string.Equals(emailVerificado, "true", StringComparison.OrdinalIgnoreCase))
+        {
+            await HttpContext.SignOutAsync("GoogleTemporal");
+            TempData["ErrorGoogle"] = "Google no proporcionó un correo verificado.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        Usuario? usuario = _usuarioServicio.BuscarPorEmail(email);
+
+        if (usuario != null)
+        {
+            await HttpContext.SignOutAsync("GoogleTemporal");
+
+            if (!usuario.Activo)
+            {
+                TempData["ErrorGoogle"] = "Esta cuenta está desactivada.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            await GuardarUsuarioEnSesion(usuario, "Google");
+            return RedirigirSegunRol(usuario);
+        }
+
+        HttpContext.Session.SetString("GoogleRegistroEmail", email.Trim());
+        HttpContext.Session.SetString(
+            "GoogleRegistroNombre",
+            string.IsNullOrWhiteSpace(nombre) ? email.Split('@')[0] : nombre.Trim());
+
+        await HttpContext.SignOutAsync("GoogleTemporal");
+        return RedirectToAction(nameof(CompletarRegistroGoogle));
+    }
+
+    [HttpGet]
+    public IActionResult CompletarRegistroGoogle()
+    {
+        string? email = HttpContext.Session.GetString("GoogleRegistroEmail");
+        string? nombre = HttpContext.Session.GetString("GoogleRegistroNombre");
+
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        ViewBag.EmailGoogle = email;
+        ViewBag.NombreGoogle = nombre;
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CompletarRegistroGoogle(string pais, bool aceptaTerminos)
+    {
+        string? email = HttpContext.Session.GetString("GoogleRegistroEmail");
+        string? nombre = HttpContext.Session.GetString("GoogleRegistroNombre");
+
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(nombre))
+        {
+            TempData["ErrorGoogle"] = "La solicitud de Google venció. Intentá nuevamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (!aceptaTerminos || !Enum.TryParse(pais, true, out Pais paisSeleccionado))
+        {
+            ViewBag.EmailGoogle = email;
+            ViewBag.NombreGoogle = nombre;
+            ViewBag.ErrorGoogle = !aceptaTerminos
+                ? "Debés aceptar los términos y condiciones."
+                : "Seleccioná un país válido.";
+            return View();
+        }
+
+        string claveInterna = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+        var registro = _usuarioServicio.RegistrarCliente(
+            email, nombre, paisSeleccionado, claveInterna, claveInterna);
+
+        if (!registro.Exito)
+        {
+            ViewBag.EmailGoogle = email;
+            ViewBag.NombreGoogle = nombre;
+            ViewBag.ErrorGoogle = registro.Error;
+            return View();
+        }
+
+        Usuario? usuario = _usuarioServicio.BuscarPorId(registro.UsuarioId);
+        if (usuario == null)
+        {
+            TempData["ErrorGoogle"] = "La cuenta fue creada, pero no se pudo iniciar sesión.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        HttpContext.Session.Remove("GoogleRegistroEmail");
+        HttpContext.Session.Remove("GoogleRegistroNombre");
+        await GuardarUsuarioEnSesion(usuario, "Google");
+        return RedirectToAction("Home", "Surf");
     }
 
     [HttpPost]
@@ -186,7 +314,8 @@ public class LoginController : Controller
 
 
     private async Task GuardarUsuarioEnSesion(
-        Usuario usuario)
+        Usuario usuario,
+        string metodoAutenticacion = "Password")
     {
         var claims = new List<Claim>
         {
@@ -201,7 +330,8 @@ public class LoginController : Controller
             new Claim(
                 ClaimTypes.Role,
                 usuario.TipoDeUsuario.ToString()
-            )
+            ),
+            new Claim("metodo_autenticacion", metodoAutenticacion)
         };
 
         var identidad = new ClaimsIdentity(
@@ -230,5 +360,20 @@ public class LoginController : Controller
             "Usuario",
             usuario.Nombre
         );
+    }
+
+    private IActionResult RedirigirSegunRol(Usuario usuario)
+    {
+        if (usuario.TipoDeUsuario == TipoDeUsuario.Administrador)
+        {
+            return RedirectToAction("Index", "PanelAdmin");
+        }
+
+        if (usuario.TipoDeUsuario == TipoDeUsuario.Shaper)
+        {
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        return RedirectToAction("Home", "Surf");
     }
 }

@@ -99,6 +99,7 @@ public class PanelAdminControllerTests
         public (bool Exito, string Error, int UsuarioId) RegistrarShaper(string email, string nombre, Pais pais, string contrasenia, string confirmarContrasenia, string nombreDeNegosio, string contacto) => (false, string.Empty, 0);
         public (bool Exito, string Error, int UsuarioId) RegistrarAdmin(string email, string nombre, Pais pais, string contrasenia, string confirmarContrasenia) => (false, string.Empty, 0);
         public Usuario? BuscarPorId(int id) => null;
+        public Usuario? BuscarPorEmail(string email) => null;
         public List<Shaper> ObtenerShapers() => new();
         public Shaper? ObtenerShaperPorId(int id) => null;
         public int ContarClientes() => TotalClientes;

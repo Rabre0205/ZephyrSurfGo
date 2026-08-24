@@ -3,6 +3,10 @@
 @{
     Layout = null;
     ViewData["Title"] = "Configuración";
+    bool ingresoConGoogle = string.Equals(
+        User.FindFirst("metodo_autenticacion")?.Value,
+        "Google",
+        StringComparison.OrdinalIgnoreCase);
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -67,8 +71,27 @@
             <section class="settings-card">
                 <div class="settings-card-heading">
                     <span>02</span>
-                    <div><h2>Seguridad</h2><p>Cambiá tu contraseña confirmando primero la actual.</p></div>
+                    <div>
+                        <h2>Seguridad</h2>
+                        <p>@(ingresoConGoogle
+                            ? "El acceso a esta sesión está protegido por Google."
+                            : "Cambiá tu contraseña confirmando primero la actual.")</p>
+                    </div>
                 </div>
+
+                @if (ingresoConGoogle)
+                {
+                    <div class="settings-google-access">
+                        <div class="settings-google-icon">G</div>
+                        <div>
+                            <strong>Ingresaste con Google</strong>
+                            <p>No necesitás una contraseña de Zephyr para acceder. La seguridad y recuperación de esta sesión se administran desde tu cuenta de Google.</p>
+                        </div>
+                    </div>
+                    <p class="settings-google-help">Si tu cuenta ya tenía una contraseña de Zephyr, todavía podés utilizarla al iniciar sesión manualmente.</p>
+                }
+                else
+                {
 
                 @if (TempData["MensajeSeguridad"] != null)
                 {
@@ -101,6 +124,7 @@
                     </div>
                     <button type="submit" class="settings-button secondary">Cambiar contraseña</button>
                 </form>
+                }
             </section>
         </div>
     </main>
