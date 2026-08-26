@@ -16,7 +16,20 @@ namespace WebApplication2.Controllers
         }
 
         public IActionResult carrito() { return View(); }
-        public IActionResult Dealers() { return View(); }
+        public IActionResult Dealers()
+        {
+            var modelo = new WebApplication2.Models.ShapersCatalogoViewModel();
+            foreach (var shaper in _usuarioServicio.ObtenerShapers())
+            {
+                if (!shaper.Activo) continue;
+                modelo.Shapers.Add(new WebApplication2.Models.ShaperCatalogoItemViewModel
+                {
+                    Shaper = shaper,
+                    CantidadProductos = _productoServicio.BuscarPorShaper(shaper.Id).Count
+                });
+            }
+            return View(modelo);
+        }
         public IActionResult Home()
         {
             if (User.Identity?.IsAuthenticated == true)
