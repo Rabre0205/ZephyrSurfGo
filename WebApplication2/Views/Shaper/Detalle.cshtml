@@ -1609,7 +1609,7 @@
             <button type="button"
                     class="custom-add-cart-button"
                     onclick="addCustomToCart()">
-                Add to cart
+                Enviar solicitud al shaper
             </button>
 
         </section>
@@ -1695,6 +1695,8 @@
             shaperName: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(nombreNegocio)),
             cartAddUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Agregar", "Carrito"))),
             cartUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Index", "Carrito"))),
+            customRequestUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Crear", "SolicitudPersonalizada"))),
+            customRequestsUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("MisSolicitudes", "SolicitudPersonalizada"))),
             boards: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Tablas.Select(tabla => new
             {
                 key = $"producto-{tabla.Id}",

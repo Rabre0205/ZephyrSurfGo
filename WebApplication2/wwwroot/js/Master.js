@@ -575,11 +575,22 @@ function updateBoardAccessories() {
     }
 }
 
-function addCustomToCart() {
+async function addCustomToCart() {
     const modelSelect = document.getElementById('customModel');
 
     if (!modelSelect) {
         showToast('No se encontró el personalizador');
+        return;
+    }
+
+    const realProduct = /^producto-(\d+)$/.exec(modelSelect.value);
+    const requestUrl = window.shaperPageData?.customRequestUrl;
+    if (!realProduct) {
+        showToast('Elegí una tabla publicada por este shaper');
+        return;
+    }
+    if (!requestUrl) {
+        showToast('No se pudo iniciar la solicitud');
         return;
     }
 
@@ -625,126 +636,45 @@ function addCustomToCart() {
         return button.textContent.trim();
     });
 
-    const details = [
-        `${length} × ${width} × ${thickness}`,
-        volume,
-        selectedText('customConstruction'),
-        selectedText('customTail'),
-        selectedText('customFinSystem') +
-        ' · ' +
-        selectedText('customFinConfiguration'),
-        selectedText('customGlassing'),
-        selectedText('customCarbonPatch'),
-        selectedText('customDesign'),
-        activeDetails.join(', ')
-    ]
-        .filter(function (value) {
-            return value !== '';
-        })
-        .join(' · ');
-
-    const cart = getCart();
-
-    const design = 'sin-pintura';
-
     const primaryColor =
         getSelectedValue('customColor', '#ffffff');
 
     const secondaryColor =
         getSelectedValue('customSecondaryColor', '#ffffff');
 
-    const boardBackground = 'transparent';
-
-    const selectedFin =
-        Array.from(selectedAccessories.values())
-            .find(function (item) {
-                return item.id.startsWith('fins-');
-            });
-
-    let finConfiguration =
-        getSelectedValue(
-            'customFinConfiguration',
-            'thruster'
-        );
-
-    if (selectedFin) {
-        const finMap = {
-            'fins-reactor': 'thruster',
-            'fins-twin': 'twin',
-            'fins-quad': 'quad',
-            'fins-five': 'five-fin'
-        };
-
-        finConfiguration =
-            finMap[selectedFin.id] || finConfiguration;
-    }
-
-    const carbonPatch =
-        getSelectedValue('customCarbonPatch', 'none');
-
-    const gripColor =
-        getSelectedValue('customGripColor', '');
-
-    const hasCarbon =
-        carbonPatch !== 'none';
-
-    const selectedGrip =
-        Array.from(selectedAccessories.values())
-            .find(function (item) {
-                return item.id === 'grip-black' ||
-                    item.id === 'grip-white';
-            });
-
-    let gripImage = '';
-
-    if (selectedGrip?.id === 'grip-black') {
-        gripImage = '/img/boards/grip-black.png';
-    } else if (selectedGrip?.id === 'grip-white') {
-        gripImage = '/img/boards/grip-white.png';
-    } else if (gripColor === 'black') {
-        gripImage = '/img/boards/grip-black.png';
-    } else if (gripColor === 'white') {
-        gripImage = '/img/boards/grip-white.png';
-    }
-
-    cart.push({
-        id: 'custom_' + modelSelect.value + '_' + Date.now(),
-        name: modelName + ' (Custom)',
-        price: price,
-        boardPrice: boardPrice,
-        accessoriesPrice: accessoriesPrice,
-        qty: 1,
-        custom: true,
-        details: details,
-
-        boardPreview: {
-            baseImage: '/img/boards/deck-mask.png',
-            maskImage: '/img/boards/deck-mask.png',
-
-            background: boardBackground,
-            design: design,
-            primaryColor: primaryColor,
-            secondaryColor: secondaryColor,
-
-            hasCarbon: hasCarbon,
-            carbonImage: hasCarbon
-                ? '/img/boards/carbon-patch.png'
-                : '',
-
-            gripImage: gripImage,
-            finConfiguration: finConfiguration
-        },
-
-        notes:
-            document.getElementById('shaperNotes')
-                ?.value.trim() || ''
+    const token = document.querySelector('#realCartToken input[name="__RequestVerificationToken"]')?.value || '';
+    const body = new URLSearchParams({
+        ProductoBaseId: realProduct[1], PrecioEstimado: String(price),
+        Largo: length, Ancho: width, Grosor: thickness, Volumen: volume,
+        Construccion: selectedText('customConstruction'), Tail: selectedText('customTail'),
+        SistemaQuillas: selectedText('customFinSystem'),
+        ConfiguracionQuillas: selectedText('customFinConfiguration'),
+        Laminado: selectedText('customGlassing'), ParcheCarbono: selectedText('customCarbonPatch'),
+        Diseno: selectedText('customDesign'), ColorPrimario: primaryColor,
+        ColorSecundario: secondaryColor, DetallesAdicionales: activeDetails.join(', '),
+        AccesoriosJson: JSON.stringify(Array.from(selectedAccessories.values())),
+        Notas: document.getElementById('shaperNotes')?.value.trim() || '',
+        __RequestVerificationToken: token
     });
 
-    saveCart(cart);
-
-    showToast(
-        '"' + modelName + ' Custom" agregada al carrito'
-    );
+    try {
+        const response = await fetch(requestUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+            body
+        });
+        if (response.redirected) {
+            window.location.href = response.url;
+            return;
+        }
+        const result = await response.json();
+        showToast(result.mensaje || (result.creado ? 'Solicitud enviada' : 'No se pudo enviar'));
+        if (result.creado && window.shaperPageData?.customRequestsUrl) {
+            setTimeout(() => window.location.href = window.shaperPageData.customRequestsUrl, 900);
+        }
+    } catch {
+        showToast('No se pudo enviar la solicitud. Intentá nuevamente.');
+    }
 }
 
 function renderOrderSummary() {

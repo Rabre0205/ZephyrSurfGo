@@ -28,6 +28,8 @@ namespace WebApplication2
             builder.Services.AddScoped<ICarritoRepositorio, CarritoRepositorio>();
             builder.Services.AddScoped<IPedidoRepositorio, PedidoRepositorio>();
             builder.Services.AddScoped<IPedidoServicio, PedidoServicio>();
+            builder.Services.AddScoped<ISolicitudPersonalizadaRepositorio, SolicitudPersonalizadaRepositorio>();
+            builder.Services.AddScoped<ISolicitudPersonalizadaServicio, SolicitudPersonalizadaServicio>();
      
 
             //cosa de cloudinary, echo por claude ni idea que es

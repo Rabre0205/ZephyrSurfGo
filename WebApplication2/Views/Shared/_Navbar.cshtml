@@ -87,6 +87,13 @@
             </li>
 
             <li>
+                <a asp-controller="SolicitudPersonalizada"
+                   asp-action="Solicitudes">
+                    Solicitudes custom
+                </a>
+            </li>
+
+            <li>
                 <a asp-controller="Dashboard"
                    asp-action="Facturacion">
                     Facturación
@@ -158,6 +165,9 @@
                     {
                         <a asp-controller="MisPedidos" asp-action="Index">
                             Mis pedidos
+                        </a>
+                        <a asp-controller="SolicitudPersonalizada" asp-action="MisSolicitudes">
+                            Mis solicitudes custom
                         </a>
                     }
 
