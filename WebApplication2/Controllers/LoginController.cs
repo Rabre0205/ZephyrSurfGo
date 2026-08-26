@@ -333,6 +333,8 @@ public class LoginController : Controller
             ),
             new Claim("metodo_autenticacion", metodoAutenticacion)
         };
+        if (usuario is Shaper shaper && !string.IsNullOrWhiteSpace(shaper.LogoUrl))
+            claims.Add(new Claim("logo_url", shaper.LogoUrl));
 
         var identidad = new ClaimsIdentity(
             claims,

@@ -31,6 +31,7 @@ public class AutorizacionControladoresTests
     [InlineData(typeof(PanelAdminController), nameof(PanelAdminController.CambiarEstadoShaper))]
     [InlineData(typeof(ConfiguracionController), nameof(ConfiguracionController.ActualizarCuenta))]
     [InlineData(typeof(ConfiguracionController), nameof(ConfiguracionController.CambiarContrasenia))]
+    [InlineData(typeof(ConfiguracionController), nameof(ConfiguracionController.ActualizarLogo))]
     [InlineData(typeof(AdminController), nameof(AdminController.AgregarTabla))]
     [InlineData(typeof(AdminController), nameof(AdminController.RegistrarCliente))]
     public void LasOperacionesQueModificanDatosUsanPostYAntiforgery(

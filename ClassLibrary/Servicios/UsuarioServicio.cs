@@ -75,6 +75,8 @@ namespace ClassLibrary.Servicios
             int id, string contraseniaActual,
             string nuevaContrasenia, string confirmarContrasenia);
 
+        bool ActualizarLogoShaper(int id, string? logoUrl);
+
         List<Shaper> ObtenerShapersPaginados(
     string busqueda,
     int pagina,
@@ -612,6 +614,12 @@ namespace ClassLibrary.Servicios
                 true,
                 string.Empty
             );
+        }
+
+        public bool ActualizarLogoShaper(int id, string? logoUrl)
+        {
+            Usuario? usuario = _usuarioRepositorio.ObtenerPorId(id);
+            return usuario is Shaper && _usuarioRepositorio.ActualizarLogoShaper(id, logoUrl);
         }
     }
 }

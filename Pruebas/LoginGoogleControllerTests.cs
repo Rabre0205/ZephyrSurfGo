@@ -91,6 +91,7 @@ public class LoginGoogleControllerTests
         public bool CambiarEstadoCliente(int id, bool activo) => false;
         public int ContarShapersActivos() => 0;
         public (bool Exito, string Error) ActualizarShaper(int id, string email, string nombre, Pais pais, string nombreDeNegosio, string contacto) => (false, "");
+        public bool ActualizarLogoShaper(int id, string? logoUrl) => false;
         public bool CambiarEstadoShaper(int id, bool activo) => false;
         public (bool Exito, string Error) ActualizarCuenta(int id, string email, string nombre, Pais pais) => (false, "");
         public (bool Exito, string Error) CambiarContrasenia(int id, string contraseniaActual, string nuevaContrasenia, string confirmarContrasenia) => (false, "");

@@ -37,6 +37,7 @@ namespace ClassLibrary.Datos
         bool CambiarEstadoShaper(int id, bool activo);
         bool ActualizarCuenta(int id, string email, string nombre, Pais pais);
         bool ActualizarContrasenia(int id, string contraseniaHash);
+        bool ActualizarLogoShaper(int id, string? logoUrl);
         bool ActualizarShaper(
             int id,
             string email,
@@ -175,6 +176,21 @@ namespace ClassLibrary.Datos
                 conexion.Open();
                 return comando.ExecuteNonQuery() == 1;
             }
+        }
+
+        public bool ActualizarLogoShaper(int id, string? logoUrl)
+        {
+            const string sql = @"
+                UPDATE Usuarios SET LogoUrl = @LogoUrl
+                WHERE Id = @Id AND TipoDeUsuarioId = @TipoShaper;";
+            using var conexion = Conexion.ObtenerConexion();
+            using var comando = new SqlCommand(sql, conexion);
+            comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+            comando.Parameters.Add("@LogoUrl", SqlDbType.NVarChar, 500).Value =
+                string.IsNullOrWhiteSpace(logoUrl) ? DBNull.Value : logoUrl;
+            comando.Parameters.Add("@TipoShaper", SqlDbType.Int).Value = Convert.ToInt32(TipoDeUsuario.Shaper);
+            conexion.Open();
+            return comando.ExecuteNonQuery() == 1;
         }
 
         public Usuario? Login(string email, string contrasenia)

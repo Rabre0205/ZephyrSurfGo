@@ -18,6 +18,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/configuracion.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/identidadMarca.css" asp-append-version="true" />
 </head>
 <body>
     <partial name="_Navbar" />
@@ -28,6 +29,32 @@
             <h1>Configuración</h1>
             <p>Actualizá tu información personal y protegé el acceso a tu cuenta.</p>
         </header>
+
+        @if (Model.EsShaper)
+        {
+            <section class="settings-card settings-brand-card">
+                <div class="settings-card-heading">
+                    <span>★</span>
+                    <div><h2>Identidad de la marca</h2><p>Este logo identifica tu taller en el mapa, el catálogo y tu página pública.</p></div>
+                </div>
+                @if (TempData["MensajeLogo"] != null) { <div class="settings-alert success">@TempData["MensajeLogo"]</div> }
+                @if (TempData["ErrorLogo"] != null) { <div class="settings-alert error">@TempData["ErrorLogo"]</div> }
+                <form asp-controller="Configuracion" asp-action="ActualizarLogo" method="post" enctype="multipart/form-data" class="brand-logo-form">
+                    @Html.AntiForgeryToken()
+                    <div class="brand-logo-preview" id="brandLogoPreview">
+                        @if (!string.IsNullOrWhiteSpace(Model.LogoUrl)) { <img src="@Model.LogoUrl" alt="Logo actual de la marca" /> }
+                        else { <span>@(string.IsNullOrWhiteSpace(Model.Cuenta.Nombre) ? "Z" : Model.Cuenta.Nombre[..1].ToUpperInvariant())</span> }
+                    </div>
+                    <div class="brand-logo-content">
+                        <strong>Logo de tu taller</strong>
+                        <p>Usá una imagen cuadrada JPG, PNG o WebP de hasta 2 MB.</p>
+                        <input type="file" name="logo" id="brandLogoInput" accept="image/jpeg,image/png,image/webp" />
+                        <div class="brand-logo-actions"><button type="submit" class="settings-button">Guardar logo</button>
+                        @if (!string.IsNullOrWhiteSpace(Model.LogoUrl)) { <button type="submit" name="eliminarLogo" value="true" class="settings-button danger">Eliminar logo</button> }</div>
+                    </div>
+                </form>
+            </section>
+        }
 
         <div class="settings-grid">
             <section class="settings-card">
@@ -132,5 +159,12 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/navbar.js" asp-append-version="true"></script>
+    <script>
+        document.getElementById('brandLogoInput')?.addEventListener('change', function () {
+            const file = this.files?.[0]; if (!file) return;
+            const preview = document.getElementById('brandLogoPreview');
+            const url = URL.createObjectURL(file); preview.innerHTML = `<img src="${url}" alt="Vista previa del nuevo logo">`;
+        });
+    </script>
 </body>
 </html>

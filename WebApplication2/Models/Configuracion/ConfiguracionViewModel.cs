@@ -7,6 +7,8 @@ namespace WebApplication2.Models.Configuracion
     {
         public ConfiguracionCuentaViewModel Cuenta { get; set; } = new();
         public CambiarContraseniaViewModel Seguridad { get; set; } = new();
+        public string? LogoUrl { get; set; }
+        public bool EsShaper { get; set; }
     }
 
     public class ConfiguracionCuentaViewModel

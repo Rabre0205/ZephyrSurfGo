@@ -110,6 +110,7 @@ public class UsuarioServicioTests
             SeActualizoContrasenia = true;
             return true;
         }
+        public bool ActualizarLogoShaper(int id, string? logoUrl) => true;
 
         public List<Usuario> ObtenerTodos() => _usuarios.ToList();
         public List<Shaper> ObtenerShapersPaginados(string busqueda, int pagina, int cantidadPorPagina) => new();

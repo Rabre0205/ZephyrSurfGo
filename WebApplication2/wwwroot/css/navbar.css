@@ -319,6 +319,7 @@ nav#navbar {
 .logout-link {
     color: #ff6b6b !important;
 }
+.profile-brand-logo{width:100%;height:100%;object-fit:cover;border-radius:50%}
 
 .logout-form {
     margin: 0;

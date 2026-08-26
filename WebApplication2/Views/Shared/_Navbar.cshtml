@@ -18,6 +18,7 @@
         "Shaper",
         StringComparison.OrdinalIgnoreCase
     );
+    string? logoUrl = esShaper ? User.FindFirstValue("logo_url") : null;
 }
 
 <nav id="navbar">
@@ -143,6 +144,12 @@
                         aria-label="Abrir menú de mi cuenta"
                         aria-expanded="false">
 
+                    @if (!string.IsNullOrWhiteSpace(logoUrl))
+                    {
+                        <img src="@logoUrl" alt="Logo de mi marca" class="profile-brand-logo" />
+                    }
+                    else
+                    {
                     <svg width="20"
                          height="20"
                          viewBox="0 0 24 24"
@@ -156,6 +163,7 @@
                         <circle cx="12" cy="7" r="4"></circle>
 
                     </svg>
+                    }
 
                 </button>
 
