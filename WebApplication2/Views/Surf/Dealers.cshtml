@@ -1,4 +1,4 @@
-@model WebApplication2.Models.ShapersCatalogoViewModel
+@model List<ClassLibrary.PuntosRetiro.PuntoRetiro>
 @using ClassLibrary.Enums
 @using System.Text.Json
 @{ Layout = null; ViewData["Title"] = "Mapa de shapers"; }
@@ -11,23 +11,19 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="stylesheet" href="~/css/estilosDealers.css" asp-append-version="true"/><link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true"/>
 </head><body><partial name="_Navbar"/>
-<section class="map-hero"><div><span>Red Zephyr Surf Go</span><h1>Encontrá tu shaper</h1><p>Explorá talleres activos de Uruguay, Argentina y Brasil y conocé sus tablas disponibles.</p></div></section>
-<main class="locator-page"><div class="locator-note"><strong>Ubicación por país</strong><span>La dirección exacta del taller todavía no forma parte del perfil. El mapa muestra el país de cada shaper, sin inventar domicilios.</span></div>
+<section class="map-hero"><div><span>Red Zephyr Surf Go</span><h1>Puntos de retiro</h1><p>Encontrá lugares habilitados para retirar tus compras en Uruguay, Argentina y Brasil.</p></div></section>
+<main class="locator-page"><div class="locator-note"><strong>Solo puntos habilitados</strong><span>El mapa muestra lugares de retiro cargados por los shapers. Los talleres o domicilios privados no se publican.</span></div>
 <div class="filter-bar"><span class="filter-label">Filtrar:</span><button class="filter-btn active" data-filter="all">Todos</button><button class="filter-btn" data-filter="ar">🇦🇷 Argentina</button><button class="filter-btn" data-filter="br">🇧🇷 Brasil</button><button class="filter-btn" data-filter="uy">🇺🇾 Uruguay</button><div class="search-wrap"><span>⌕</span><input type="search" id="searchInput" placeholder="Buscar shaper o país…"/></div></div>
-<div class="results-summary"><span id="resultCount">@Model.Shapers.Count shapers</span><small>Seleccioná uno para conocer sus productos.</small></div>
+<div class="results-summary"><span id="resultCount">@Model.Count puntos</span><small>Seleccioná un punto para ver sus datos.</small></div>
 <div class="dealers-layout"><div class="dealers-list" id="dealersList"></div><div class="map-panel"><div id="map"></div><p>Los marcadores representan cobertura por país, no la dirección exacta.</p></div></div>
 </main>
 <script>
-window.zephyrShapers = @Html.Raw(JsonSerializer.Serialize(Model.Shapers.Select(item => new {
-    id = item.Shaper.Id,
-    name = string.IsNullOrWhiteSpace(item.Shaper.NombreDeNegosio) ? item.Shaper.Nombre : item.Shaper.NombreDeNegosio,
-    owner = item.Shaper.Nombre,
-    country = item.Shaper.Pais == Pais.Argentina ? "ar" : item.Shaper.Pais == Pais.Brasil ? "br" : "uy",
-    countryName = item.Shaper.Pais.ToString(),
-    products = item.CantidadProductos,
-    contact = item.Shaper.Contacto,
-    logo = item.Shaper.LogoUrl,
-    pageUrl = Url.Action("Detalle", "Shaper", new { id = item.Shaper.Id })
+window.zephyrPickups = @Html.Raw(JsonSerializer.Serialize(Model.Select(item => new {
+    id = item.Id, shaperId = item.ShaperId, name = item.Nombre, shaper = item.ShaperNombre,
+    address = item.Direccion, city = item.Ciudad, schedule = item.Horario, notes = item.Indicaciones,
+    lat = item.Latitud, lng = item.Longitud, logo = item.LogoUrl,
+    country = item.Pais == Pais.Argentina ? "ar" : item.Pais == Pais.Brasil ? "br" : "uy",
+    countryName = item.Pais.ToString(), pageUrl = Url.Action("Detalle", "Shaper", new { id = item.ShaperId })
 })));
 </script>
 <script src="~/js/Dealers.js" asp-append-version="true"></script><script src="~/js/navbar.js" asp-append-version="true"></script></body></html>

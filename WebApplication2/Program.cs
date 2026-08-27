@@ -30,6 +30,10 @@ namespace WebApplication2
             builder.Services.AddScoped<IPedidoServicio, PedidoServicio>();
             builder.Services.AddScoped<ISolicitudPersonalizadaRepositorio, SolicitudPersonalizadaRepositorio>();
             builder.Services.AddScoped<ISolicitudPersonalizadaServicio, SolicitudPersonalizadaServicio>();
+            builder.Services.AddScoped<IPuntoRetiroRepositorio, PuntoRetiroRepositorio>();
+            builder.Services.AddScoped<IPuntoRetiroServicio, PuntoRetiroServicio>();
+            builder.Services.AddScoped<ISolicitudSoporteRepositorio, SolicitudSoporteRepositorio>();
+            builder.Services.AddScoped<ISolicitudSoporteServicio, SolicitudSoporteServicio>();
      
 
             //cosa de cloudinary, echo por claude ni idea que es

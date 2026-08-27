@@ -1,58 +1,10 @@
-const shapers = Array.isArray(window.zephyrShapers) ? window.zephyrShapers : [];
-const countries = {
-    ar: { name: 'Argentina', flag: '🇦🇷', center: [-38.4, -63.6], color: '#74b9ff' },
-    br: { name: 'Brasil', flag: '🇧🇷', center: [-14.2, -51.9], color: '#55c995' },
-    uy: { name: 'Uruguay', flag: '🇺🇾', center: [-32.8, -56.0], color: '#f0c65a' }
-};
-
-const map = L.map('map', { center: [-27, -56], zoom: 4, zoomControl: true });
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 18 }).addTo(map);
-
-function markerIcon(country) {
-    const color = countries[country]?.color || '#4394e0';
-    return L.divIcon({ className: '', iconSize: [32, 42], iconAnchor: [16, 42], popupAnchor: [0, -40], html:
-        `<svg width="32" height="42" viewBox="0 0 32 42"><path d="M16 0C7.2 0 0 7.2 0 16c0 11 14.6 25 16 26 1.4-1 16-15 16-26C32 7.2 24.8 0 16 0z" fill="${color}"/><circle cx="16" cy="16" r="7" fill="#0d204b"/></svg>` });
-}
-
-const markers = new Map();
-const countryOffsets = { ar: 0, br: 0, uy: 0 };
-shapers.forEach(shaper => {
-    const country = countries[shaper.country] || countries.uy;
-    const index = countryOffsets[shaper.country]++;
-    const angle = index * 2.4;
-    const radius = index === 0 ? 0 : .45 + Math.floor(index / 6) * .25;
-    const position = [country.center[0] + Math.sin(angle) * radius, country.center[1] + Math.cos(angle) * radius];
-    const marker = L.marker(position, { icon: markerIcon(shaper.country) }).addTo(map);
-    marker.bindPopup(`<div class="popup-name">${escapeHtml(shaper.name)}</div><div class="popup-addr">${country.flag} ${country.name}<br>${shaper.products} producto${shaper.products === 1 ? '' : 's'} publicado${shaper.products === 1 ? '' : 's'}</div><a class="popup-link" href="${shaper.pageUrl}">Ver página del shaper →</a>`);
-    markers.set(shaper.id, marker);
-});
-
-let activeCountry = 'all';
-let activeSearch = '';
-function escapeHtml(value) { const div = document.createElement('div'); div.textContent = value || ''; return div.innerHTML; }
-function visibleShapers() {
-    return shapers.filter(s => (activeCountry === 'all' || s.country === activeCountry) && (!activeSearch || `${s.name} ${s.owner} ${s.countryName}`.toLowerCase().includes(activeSearch)));
-}
-function renderList() {
-    const list = document.getElementById('dealersList');
-    const visible = visibleShapers();
-    document.getElementById('resultCount').textContent = `${visible.length} shaper${visible.length === 1 ? '' : 's'}`;
-    if (!visible.length) { list.innerHTML = '<div class="map-empty"><strong>No encontramos shapers</strong><span>Probá con otro país o término de búsqueda.</span></div>'; return; }
-    list.innerHTML = visible.map(s => {
-        const country = countries[s.country];
-        const initial = escapeHtml((s.name || 'S').charAt(0).toUpperCase());
-        return `<article class="shaper-map-card"><div class="shaper-map-logo">${s.logo ? `<img src="${escapeHtml(s.logo)}" alt="">` : initial}</div><div class="shaper-map-info"><span>${country.flag} ${country.name}</span><h2>${escapeHtml(s.name)}</h2><p>${escapeHtml(s.owner)} · ${s.products} producto${s.products === 1 ? '' : 's'}</p><div><button type="button" data-focus="${s.id}">Ver en el mapa</button><a href="${s.pageUrl}">Ver página →</a></div></div></article>`;
-    }).join('');
-    list.querySelectorAll('[data-focus]').forEach(button => button.addEventListener('click', () => focusShaper(Number(button.dataset.focus))));
-}
-function focusShaper(id) { const marker = markers.get(id); if (!marker) return; map.setView(marker.getLatLng(), 6, { animate: true }); marker.openPopup(); }
-function updateMap() {
-    const visibleIds = new Set(visibleShapers().map(s => s.id));
-    markers.forEach((marker, id) => visibleIds.has(id) ? marker.addTo(map) : marker.removeFrom(map));
-    if (activeCountry === 'all') map.setView([-27, -56], 4); else map.setView(countries[activeCountry].center, activeCountry === 'uy' ? 6 : 4);
-}
-document.querySelectorAll('.filter-btn').forEach(button => button.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(item => item.classList.remove('active')); button.classList.add('active'); activeCountry = button.dataset.filter; renderList(); updateMap();
-}));
-document.getElementById('searchInput').addEventListener('input', event => { activeSearch = event.target.value.toLowerCase().trim(); renderList(); updateMap(); });
-renderList(); setTimeout(() => map.invalidateSize(), 250);
+const pickups=Array.isArray(window.zephyrPickups)?window.zephyrPickups:[];
+const countries={ar:{name:'Argentina',flag:'🇦🇷',center:[-38.4,-63.6]},br:{name:'Brasil',flag:'🇧🇷',center:[-14.2,-51.9]},uy:{name:'Uruguay',flag:'🇺🇾',center:[-32.8,-56]}};
+const map=L.map('map',{center:[-27,-56],zoom:4});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18}).addTo(map);
+function esc(v){const d=document.createElement('div');d.textContent=v||'';return d.innerHTML;}
+function icon(){return L.divIcon({className:'',iconSize:[32,42],iconAnchor:[16,42],popupAnchor:[0,-40],html:'<svg width="32" height="42" viewBox="0 0 32 42"><path d="M16 0C7.2 0 0 7.2 0 16c0 11 14.6 25 16 26 1.4-1 16-15 16-26C32 7.2 24.8 0 16 0z" fill="#4394e0"/><circle cx="16" cy="16" r="7" fill="#0d204b"/></svg>'});}
+const markers=new Map();pickups.forEach(p=>{const m=L.marker([p.lat,p.lng],{icon:icon()}).addTo(map),directions=`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;m.bindPopup(`<div class="popup-name">${esc(p.name)}</div><div class="popup-addr">${esc(p.address)} · ${esc(p.city)}<br>${esc(p.schedule)}</div><a class="popup-link" target="_blank" rel="noopener" href="${directions}">Cómo llegar →</a>`);markers.set(p.id,m);});
+let activeCountry='all',search='';function visible(){return pickups.filter(p=>(activeCountry==='all'||p.country===activeCountry)&&(!search||`${p.name} ${p.shaper} ${p.address} ${p.city}`.toLowerCase().includes(search)));}
+function render(){const data=visible(),list=document.getElementById('dealersList');document.getElementById('resultCount').textContent=`${data.length} punto${data.length===1?'':'s'} de retiro`;if(!data.length){list.innerHTML='<div class="map-empty"><strong>No encontramos puntos de retiro</strong><span>Probá otro país o término de búsqueda.</span></div>';return;}list.innerHTML=data.map(p=>`<article class="shaper-map-card"><div class="shaper-map-logo">${p.logo?`<img src="${esc(p.logo)}" alt="">`:'⌖'}</div><div class="shaper-map-info"><span>${countries[p.country].flag} ${esc(p.city)}</span><h2>${esc(p.name)}</h2><p>${esc(p.shaper)} · ${esc(p.address)}</p><div><button data-focus="${p.id}">Ver en el mapa</button><a href="${p.pageUrl}">Ver shaper →</a></div></div></article>`).join('');list.querySelectorAll('[data-focus]').forEach(b=>b.onclick=()=>{const m=markers.get(Number(b.dataset.focus));map.setView(m.getLatLng(),15);m.openPopup();});}
+function update(){const ids=new Set(visible().map(p=>p.id));markers.forEach((m,id)=>ids.has(id)?m.addTo(map):m.remove());if(activeCountry==='all')map.setView([-27,-56],4);else map.setView(countries[activeCountry].center,activeCountry==='uy'?6:4);}
+document.querySelectorAll('.filter-btn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');activeCountry=b.dataset.filter;render();update();});document.getElementById('searchInput').oninput=e=>{search=e.target.value.toLowerCase().trim();render();update();};render();setTimeout(()=>map.invalidateSize(),250);
