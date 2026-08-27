@@ -19,7 +19,23 @@ html {
 
 body {
   margin-bottom: 60px;
+  background: radial-gradient(circle at 90% 0, rgba(67,148,224,.08), transparent 28%), #f5f7f8;
+  color: #13252c;
+  font-family: "DM Sans", "Segoe UI", sans-serif;
 }
+
+body > header .navbar { min-height: 68px; margin-bottom: 0 !important; border: 0 !important; background: rgba(255,255,255,.94) !important; box-shadow: 0 8px 28px rgba(18,39,47,.07); backdrop-filter: blur(12px); }
+body > header .navbar-brand { color:#0d1b3e;font-weight:800;letter-spacing:.02em; }
+body > header .nav-link { position:relative;padding:.65rem .8rem!important;border-radius:9px;font-weight:600;transition:.2s; }
+body > header .nav-link:hover { background:#edf5fc;color:#126cb8!important; }
+body > .container { max-width:1240px; }
+.admin-page,.clients-page,.shapers-page,.products-admin-page,.orders-page,.statistics-page { padding-top:64px!important; }
+.admin-header h1,.clients-header h1,.shapers-header h1,.products-admin-header h1,.orders-header h1 { letter-spacing:-.035em; }
+.admin-stat-card,.card { border-color:rgba(19,37,44,.09)!important; border-radius:16px!important; box-shadow:0 14px 38px rgba(18,39,47,.07); }
+table thead th { background:#f3f7f8!important;color:#51636c!important;font-size:.75rem!important;letter-spacing:.07em;text-transform:uppercase; }
+table tbody tr { transition:background .2s; } table tbody tr:hover { background:#f8fbfd; }
+input,select,textarea { border-radius:10px!important; }
+.btn,button { border-radius:9px; }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);

@@ -1,61 +1,27 @@
-﻿function getCart() {
-    try {
-        return JSON.parse(localStorage.getItem("master_cart")) || [];
-    } catch {
-        return [];
-    }
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-
+document.addEventListener("DOMContentLoaded", () => {
     const profileDropdown = document.querySelector(".profile-dropdown");
     const profileButton = document.querySelector(".profile-button");
 
-    if (!profileDropdown || !profileButton) {
-        return;
-    }
-
-    profileButton.addEventListener("click", function (e) {
-
-        e.stopPropagation();
-
-        profileDropdown.classList.toggle("open");
-
-    });
-
-    document.addEventListener("click", function (e) {
-
-        if (!profileDropdown.contains(e.target)) {
-
-            profileDropdown.classList.remove("open");
-
-        }
-
-    });
-
-    document.addEventListener("DOMContentLoaded", () => {
-        const profileButton = document.querySelector(".profile-button");
-        const profileDropdown = document.querySelector(".profile-dropdown");
-
-        if (!profileButton || !profileDropdown) {
-            return;
-        }
-
-        profileButton.addEventListener("click", (event) => {
+    if (profileDropdown && profileButton) {
+        profileButton.addEventListener("click", event => {
             event.stopPropagation();
-
-            const estaAbierto =
-                profileDropdown.classList.toggle("open");
-
-            profileButton.setAttribute(
-                "aria-expanded",
-                estaAbierto.toString()
-            );
+            const open = profileDropdown.classList.toggle("open");
+            profileButton.setAttribute("aria-expanded", open.toString());
         });
 
-        document.addEventListener("click", () => {
+        document.addEventListener("click", event => {
+            if (profileDropdown.contains(event.target)) return;
             profileDropdown.classList.remove("open");
             profileButton.setAttribute("aria-expanded", "false");
         });
+    }
+
+    const currentPath = window.location.pathname.toLowerCase();
+    document.querySelectorAll("#navbar .nav-links a").forEach(link => {
+        const target = new URL(link.href, window.location.origin).pathname.toLowerCase();
+        if (target !== "/" && currentPath.startsWith(target)) {
+            link.classList.add("active");
+            link.setAttribute("aria-current", "page");
+        }
     });
 });

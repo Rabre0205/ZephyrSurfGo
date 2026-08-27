@@ -16,7 +16,12 @@ nav#navbar {
     align-items: center;
     justify-content: space-between;
     padding: 1rem 3rem;
-    transition: background .3s;
+    min-height: 70px;
+    background: rgba(7, 24, 64, .96);
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 8px 30px rgba(4, 16, 38, .16);
+    backdrop-filter: blur(14px);
+    transition: background .3s, padding .3s, box-shadow .3s;
 }
 
     nav#navbar.scrolled {
@@ -56,12 +61,32 @@ nav#navbar {
         letter-spacing: .10em;
         text-transform: uppercase;
         font-weight: 500;
+        position: relative;
+        padding: .55rem 0;
         transition: color .2s;
     }
 
         .nav-links a:hover,
         .nav-links a.active {
             color: #fff;
+        }
+
+        .nav-links a::after {
+            position: absolute;
+            right: 50%;
+            bottom: 1px;
+            left: 50%;
+            height: 2px;
+            border-radius: 999px;
+            background: var(--blue-light);
+            content: "";
+            transition: left .2s, right .2s;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            right: 0;
+            left: 0;
         }
 
 /* ACCIONES */
@@ -318,6 +343,12 @@ nav#navbar {
 
 .logout-link {
     color: #ff6b6b !important;
+}
+
+@media (max-width: 1180px) {
+    nav#navbar { padding-right: 1.5rem; padding-left: 1.5rem; }
+    .nav-links { gap: 1rem; }
+    .nav-links a { font-size: .66rem; }
 }
 .profile-brand-logo{width:100%;height:100%;object-fit:cover;border-radius:50%}
 
