@@ -726,7 +726,7 @@ CREATE TABLE Pedidos (
     MercadoPagoPreferenceId NVARCHAR(100) NULL,
     MercadoPagoPaymentId NVARCHAR(100) NULL,
     FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-    FechaActualizacion DATETIME2 NULL
+    FechaActualizacion DATETIME2 NULL,
 
     CONSTRAINT PK_Pedidos_Id Primary Key (Id)
 );
@@ -744,13 +744,103 @@ CREATE TABLE PedidoItems (
     ProductoId INT NOT NULL REFERENCES Productos(Id),
     TituloSnapshot NVARCHAR(150) NOT NULL,
     PrecioUnitarioSnapshot DECIMAL(10,2) NOT NULL,
-    Cantidad INT NOT NULL
+    Cantidad INT NOT NULL,
 
     CONSTRAINT PK_PedidoItems_Id Primary Key (Id)
 );
 GO
 
 CREATE INDEX IX_PedidoItems_PedidoId ON PedidoItems(PedidoId);
+GO
+
+-- Puntos de retiro públicos administrados por cada shaper.
+-- No se guarda ni publica la ubicación privada del taller.
+CREATE TABLE PuntosRetiro (
+    Id INT IDENTITY,
+    ShaperId INT NOT NULL REFERENCES Usuarios(Id),
+    Nombre NVARCHAR(150) NOT NULL,
+    Direccion NVARCHAR(250) NOT NULL,
+    Ciudad NVARCHAR(120) NOT NULL,
+    Horario NVARCHAR(250) NOT NULL DEFAULT '',
+    Indicaciones NVARCHAR(500) NOT NULL DEFAULT '',
+    Latitud DECIMAL(9,6) NOT NULL,
+    Longitud DECIMAL(9,6) NOT NULL,
+    Activo BIT NOT NULL DEFAULT 1,
+    FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    FechaActualizacion DATETIME2 NULL,
+
+    CONSTRAINT PK_PuntosRetiro_Id PRIMARY KEY (Id),
+    CONSTRAINT CK_PuntosRetiro_Latitud CHECK (Latitud BETWEEN -90 AND 90),
+    CONSTRAINT CK_PuntosRetiro_Longitud CHECK (Longitud BETWEEN -180 AND 180)
+);
+GO
+
+CREATE INDEX IX_PuntosRetiro_ShaperActivo
+    ON PuntosRetiro(ShaperId, Activo);
+GO
+
+-- Consultas de ayuda enviadas por los shapers a la administración.
+CREATE TABLE SolicitudesSoporte (
+    Id INT IDENTITY,
+    ShaperId INT NOT NULL REFERENCES Usuarios(Id),
+    Asunto NVARCHAR(150) NOT NULL,
+    Mensaje NVARCHAR(2000) NOT NULL,
+    Respuesta NVARCHAR(2000) NULL,
+    Estado TINYINT NOT NULL DEFAULT 0,
+    FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    FechaRespuesta DATETIME2 NULL,
+
+    CONSTRAINT PK_SolicitudesSoporte_Id PRIMARY KEY (Id),
+    CONSTRAINT CK_SolicitudesSoporte_Estado CHECK (Estado BETWEEN 0 AND 2)
+);
+GO
+
+CREATE INDEX IX_SolicitudesSoporte_EstadoFecha
+    ON SolicitudesSoporte(Estado, FechaCreacion DESC);
+GO
+
+-- Pedidos personalizados creados desde el cuestionario.
+-- ProductoBaseId es opcional porque la tabla puede fabricarse desde cero.
+CREATE TABLE SolicitudesPersonalizadas (
+    Id INT IDENTITY,
+    ClienteId INT NOT NULL REFERENCES Usuarios(Id),
+    ShaperId INT NOT NULL REFERENCES Usuarios(Id),
+    ProductoBaseId INT NULL REFERENCES Productos(Id),
+    ModeloSnapshot NVARCHAR(150) NOT NULL,
+    PrecioEstimado DECIMAL(10,2) NOT NULL DEFAULT 0,
+    Largo NVARCHAR(30) NOT NULL,
+    Ancho NVARCHAR(30) NOT NULL,
+    Grosor NVARCHAR(30) NOT NULL,
+    Volumen NVARCHAR(30) NOT NULL,
+    Construccion NVARCHAR(100) NOT NULL,
+    Tail NVARCHAR(80) NOT NULL,
+    SistemaQuillas NVARCHAR(80) NOT NULL,
+    ConfiguracionQuillas NVARCHAR(100) NOT NULL,
+    Laminado NVARCHAR(100) NOT NULL,
+    ParcheCarbono NVARCHAR(100) NOT NULL,
+    Diseno NVARCHAR(100) NOT NULL,
+    ColorPrimario NVARCHAR(30) NOT NULL,
+    ColorSecundario NVARCHAR(30) NOT NULL,
+    DetallesAdicionales NVARCHAR(500) NOT NULL DEFAULT '',
+    AccesoriosJson NVARCHAR(MAX) NOT NULL DEFAULT '[]',
+    Notas NVARCHAR(1000) NOT NULL DEFAULT '',
+    Estado TINYINT NOT NULL DEFAULT 0,
+    FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    FechaActualizacion DATETIME2 NULL,
+    FechaRespuestaCliente DATETIME2 NULL,
+
+    CONSTRAINT PK_SolicitudesPersonalizadas_Id PRIMARY KEY (Id),
+    CONSTRAINT CK_SolicitudesPersonalizadas_Estado CHECK (Estado BETWEEN 0 AND 9),
+    CONSTRAINT CK_SolicitudesPersonalizadas_Precio CHECK (PrecioEstimado >= 0)
+);
+GO
+
+CREATE INDEX IX_SolicitudesPersonalizadas_ShaperEstadoFecha
+    ON SolicitudesPersonalizadas(ShaperId, Estado, FechaCreacion DESC);
+GO
+
+CREATE INDEX IX_SolicitudesPersonalizadas_ClienteFecha
+    ON SolicitudesPersonalizadas(ClienteId, FechaCreacion DESC);
 GO
 
 /* ============================================================
