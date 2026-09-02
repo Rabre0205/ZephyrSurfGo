@@ -1,5 +1,6 @@
 ﻿using ClassLibrary.Persona;
 using ClassLibrary.Productos;
+using ClassLibrary.Disenos;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,6 +11,7 @@ namespace WebApplication2.Models
         public Shaper Shaper { get; set; } = null!;
 
         public List<Producto> Productos { get; set; } = new List<Producto>();
+        public List<DisenoShaper> Disenos { get; set; } = new();
 
         public List<Tabla> Tablas => Productos.OfType<Tabla>().ToList();
         public List<Quilla> Quillas => Productos.OfType<Quilla>().ToList();

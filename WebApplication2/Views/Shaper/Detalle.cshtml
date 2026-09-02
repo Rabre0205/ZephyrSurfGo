@@ -1124,66 +1124,30 @@
                                 id="customDesign">
 
                             <option value="sin-pintura">
-                                No paint
+                                Sin pintura
                             </option>
-
-                            <option value="sol-pampeano" selected>
-                                Sol Pampeano
-                            </option>
-
-                            <option value="lineas-clasicas">
-                                Classic Lines
-                            </option>
-
-                            <option value="mitad-y-mitad">
-                                Half and Half
-                            </option>
-
-                            <option value="degrade">
-                                Gradient
-                            </option>
-
-                            <option value="rails-color">
-                                Rails Color
-                            </option>
-
-                            <option value="nose-color">
-                                Nose Color
-                            </option>
-
-                            <option value="tail-color">
-                                Tail Color
-                            </option>
-
-                            <option value="pinline">
-                                Pinline
-                            </option>
-
-                            <option value="abstracto">
-                                Abstract
-                            </option>
-
-                            <option value="retro">
-                                Retro
-                            </option>
-
-                            <option value="minimalista">
-                                Minimal
-                            </option>
-
-                            <option value="deck-completo">
-                                Full Deck
-                            </option>
-
-                            <option value="bottom-completo">
-                                Full Bottom
-                            </option>
-
-                            <option value="doble-color">
-                                Two Colors
-                            </option>
+                            @foreach(var diseno in Model.Disenos)
+                            {
+                                <option value="diseno-@diseno.Id"
+                                        data-zone="@diseno.ZonaAplicacion.ToLowerInvariant()"
+                                        data-custom-colors="@diseno.PermiteColoresPersonalizados.ToString().ToLowerInvariant()"
+                                        data-surcharge="@diseno.Recargo.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                        data-primary="@diseno.ColorPrimario" data-secondary="@diseno.ColorSecundario"
+                                        data-image="@diseno.ImagenUrl">
+                                    @diseno.Nombre@(diseno.Recargo > 0 ? $" (+ USD {diseno.Recargo:N2})" : "")
+                                </option>
+                            }
+                            <option value="personalizado">Diseño personalizado</option>
 
                         </select>
+                        <figure id="customDesignPreview" class="custom-design-preview" hidden>
+                            <img id="customDesignPreviewImage" alt="Ejemplo del diseño seleccionado" />
+                            <figcaption>Ejemplo publicado por el shaper</figcaption>
+                        </figure>
+                        @if(!Model.Disenos.Any())
+                        {
+                            <small class="custom-field-help">Este shaper todavía no publicó diseños. Podés describir uno personalizado.</small>
+                        }
                     </div>
 
                     <div class="custom-two-columns">

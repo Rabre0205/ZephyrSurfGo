@@ -9,13 +9,16 @@ namespace WebApplication2.Controllers
     {
         private readonly ClassLibrary.Servicios.IUsuarioServicio _usuarioServicio;
         private readonly ClassLibrary.Servicios.IProductoServicio _productoServicio;
+        private readonly ClassLibrary.Servicios.IDisenoShaperServicio _disenoServicio;
 
         public ShaperController(
             ClassLibrary.Servicios.IUsuarioServicio usuarioServicio,
-            ClassLibrary.Servicios.IProductoServicio productoServicio)
+            ClassLibrary.Servicios.IProductoServicio productoServicio,
+            ClassLibrary.Servicios.IDisenoShaperServicio disenoServicio)
         {
             _usuarioServicio = usuarioServicio;
             _productoServicio = productoServicio;
+            _disenoServicio = disenoServicio;
         }
 
         public IActionResult Detalle(int id)
@@ -52,7 +55,8 @@ namespace WebApplication2.Controllers
                 new ShaperDetalleViewModel
                 {
                     Shaper = shaper,
-                    Productos = _productoServicio.BuscarPorShaper(id)
+                    Productos = _productoServicio.BuscarPorShaper(id),
+                    Disenos = _disenoServicio.ObtenerPorShaper(id, true)
                 };
 
             return View(modelo);

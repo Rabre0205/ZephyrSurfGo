@@ -809,6 +809,26 @@ body {
     margin-bottom: 3rem;
 }
 
+.custom-design-preview {
+    margin: 14px 0 0;
+    padding: 10px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 10px;
+    background: rgba(255,255,255,.03);
+}
+.custom-design-preview img {
+    display: block;
+    width: 100%;
+    max-height: 230px;
+    object-fit: cover;
+    border-radius: 7px;
+}
+.custom-design-preview figcaption {
+    margin-top: 7px;
+    color: rgba(255,255,255,.58);
+    font-size: .75rem;
+}
+
 .rec-step-dot {
     width: 32px;
     height: 32px;

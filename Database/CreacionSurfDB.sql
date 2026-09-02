@@ -843,6 +843,32 @@ CREATE INDEX IX_SolicitudesPersonalizadas_ClienteFecha
     ON SolicitudesPersonalizadas(ClienteId, FechaCreacion DESC);
 GO
 
+-- Catálogo de diseños de pintura ofrecidos por cada shaper.
+CREATE TABLE DisenosShaper (
+    Id INT IDENTITY,
+    ShaperId INT NOT NULL REFERENCES Usuarios(Id),
+    Nombre NVARCHAR(120) NOT NULL,
+    Descripcion NVARCHAR(600) NOT NULL DEFAULT '',
+    ImagenUrl NVARCHAR(500) NULL,
+    ZonaAplicacion NVARCHAR(20) NOT NULL DEFAULT 'Ambos',
+    PermiteColoresPersonalizados BIT NOT NULL DEFAULT 1,
+    ColorPrimario NVARCHAR(7) NOT NULL DEFAULT '#ffffff',
+    ColorSecundario NVARCHAR(7) NOT NULL DEFAULT '#111111',
+    Recargo DECIMAL(10,2) NOT NULL DEFAULT 0,
+    Activo BIT NOT NULL DEFAULT 1,
+    FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    FechaActualizacion DATETIME2 NULL,
+
+    CONSTRAINT PK_DisenosShaper_Id PRIMARY KEY (Id),
+    CONSTRAINT CK_DisenosShaper_Zona CHECK (ZonaAplicacion IN ('Deck','Bottom','Ambos')),
+    CONSTRAINT CK_DisenosShaper_Recargo CHECK (Recargo BETWEEN 0 AND 100000)
+);
+GO
+
+CREATE INDEX IX_DisenosShaper_ShaperActivo
+    ON DisenosShaper(ShaperId, Activo, Nombre);
+GO
+
 /* ============================================================
    NOTAS
    ------------------------------------------------------------

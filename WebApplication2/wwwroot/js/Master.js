@@ -156,6 +156,18 @@ function updateBoardImages() {
     if (bottomBase) bottomBase.src = '/img/boards/bottom-base.png';
 
     const design = getSelectedValue('customDesign', 'sin-pintura');
+    const designOption = document.getElementById('customDesign')?.selectedOptions?.[0];
+    const designZone = designOption?.dataset?.zone || 'ambos';
+    const allowsCustomColors = designOption?.dataset?.customColors !== 'false';
+    const designImage = designOption?.dataset?.image || '';
+    const designPrimary = designOption?.dataset?.primary || '';
+    const designSecondary = designOption?.dataset?.secondary || '';
+    const colorInputs = [document.getElementById('customColor'), document.getElementById('customSecondaryColor')];
+    if (!allowsCustomColors) {
+        if (colorInputs[0] && designPrimary) colorInputs[0].value = designPrimary;
+        if (colorInputs[1] && designSecondary) colorInputs[1].value = designSecondary;
+    }
+    colorInputs.forEach(input => { if (input) input.disabled = !allowsCustomColors; });
     const primary = getSelectedValue('customColor', '#c9a84c');
     const secondary = getSelectedValue('customSecondaryColor', '#121212');
     const backgrounds = {
@@ -176,8 +188,17 @@ function updateBoardImages() {
         'doble-color': `linear-gradient(90deg, ${primary} 0 50%, ${secondary} 50%)`
     };
     const background = backgrounds[design] || primary;
-    if (deckPaint) deckPaint.style.background = design === 'bottom-completo' ? 'transparent' : background;
-    if (bottomPaint) bottomPaint.style.background = design === 'deck-completo' ? 'transparent' : background;
+    const onlyBottom = design === 'bottom-completo' || designZone === 'bottom';
+    const onlyDeck = design === 'deck-completo' || designZone === 'deck';
+    if (deckPaint) deckPaint.style.background = onlyBottom ? 'transparent' : background;
+    if (bottomPaint) bottomPaint.style.background = onlyDeck ? 'transparent' : background;
+
+    const preview = document.getElementById('customDesignPreview');
+    const previewImage = document.getElementById('customDesignPreviewImage');
+    if (preview && previewImage) {
+        preview.hidden = !designImage;
+        if (designImage) previewImage.src = designImage;
+    }
 
     filterCompatibleFins(undefined);
 

@@ -34,6 +34,8 @@ namespace WebApplication2
             builder.Services.AddScoped<IPuntoRetiroServicio, PuntoRetiroServicio>();
             builder.Services.AddScoped<ISolicitudSoporteRepositorio, SolicitudSoporteRepositorio>();
             builder.Services.AddScoped<ISolicitudSoporteServicio, SolicitudSoporteServicio>();
+            builder.Services.AddScoped<IDisenoShaperRepositorio, DisenoShaperRepositorio>();
+            builder.Services.AddScoped<IDisenoShaperServicio, DisenoShaperServicio>();
      
 
             //cosa de cloudinary, echo por claude ni idea que es
