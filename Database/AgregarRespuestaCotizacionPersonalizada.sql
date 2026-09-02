@@ -17,6 +17,6 @@ BEGIN
         WHERE parent_object_id = OBJECT_ID('dbo.SolicitudesPersonalizadas')
           AND name = 'CK_Solicitudes_Estado')
         ALTER TABLE dbo.SolicitudesPersonalizadas
-        ADD CONSTRAINT CK_Solicitudes_Estado CHECK (Estado BETWEEN 0 AND 4);
+        ADD CONSTRAINT CK_Solicitudes_Estado CHECK (Estado BETWEEN 0 AND 9);
 END;
 GO

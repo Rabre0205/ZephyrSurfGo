@@ -95,7 +95,8 @@ public class SolicitudPersonalizadaServicio : ISolicitudPersonalizadaServicio
     }
 
     public bool CambiarEstado(int id, int shaperId, byte estado) =>
-        estado <= 2 && _repositorio.CambiarEstado(id, shaperId, estado);
+        estado == (byte)ClassLibrary.Enums.EstadoPedidoPersonalizado.NoDisponible &&
+        _repositorio.CambiarEstado(id, shaperId, estado);
 
     public (bool Exito, string Error) DefinirPrecio(int id, int shaperId, decimal precio)
     {

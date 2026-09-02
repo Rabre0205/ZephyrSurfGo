@@ -61,7 +61,8 @@ public class SolicitudPersonalizadaRepositorio : ISolicitudPersonalizadaReposito
         const string sql = @"
             UPDATE SolicitudesPersonalizadas
             SET Estado = @Estado, FechaActualizacion = SYSUTCDATETIME()
-            WHERE Id = @Id AND ShaperId = @ShaperId;";
+            WHERE Id = @Id AND ShaperId = @ShaperId
+              AND @Estado = 2 AND Estado IN (0, 1, 4);";
         using var conexion = Conexion.ObtenerConexion();
         using var comando = new SqlCommand(sql, conexion);
         comando.Parameters.Add("@Estado", SqlDbType.TinyInt).Value = estado;
