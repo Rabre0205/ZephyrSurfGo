@@ -14,6 +14,7 @@ public interface ISolicitudPersonalizadaServicio
     SolicitudPersonalizada? ObtenerDetalleParaCliente(int id, int clienteId);
     bool CambiarEstado(int id, int shaperId, byte estado);
     (bool Exito, string Error) DefinirPrecio(int id, int shaperId, decimal precio);
+    (bool Exito, string Error) ResponderCotizacion(int id, int clienteId, bool aceptar);
 }
 
 public class SolicitudPersonalizadaServicio : ISolicitudPersonalizadaServicio
@@ -110,6 +111,20 @@ public class SolicitudPersonalizadaServicio : ISolicitudPersonalizadaServicio
         return _repositorio.DefinirPrecio(id, shaperId, decimal.Round(precio, 2))
             ? (true, string.Empty)
             : (false, "No se pudo guardar el precio.");
+    }
+
+    public (bool Exito, string Error) ResponderCotizacion(
+        int id, int clienteId, bool aceptar)
+    {
+        var pedido = ObtenerDetalleParaCliente(id, clienteId);
+        if (pedido == null)
+            return (false, "No se encontró el pedido personalizado.");
+        if (pedido.Estado != 1 || pedido.PrecioEstimado <= 0)
+            return (false, "Esta cotización ya no está disponible para responder.");
+
+        return _repositorio.ResponderCotizacion(id, clienteId, aceptar)
+            ? (true, string.Empty)
+            : (false, "No se pudo registrar tu respuesta. Actualizá la página e intentá nuevamente.");
     }
 
     private static bool EsJsonValido(string texto)

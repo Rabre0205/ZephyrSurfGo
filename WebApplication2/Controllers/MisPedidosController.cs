@@ -44,6 +44,20 @@ public class MisPedidosController : Controller
             : View("~/Views/SolicitudPersonalizada/Detalle.cshtml", pedido);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult ResponderCotizacion(int id, bool aceptar)
+    {
+        var resultado = _personalizados.ResponderCotizacion(
+            id, ObtenerClienteId(), aceptar);
+        TempData[resultado.Exito ? "Mensaje" : "Error"] = resultado.Exito
+            ? (aceptar
+                ? "Aceptaste la cotización. El pedido queda preparado para continuar con el pago."
+                : "Rechazaste la cotización.")
+            : resultado.Error;
+        return RedirectToAction(nameof(DetallePersonalizado), new { id });
+    }
+
     private int ObtenerClienteId() =>
         int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int id)
             ? id

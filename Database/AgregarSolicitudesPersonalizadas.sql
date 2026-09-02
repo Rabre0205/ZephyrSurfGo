@@ -27,10 +27,11 @@ BEGIN
         Estado TINYINT NOT NULL CONSTRAINT DF_Solicitudes_Estado DEFAULT 0,
         FechaCreacion DATETIME2 NOT NULL CONSTRAINT DF_Solicitudes_Fecha DEFAULT SYSUTCDATETIME(),
         FechaActualizacion DATETIME2 NULL,
+        FechaRespuestaCliente DATETIME2 NULL,
         CONSTRAINT FK_Solicitudes_Cliente FOREIGN KEY (ClienteId) REFERENCES dbo.Usuarios(Id),
         CONSTRAINT FK_Solicitudes_Shaper FOREIGN KEY (ShaperId) REFERENCES dbo.Usuarios(Id),
         CONSTRAINT FK_Solicitudes_Producto FOREIGN KEY (ProductoBaseId) REFERENCES dbo.Productos(Id),
-        CONSTRAINT CK_Solicitudes_Estado CHECK (Estado BETWEEN 0 AND 2),
+        CONSTRAINT CK_Solicitudes_Estado CHECK (Estado BETWEEN 0 AND 4),
         CONSTRAINT CK_Solicitudes_Precio CHECK (PrecioEstimado >= 0)
     );
     CREATE INDEX IX_Solicitudes_ShaperEstadoFecha ON dbo.SolicitudesPersonalizadas(ShaperId, Estado, FechaCreacion DESC);

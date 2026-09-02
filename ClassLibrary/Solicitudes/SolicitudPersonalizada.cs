@@ -29,11 +29,14 @@ public class SolicitudPersonalizada
     public string Notas { get; set; } = string.Empty;
     public byte Estado { get; set; }
     public DateTime FechaCreacion { get; set; }
+    public DateTime? FechaRespuestaCliente { get; set; }
 
     public string EstadoNombre => Estado switch
     {
         1 => "Precio definido",
         2 => "No disponible",
+        3 => "Cotización aceptada",
+        4 => "Cotización rechazada",
         _ => "Pendiente de revisión"
     };
 }

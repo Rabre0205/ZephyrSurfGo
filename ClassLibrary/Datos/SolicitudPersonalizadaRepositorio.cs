@@ -12,6 +12,7 @@ public interface ISolicitudPersonalizadaRepositorio
     SolicitudPersonalizada? ObtenerDetalle(int id);
     bool CambiarEstado(int id, int shaperId, byte estado);
     bool DefinirPrecio(int id, int shaperId, decimal precio);
+    bool ResponderCotizacion(int id, int clienteId, bool aceptar);
 }
 
 public class SolicitudPersonalizadaRepositorio : ISolicitudPersonalizadaRepositorio
@@ -75,8 +76,9 @@ public class SolicitudPersonalizadaRepositorio : ISolicitudPersonalizadaReposito
         const string sql = @"
             UPDATE SolicitudesPersonalizadas
             SET PrecioEstimado = @Precio, Estado = 1,
+                FechaRespuestaCliente = NULL,
                 FechaActualizacion = SYSUTCDATETIME()
-            WHERE Id = @Id AND ShaperId = @ShaperId AND Estado <> 2;";
+            WHERE Id = @Id AND ShaperId = @ShaperId AND Estado IN (0, 1, 3, 4);";
         using var conexion = Conexion.ObtenerConexion();
         using var comando = new SqlCommand(sql, conexion);
         var parametroPrecio = comando.Parameters.Add("@Precio", SqlDbType.Decimal);
@@ -85,6 +87,24 @@ public class SolicitudPersonalizadaRepositorio : ISolicitudPersonalizadaReposito
         parametroPrecio.Value = precio;
         comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
         comando.Parameters.Add("@ShaperId", SqlDbType.Int).Value = shaperId;
+        conexion.Open();
+        return comando.ExecuteNonQuery() == 1;
+    }
+
+    public bool ResponderCotizacion(int id, int clienteId, bool aceptar)
+    {
+        const string sql = @"
+            UPDATE SolicitudesPersonalizadas
+            SET Estado = @Estado,
+                FechaRespuestaCliente = SYSUTCDATETIME(),
+                FechaActualizacion = SYSUTCDATETIME()
+            WHERE Id = @Id AND ClienteId = @ClienteId
+              AND Estado = 1 AND PrecioEstimado > 0;";
+        using var conexion = Conexion.ObtenerConexion();
+        using var comando = new SqlCommand(sql, conexion);
+        comando.Parameters.Add("@Estado", SqlDbType.TinyInt).Value = aceptar ? 3 : 4;
+        comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+        comando.Parameters.Add("@ClienteId", SqlDbType.Int).Value = clienteId;
         conexion.Open();
         return comando.ExecuteNonQuery() == 1;
     }
@@ -144,6 +164,8 @@ public class SolicitudPersonalizadaRepositorio : ISolicitudPersonalizadaReposito
         ColorPrimario = Convert.ToString(r["ColorPrimario"]) ?? "", ColorSecundario = Convert.ToString(r["ColorSecundario"]) ?? "",
         DetallesAdicionales = Convert.ToString(r["DetallesAdicionales"]) ?? "", AccesoriosJson = Convert.ToString(r["AccesoriosJson"]) ?? "[]",
         Notas = Convert.ToString(r["Notas"]) ?? "", Estado = Convert.ToByte(r["Estado"]),
-        FechaCreacion = Convert.ToDateTime(r["FechaCreacion"])
+        FechaCreacion = Convert.ToDateTime(r["FechaCreacion"]),
+        FechaRespuestaCliente = r["FechaRespuestaCliente"] == DBNull.Value
+            ? null : Convert.ToDateTime(r["FechaRespuestaCliente"])
     };
 }
