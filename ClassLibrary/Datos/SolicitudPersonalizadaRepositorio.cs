@@ -11,6 +11,7 @@ public interface ISolicitudPersonalizadaRepositorio
     List<SolicitudPersonalizada> ObtenerPorCliente(int clienteId);
     SolicitudPersonalizada? ObtenerDetalle(int id);
     bool CambiarEstado(int id, int shaperId, byte estado);
+    bool DefinirPrecio(int id, int shaperId, decimal precio);
 }
 
 public class SolicitudPersonalizadaRepositorio : ISolicitudPersonalizadaRepositorio
@@ -69,6 +70,25 @@ public class SolicitudPersonalizadaRepositorio : ISolicitudPersonalizadaReposito
         return comando.ExecuteNonQuery() == 1;
     }
 
+    public bool DefinirPrecio(int id, int shaperId, decimal precio)
+    {
+        const string sql = @"
+            UPDATE SolicitudesPersonalizadas
+            SET PrecioEstimado = @Precio, Estado = 1,
+                FechaActualizacion = SYSUTCDATETIME()
+            WHERE Id = @Id AND ShaperId = @ShaperId AND Estado <> 2;";
+        using var conexion = Conexion.ObtenerConexion();
+        using var comando = new SqlCommand(sql, conexion);
+        var parametroPrecio = comando.Parameters.Add("@Precio", SqlDbType.Decimal);
+        parametroPrecio.Precision = 18;
+        parametroPrecio.Scale = 2;
+        parametroPrecio.Value = precio;
+        comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+        comando.Parameters.Add("@ShaperId", SqlDbType.Int).Value = shaperId;
+        conexion.Open();
+        return comando.ExecuteNonQuery() == 1;
+    }
+
     private List<SolicitudPersonalizada> ObtenerLista(string filtro, int usuarioId)
     {
         string sql = SeleccionBase + $" WHERE {filtro} ORDER BY s.FechaCreacion DESC;";
@@ -93,7 +113,8 @@ public class SolicitudPersonalizadaRepositorio : ISolicitudPersonalizadaReposito
     {
         c.Parameters.Add("@ClienteId", SqlDbType.Int).Value = s.ClienteId;
         c.Parameters.Add("@ShaperId", SqlDbType.Int).Value = s.ShaperId;
-        c.Parameters.Add("@ProductoBaseId", SqlDbType.Int).Value = s.ProductoBaseId;
+        c.Parameters.Add("@ProductoBaseId", SqlDbType.Int).Value =
+            s.ProductoBaseId.HasValue ? s.ProductoBaseId.Value : DBNull.Value;
         c.Parameters.Add("@Modelo", SqlDbType.NVarChar, 150).Value = s.Modelo;
         c.Parameters.Add("@PrecioEstimado", SqlDbType.Decimal).Value = s.PrecioEstimado;
         foreach (var (nombre, valor, largo) in new[] {
@@ -110,7 +131,8 @@ public class SolicitudPersonalizadaRepositorio : ISolicitudPersonalizadaReposito
     private static SolicitudPersonalizada Mapear(SqlDataReader r) => new()
     {
         Id = Convert.ToInt32(r["Id"]), ClienteId = Convert.ToInt32(r["ClienteId"]),
-        ShaperId = Convert.ToInt32(r["ShaperId"]), ProductoBaseId = Convert.ToInt32(r["ProductoBaseId"]),
+        ShaperId = Convert.ToInt32(r["ShaperId"]),
+        ProductoBaseId = r["ProductoBaseId"] == DBNull.Value ? null : Convert.ToInt32(r["ProductoBaseId"]),
         ClienteNombre = Convert.ToString(r["ClienteNombre"]) ?? "", ClienteEmail = Convert.ToString(r["ClienteEmail"]) ?? "",
         ShaperNombre = Convert.ToString(r["ShaperNombre"]) ?? "", Modelo = Convert.ToString(r["ModeloSnapshot"]) ?? "",
         PrecioEstimado = Convert.ToDecimal(r["PrecioEstimado"]), Largo = Convert.ToString(r["Largo"]) ?? "",

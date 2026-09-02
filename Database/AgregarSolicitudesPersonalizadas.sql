@@ -5,7 +5,7 @@ BEGIN
         Id INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_SolicitudesPersonalizadas PRIMARY KEY,
         ClienteId INT NOT NULL,
         ShaperId INT NOT NULL,
-        ProductoBaseId INT NOT NULL,
+        ProductoBaseId INT NULL,
         ModeloSnapshot NVARCHAR(150) NOT NULL,
         PrecioEstimado DECIMAL(10,2) NOT NULL,
         Largo NVARCHAR(30) NOT NULL,

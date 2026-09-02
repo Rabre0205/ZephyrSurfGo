@@ -5,7 +5,7 @@ public class SolicitudPersonalizada
     public int Id { get; set; }
     public int ClienteId { get; set; }
     public int ShaperId { get; set; }
-    public int ProductoBaseId { get; set; }
+    public int? ProductoBaseId { get; set; }
     public string ClienteNombre { get; set; } = string.Empty;
     public string ClienteEmail { get; set; } = string.Empty;
     public string ShaperNombre { get; set; } = string.Empty;
@@ -32,7 +32,7 @@ public class SolicitudPersonalizada
 
     public string EstadoNombre => Estado switch
     {
-        1 => "Revisada",
+        1 => "Precio definido",
         2 => "No disponible",
         _ => "Pendiente de revisión"
     };

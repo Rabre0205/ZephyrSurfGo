@@ -199,17 +199,11 @@
 
         <!-- Progress dots -->
         <div class="rec-progress" id="recProgress">
-            <div class="rec-step-dot active" data-step="0">1</div>
-            <div class="rec-step-line"></div>
-            <div class="rec-step-dot" data-step="1">2</div>
-            <div class="rec-step-line"></div>
-            <div class="rec-step-dot" data-step="2">3</div>
-            <div class="rec-step-line"></div>
-            <div class="rec-step-dot" data-step="3">4</div>
-            <div class="rec-step-line"></div>
-            <div class="rec-step-dot" data-step="4">5</div>
-            <div class="rec-step-line"></div>
-            <div class="rec-step-dot" data-step="5">6</div>
+            @for (int paso = 0; paso < 8; paso++)
+            {
+                if (paso > 0) { <div class="rec-step-line"></div> }
+                <div class="rec-step-dot @(paso == 0 ? "active" : "")" data-step="@paso">@(paso + 1)</div>
+            }
         </div>
 
         <div class="rec-panel">
@@ -238,8 +232,7 @@
                         <div class="result-specs" id="resultSpecStats"></div>
                         <p class="result-price" id="resultPrice"></p>
                         <div class="result-actions">
-                            <button class="btn-gold" onclick="addResultToCart()">Agregar al carrito</button>
-                            <a href="#customizador" class="btn-ghost-white" onclick="applyRecommendedBoard()">Customizar esta tabla</a>
+                            <button class="btn-gold" onclick="applyRecommendedBoard()">Continuar con esta recomendación</button>
                         </div>
                     </div>
                 </div>
@@ -256,14 +249,23 @@
     <section id="customizador">
 
         <div class="custom-intro reveal">
-            <p class="section-eyebrow">Custom Order</p>
-            <h2 class="section-title">Customizá tu tabla</h2>
+            <p class="section-eyebrow">Pedido personalizado</p>
+            <h2 class="section-title">Definí tu tabla</h2>
 
             <p class="section-sub">
-                Seleccioná el modelo, las medidas, la construcción,
-                las quillas y los detalles de tu nueva tabla Master.
+                Revisá la recomendación, ajustá la forma, las medidas, la construcción,
+                las quillas y el diseño. El shaper validará los detalles antes de fabricarla.
             </p>
         </div>
+
+        <aside class="questionnaire-transfer" id="questionnaireTransfer" hidden aria-live="polite">
+            <div>
+                <span class="questionnaire-transfer-tag">Datos traídos del cuestionario</span>
+                <h3>Tu recomendación ya está aplicada</h3>
+                <p id="questionnaireTransferText"></p>
+            </div>
+            <button type="button" onclick="restartQuestionnaireFromOrder()">Modificar respuestas</button>
+        </aside>
 
         <!-- TABLA + CARACTERÍSTICAS -->
         <div class="custom-order-main">
@@ -426,13 +428,13 @@
             <div class="custom-details-column">
 
                 <h3 class="custom-details-title">
-                    Board Details
+                    Forma y características
                 </h3>
 
                 <!-- Modelo -->
                 <div class="custom-field">
                     <label for="customModel">
-                        Surfboard model
+                        Modelo base recomendado
                     </label>
 
                     <select class="custom-select"
@@ -520,7 +522,7 @@
                 <!-- Construcción -->
                 <div class="custom-field">
                     <label for="customConstruction">
-                        Technology / Construction
+                        Tecnología / construcción
                     </label>
 
                     <select class="custom-select"
@@ -552,7 +554,7 @@
                 <!-- Medidas recomendadas -->
                 <div class="custom-field">
                     <label for="customStockMeasurements">
-                        Recommended stock measurements
+                        Medidas recomendadas disponibles
                     </label>
 
                     <select class="custom-select"
@@ -591,7 +593,7 @@
 
                     <div class="custom-measurement-field">
                         <label for="customLength">
-                            Size
+                            Largo
                         </label>
 
                         <select class="custom-select"
@@ -618,7 +620,7 @@
 
                     <div class="custom-measurement-field">
                         <label for="customWidth">
-                            Width
+                            Ancho
                         </label>
 
                         <select class="custom-select"
@@ -643,7 +645,7 @@
 
                     <div class="custom-measurement-field">
                         <label for="customThickness">
-                            Thickness
+                            Grosor
                         </label>
 
                         <select class="custom-select"
@@ -665,7 +667,7 @@
 
                     <div class="custom-measurement-field">
                         <label for="customVolume">
-                            Volume
+                            Volumen
                         </label>
 
                         <input class="custom-input volume-input"
@@ -919,7 +921,7 @@
                 <button type="button"
                         class="custom-paint-button"
                         onclick="togglePaintOptions()">
-                    Paint
+                    Elegir diseño y colores
                 </button>
 
                 <div class="custom-paint-options"
@@ -928,7 +930,7 @@
 
                     <div class="custom-field">
                         <label for="customDesign">
-                            Paint design
+                            Diseño de pintura
                         </label>
 
                         <select class="custom-select"
@@ -1023,6 +1025,19 @@
 
                     </div>
 
+                </div>
+
+                <div class="custom-field">
+                    <label for="customDesignNotes">
+                        Idea o referencia para el diseño
+                    </label>
+
+                    <textarea class="custom-textarea"
+                              id="customDesignNotes"
+                              maxlength="350"
+                              rows="4"
+                              placeholder="Ej.: líneas azules sobre el deck, logo pequeño cerca del tail y acabado mate."></textarea>
+                    <small class="custom-field-help">Describí lo que imaginás. El shaper confirmará qué se puede realizar.</small>
                 </div>
 
                 <!-- Stringer -->
@@ -1308,7 +1323,7 @@
     ════════════════════════════════════════════════════════ -->
         <section class="custom-order-summary">
 
-            <h3>Custom Order Summary</h3>
+            <h3>Resumen del pedido personalizado</h3>
 
             <div class="custom-summary-row">
                 <span id="summaryBoardName">
@@ -1345,7 +1360,7 @@
             <button type="button"
                     class="custom-add-cart-button"
                     onclick="addCustomToCart()">
-                Add to cart
+                Enviar pedido personalizado
             </button>
 
         </section>

@@ -18,12 +18,12 @@ public class SolicitudPersonalizadaController : Controller
     {
         var resultado = _servicio.Crear(ObtenerUsuarioId(), solicitud);
         return Json(new { creado = resultado.Exito, mensaje = resultado.Exito
-            ? "Solicitud enviada al shaper para su revisión."
+            ? "Pedido personalizado enviado al shaper para su revisión."
             : resultado.Error, solicitudId = resultado.Id });
     }
 
     [Authorize(Roles = "Cliente")]
-    public IActionResult MisSolicitudes() => View(_servicio.ObtenerPorCliente(ObtenerUsuarioId()));
+    public IActionResult MisSolicitudes() => RedirectToAction("Index", "MisPedidos");
 
     [Authorize(Roles = "Cliente")]
     public IActionResult DetalleCliente(int id)
@@ -33,7 +33,7 @@ public class SolicitudPersonalizadaController : Controller
     }
 
     [Authorize(Roles = "Shaper")]
-    public IActionResult Solicitudes() => View(_servicio.ObtenerPorShaper(ObtenerUsuarioId()));
+    public IActionResult Solicitudes() => RedirectToAction("Pedidos", "Dashboard");
 
     [Authorize(Roles = "Shaper")]
     public IActionResult DetalleShaper(int id)
@@ -49,9 +49,21 @@ public class SolicitudPersonalizadaController : Controller
     {
         bool actualizado = _servicio.CambiarEstado(id, ObtenerUsuarioId(), estado);
         TempData[actualizado ? "Mensaje" : "Error"] = actualizado
-            ? (estado == 1 ? "Solicitud marcada como revisada." : estado == 2
-                ? "Solicitud marcada como no disponible." : "Estado actualizado.")
-            : "No se pudo actualizar la solicitud.";
+            ? (estado == 1 ? "Pedido personalizado marcado como revisado." : estado == 2
+                ? "Pedido personalizado marcado como no disponible." : "Estado actualizado.")
+            : "No se pudo actualizar el pedido personalizado.";
+        return RedirectToAction(nameof(DetalleShaper), new { id });
+    }
+
+    [Authorize(Roles = "Shaper")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult DefinirPrecio(int id, decimal precio)
+    {
+        var resultado = _servicio.DefinirPrecio(id, ObtenerUsuarioId(), precio);
+        TempData[resultado.Exito ? "Mensaje" : "Error"] = resultado.Exito
+            ? $"Precio final guardado: USD {precio:N2}."
+            : resultado.Error;
         return RedirectToAction(nameof(DetalleShaper), new { id });
     }
 

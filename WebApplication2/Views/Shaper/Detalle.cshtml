@@ -386,17 +386,11 @@
 
         <!-- Progress dots -->
         <div class="rec-progress" id="recProgress">
-            <div class="rec-step-dot active" data-step="0">1</div>
-            <div class="rec-step-line"></div>
-            <div class="rec-step-dot" data-step="1">2</div>
-            <div class="rec-step-line"></div>
-            <div class="rec-step-dot" data-step="2">3</div>
-            <div class="rec-step-line"></div>
-            <div class="rec-step-dot" data-step="3">4</div>
-            <div class="rec-step-line"></div>
-            <div class="rec-step-dot" data-step="4">5</div>
-            <div class="rec-step-line"></div>
-            <div class="rec-step-dot" data-step="5">6</div>
+            @for (int paso = 0; paso < 8; paso++)
+            {
+                if (paso > 0) { <div class="rec-step-line"></div> }
+                <div class="rec-step-dot @(paso == 0 ? "active" : "")" data-step="@paso">@(paso + 1)</div>
+            }
         </div>
 
         <div class="rec-panel">
@@ -417,7 +411,7 @@
                         <div id="resultBoardSvg"></div>
                     </div>
                     <div class="result-body">
-                        <span class="result-match">98% de compatibilidad</span>
+                        <span class="result-match">Recomendación inicial</span>
                         <p class="result-board-cat" id="resultCat"></p>
                         <p class="result-board-name" id="resultName"></p>
                         <p class="result-board-spec" id="resultSpec"></p>
@@ -425,8 +419,7 @@
                         <div class="result-specs" id="resultSpecStats"></div>
                         <p class="result-price" id="resultPrice"></p>
                         <div class="result-actions">
-                            <button class="btn-gold" onclick="addResultToCart()">Agregar al carrito</button>
-                            <a href="#customizador" class="btn-ghost-white" onclick="applyRecommendedBoard()">Customizar esta tabla</a>
+                            <button type="button" class="btn-gold" onclick="applyRecommendedBoard()">Continuar con esta recomendación</button>
                         </div>
                     </div>
                 </div>
@@ -443,14 +436,23 @@
     <section id="customizador">
 
         <div class="custom-intro reveal">
-            <p class="section-eyebrow">Custom Order</p>
-            <h2 class="section-title">Customizá tu tabla</h2>
+            <p class="section-eyebrow">Pedido personalizado</p>
+            <h2 class="section-title">Definí tu tabla</h2>
 
             <p class="section-sub">
-                Seleccioná el modelo, las medidas, la construcción,
-                las quillas y los detalles de tu nueva tabla de @nombreNegocio.
+                Revisá la recomendación, ajustá la forma, las medidas, la construcción,
+                las quillas y el diseño. El shaper validará los detalles antes de fabricarla.
             </p>
         </div>
+
+        <aside class="questionnaire-transfer" id="questionnaireTransfer" hidden aria-live="polite">
+            <div>
+                <span class="questionnaire-transfer-tag">Datos traídos del cuestionario</span>
+                <h3>Tu recomendación ya está aplicada</h3>
+                <p id="questionnaireTransferText"></p>
+            </div>
+            <button type="button" onclick="restartQuestionnaireFromOrder()">Modificar respuestas</button>
+        </aside>
 
         <!-- TABLA + CARACTERÍSTICAS -->
         <div class="custom-order-main">
@@ -594,7 +596,7 @@
 
                     <div class="board-current-spec board-current-price">
                         <span>Precio estimado</span>
-                        <strong id="sidePreviewPrice">USD 930</strong>
+                        <strong id="sidePreviewPrice">A confirmar por el shaper</strong>
                     </div>
 
                 </div>
@@ -613,26 +615,19 @@
             <div class="custom-details-column">
 
                 <h3 class="custom-details-title">
-                    Board Details
+                    Forma y características
                 </h3>
 
                 <!-- Modelo -->
                 <div class="custom-field">
                     <label for="customModel">
-                        Surfboard model
+                        Modelo base recomendado
                     </label>
 
                     <select class="custom-select"
                             id="customModel">
 
-                        <optgroup id="dynamicShaperModels" label="@nombreNegocio">
-                            @foreach (var tabla in Model.Tablas)
-                            {
-                                <option value="producto-@tabla.Id">@tabla.Titulo</option>
-                            }
-                        </optgroup>
-
-                        <optgroup id="legacyDemoModels" label="Modelos de demostración">
+                        <optgroup id="legacyDemoModels" label="Formas base sugeridas">
                             <option value="gaucho">
                                 El Gaucho
                             </option>
@@ -714,7 +709,7 @@
                 <!-- Construcción -->
                 <div class="custom-field">
                     <label for="customConstruction">
-                        Technology / Construction
+                        Tecnología / construcción
                     </label>
 
                     <select class="custom-select"
@@ -746,7 +741,7 @@
                 <!-- Medidas recomendadas -->
                 <div class="custom-field">
                     <label for="customStockMeasurements">
-                        Recommended stock measurements
+                        Medidas recomendadas disponibles
                     </label>
 
                     <select class="custom-select"
@@ -1113,7 +1108,7 @@
                 <button type="button"
                         class="custom-paint-button"
                         onclick="togglePaintOptions()">
-                    Paint
+                    Elegir diseño y colores
                 </button>
 
                 <div class="custom-paint-options"
@@ -1122,7 +1117,7 @@
 
                     <div class="custom-field">
                         <label for="customDesign">
-                            Paint design
+                            Diseño de pintura
                         </label>
 
                         <select class="custom-select"
@@ -1219,10 +1214,23 @@
 
                 </div>
 
+                <div class="custom-field">
+                    <label for="customDesignNotes">
+                        Idea o referencia para el diseño
+                    </label>
+
+                    <textarea class="custom-textarea"
+                              id="customDesignNotes"
+                              maxlength="350"
+                              rows="4"
+                              placeholder="Ej.: líneas azules sobre el deck, logo pequeño cerca del tail y acabado mate."></textarea>
+                    <small class="custom-field-help">Describí lo que imaginás. El shaper confirmará qué se puede realizar.</small>
+                </div>
+
                 <!-- Stringer -->
                 <div class="custom-field">
                     <label for="customStringerName">
-                        Name on stringer
+                        Nombre sobre el stringer
                     </label>
 
                     <input class="custom-input"
@@ -1233,7 +1241,7 @@
                 <!-- Información adicional -->
                 <div class="custom-field">
                     <label for="shaperNotes">
-                        Additional information
+                        Información adicional
                     </label>
 
                     <textarea class="custom-textarea"
@@ -1572,7 +1580,7 @@
     ════════════════════════════════════════════════════════ -->
         <section class="custom-order-summary">
 
-            <h3>Custom Order Summary</h3>
+            <h3>Resumen del pedido personalizado</h3>
 
             <div class="custom-summary-row">
                 <span id="summaryBoardName">
@@ -1580,7 +1588,7 @@
                 </span>
 
                 <span id="summaryBoardPrice">
-                    USD 780
+                    A confirmar
                 </span>
             </div>
 
@@ -1602,15 +1610,17 @@
                 <span>Total</span>
 
                 <span id="summaryTotal">
-                    USD 805
+                    A confirmar por el shaper
                 </span>
             </div>
 
             <button type="button"
+                    id="customSubmitButton"
                     class="custom-add-cart-button"
                     onclick="addCustomToCart()">
-                Enviar solicitud al shaper
+                Enviar pedido personalizado
             </button>
+            <p class="custom-submit-message" id="customSubmitMessage" role="status" aria-live="polite"></p>
 
         </section>
 
@@ -1696,7 +1706,7 @@
             cartAddUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Agregar", "Carrito"))),
             cartUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Index", "Carrito"))),
             customRequestUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Crear", "SolicitudPersonalizada"))),
-            customRequestsUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("MisSolicitudes", "SolicitudPersonalizada"))),
+            customRequestsUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Index", "MisPedidos"))),
             boards: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Tablas.Select(tabla => new
             {
                 key = $"producto-{tabla.Id}",
@@ -1717,8 +1727,7 @@
             })))
         };
 
-        const legacyModels = document.getElementById('legacyDemoModels');
-        if (legacyModels && window.shaperPageData.boards.length > 0) legacyModels.remove();
+        document.querySelectorAll('#customModel optgroup:not(#legacyDemoModels)').forEach(group => group.remove());
         document.getElementById('legacyAccessories')?.remove();
     </script>
 

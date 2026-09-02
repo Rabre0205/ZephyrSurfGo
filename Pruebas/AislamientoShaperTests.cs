@@ -2,6 +2,7 @@ using ClassLibrary.Enums;
 using ClassLibrary.Pedidos;
 using ClassLibrary.Productos;
 using ClassLibrary.Servicios;
+using ClassLibrary.Solicitudes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -52,10 +53,21 @@ public class AislamientoShaperTests
                 "Prueba"))
         };
 
-        return new DashboardController(pedidos, productos)
+        return new DashboardController(pedidos, productos, new SolicitudServicioEspia())
         {
             ControllerContext = new ControllerContext { HttpContext = contexto }
         };
+    }
+
+    private sealed class SolicitudServicioEspia : ISolicitudPersonalizadaServicio
+    {
+        public (bool Exito, string Error, int Id) Crear(int clienteId, SolicitudPersonalizada solicitud) => (true, string.Empty, 1);
+        public List<SolicitudPersonalizada> ObtenerPorShaper(int shaperId) => new();
+        public List<SolicitudPersonalizada> ObtenerPorCliente(int clienteId) => new();
+        public SolicitudPersonalizada? ObtenerDetalleParaShaper(int id, int shaperId) => null;
+        public SolicitudPersonalizada? ObtenerDetalleParaCliente(int id, int clienteId) => null;
+        public bool CambiarEstado(int id, int shaperId, byte estado) => true;
+        public (bool Exito, string Error) DefinirPrecio(int id, int shaperId, decimal precio) => (true, string.Empty);
     }
 
     private sealed class PedidoServicioEspia : IPedidoServicio

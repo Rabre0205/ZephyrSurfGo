@@ -1,9 +1,0 @@
-@model IEnumerable<ClassLibrary.Solicitudes.SolicitudPersonalizada>
-@{ Layout = null; }
-<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width"/>
-<title>Solicitudes custom — Zephyr Surf Go</title><link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true"/><link rel="stylesheet" href="~/css/solicitudesPersonalizadas.css" asp-append-version="true"/></head>
-<body><partial name="_Navbar"/><main class="requests-page"><header><span>Panel del shaper</span><h1>Solicitudes custom</h1><p>Revisá las configuraciones enviadas por tus clientes. El precio mostrado es estimado y todavía no existe una compra.</p></header>
-<section class="requests-card">
-@if (!Model.Any()) { <div class="empty"><b>Todavía no recibiste solicitudes</b><p>Cuando un cliente personalice una tabla aparecerá acá.</p></div> }
-else { <div class="requests-list">@foreach(var item in Model){<a asp-action="DetalleShaper" asp-route-id="@item.Id" class="request-row"><div><strong>@item.Modelo</strong><small>@item.ClienteNombre · @item.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small></div><span class="status status-@item.Estado">@item.EstadoNombre</span><b>USD @item.PrecioEstimado.ToString("N2")</b></a>}</div> }
-</section></main><script src="~/js/navbar.js" asp-append-version="true"></script></body></html>

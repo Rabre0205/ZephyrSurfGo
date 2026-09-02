@@ -38,22 +38,17 @@ function updateBadge() {
 updateBadge();
 
 const DEMO_BOARDS = {
-    gaucho: { name: 'El Gaucho', cat: 'Shortboard · Performance', spec: '6\'2" × 18¾" × 2⅜"', vol: '28.5L', price: 780 },
-    pampeano: { name: 'El Pampeano', cat: 'Mid-Length · Versátil', spec: '7\'0" × 20½" × 2¾"', vol: '42L', price: 660 },
-    charrua: { name: 'El Charrúa', cat: 'Longboard · Clásico', spec: '9\'2" × 22½" × 3"', vol: '75L', price: 950 },
-    playero: { name: 'El Playero', cat: 'Fish · Retro', spec: '5\'10" × 20¾" × 2½"', vol: '35L', price: 590 },
+    gaucho: { name: 'Shortboard personalizada', cat: 'Forma · Performance' },
+    pampeano: { name: 'Tabla híbrida personalizada', cat: 'Forma · Versátil' },
+    charrua: { name: 'Longboard personalizado', cat: 'Forma · Estable' },
+    playero: { name: 'Fish personalizada', cat: 'Forma · Rápida y fluida' },
 };
 
 const dynamicBoards = Array.isArray(window.shaperPageData?.boards)
     ? window.shaperPageData.boards
     : [];
 
-const BOARDS = dynamicBoards.length > 0
-    ? Object.fromEntries(dynamicBoards.map(board => [board.key, {
-        ...board,
-        vol: `${board.vol}L`
-    }]))
-    : DEMO_BOARDS;
+const BOARDS = DEMO_BOARDS;
 
 async function addToCart(id, name, price) {
     const realProduct = /^producto-(\d+)$/.exec(String(id));
@@ -155,27 +150,36 @@ function updateBoardImages() {
     const bottomPaint =
         document.getElementById('bottomPaint');
 
-    if (deckPaint) {
-        deckPaint.style.background = 'transparent';
-        deckPaint.style.backgroundImage = 'none';
-    }
-
-    if (bottomPaint) {
-        bottomPaint.style.background = 'transparent';
-        bottomPaint.style.backgroundImage = 'none';
-    }
-
-    const selectedModel = getSelectedValue('customModel');
-    const selectedBoard = dynamicBoards.find(board => board.key === selectedModel);
     const deckBase = document.getElementById('deckBase');
     const bottomBase = document.getElementById('bottomBase');
+    if (deckBase) deckBase.src = '/img/boards/deck-mask.png';
+    if (bottomBase) bottomBase.src = '/img/boards/bottom-base.png';
 
-    if (selectedBoard) {
-        if (deckBase && selectedBoard.frontImage) deckBase.src = selectedBoard.frontImage;
-        if (bottomBase) bottomBase.src = selectedBoard.backImage || selectedBoard.frontImage || bottomBase.src;
-    }
+    const design = getSelectedValue('customDesign', 'sin-pintura');
+    const primary = getSelectedValue('customColor', '#c9a84c');
+    const secondary = getSelectedValue('customSecondaryColor', '#121212');
+    const backgrounds = {
+        'sin-pintura': 'transparent',
+        'sol-pampeano': `linear-gradient(180deg, ${primary} 0 48%, ${secondary} 48% 54%, ${primary} 54%)`,
+        'lineas-clasicas': `repeating-linear-gradient(90deg, ${primary} 0 14px, ${secondary} 14px 19px)`,
+        'mitad-y-mitad': `linear-gradient(90deg, ${primary} 0 50%, ${secondary} 50%)`,
+        degrade: `linear-gradient(180deg, ${primary}, ${secondary})`,
+        'rails-color': `linear-gradient(90deg, ${secondary} 0 12%, ${primary} 18% 82%, ${secondary} 88%)`,
+        'nose-color': `linear-gradient(180deg, ${secondary} 0 30%, ${primary} 45%)`,
+        'tail-color': `linear-gradient(180deg, ${primary} 0 65%, ${secondary} 82%)`,
+        pinline: `linear-gradient(90deg, ${primary} 0 47%, ${secondary} 47% 53%, ${primary} 53%)`,
+        abstracto: `linear-gradient(135deg, ${primary} 0 35%, ${secondary} 35% 48%, ${primary} 48% 68%, ${secondary} 68%)`,
+        retro: `repeating-linear-gradient(135deg, ${primary} 0 24px, ${secondary} 24px 36px)`,
+        minimalista: `linear-gradient(180deg, white 0 72%, ${primary} 72% 78%, white 78%)`,
+        'deck-completo': primary,
+        'bottom-completo': secondary,
+        'doble-color': `linear-gradient(90deg, ${primary} 0 50%, ${secondary} 50%)`
+    };
+    const background = backgrounds[design] || primary;
+    if (deckPaint) deckPaint.style.background = design === 'bottom-completo' ? 'transparent' : background;
+    if (bottomPaint) bottomPaint.style.background = design === 'deck-completo' ? 'transparent' : background;
 
-    filterCompatibleFins(selectedBoard?.finSystem);
+    filterCompatibleFins(undefined);
 
     updateBoardAccessories();
 }
@@ -415,17 +419,13 @@ function updateCustomPreview() {
 
     const price = calculateCustomPrice();
 
-    setText(
-        'sidePreviewPrice',
-        'USD ' + price
-    );
+    setText('sidePreviewPrice', 'A confirmar por el shaper');
 
     const previewPrice =
         document.getElementById('previewPrice');
 
     if (previewPrice) {
-        previewPrice.textContent =
-            'USD ' + price;
+        previewPrice.textContent = 'A confirmar por el shaper';
     }
 
     updateBoardImages();
@@ -577,20 +577,24 @@ function updateBoardAccessories() {
 
 async function addCustomToCart() {
     const modelSelect = document.getElementById('customModel');
+    const submitMessage = document.getElementById('customSubmitMessage');
+    const submitButton = document.getElementById('customSubmitButton');
+
+    const setSubmitMessage = function (message, isError = false) {
+        if (!submitMessage) return;
+        submitMessage.textContent = message;
+        submitMessage.classList.toggle('error', isError);
+        submitMessage.classList.toggle('success', !isError && Boolean(message));
+    };
 
     if (!modelSelect) {
         showToast('No se encontró el personalizador');
         return;
     }
 
-    const realProduct = /^producto-(\d+)$/.exec(modelSelect.value);
     const requestUrl = window.shaperPageData?.customRequestUrl;
-    if (!realProduct) {
-        showToast('Elegí una tabla publicada por este shaper');
-        return;
-    }
     if (!requestUrl) {
-        showToast('No se pudo iniciar la solicitud');
+        showToast('No se pudo iniciar el pedido personalizado');
         return;
     }
 
@@ -627,7 +631,7 @@ async function addCustomToCart() {
         accessoriesPrice += Number(accessory.price) || 0;
     });
 
-    const price = boardPrice + accessoriesPrice;
+    const price = 0;
     const activeDetails = Array.from(
         document.querySelectorAll(
             '#customizador [data-detail].active'
@@ -642,9 +646,19 @@ async function addCustomToCart() {
     const secondaryColor =
         getSelectedValue('customSecondaryColor', '#ffffff');
 
+    const designNotes = document.getElementById('customDesignNotes')?.value.trim() || '';
+    const questionnaireProfile = buildQuestionnaireProfile();
+    const userNotes = document.getElementById('shaperNotes')?.value.trim() || '';
+    const combinedNotes = [
+        questionnaireProfile ? `Datos originales del cuestionario:\n${questionnaireProfile}` : '',
+        designNotes ? `Idea de diseño:\n${designNotes}` : '',
+        userNotes ? `Información adicional:\n${userNotes}` : ''
+    ].filter(Boolean).join('\n\n');
+
     const token = document.querySelector('#realCartToken input[name="__RequestVerificationToken"]')?.value || '';
     const body = new URLSearchParams({
-        ProductoBaseId: realProduct[1], PrecioEstimado: String(price),
+        ShaperId: String(window.shaperPageData?.shaperId || ''),
+        ProductoBaseId: '', Modelo: modelName, PrecioEstimado: String(price),
         Largo: length, Ancho: width, Grosor: thickness, Volumen: volume,
         Construccion: selectedText('customConstruction'), Tail: selectedText('customTail'),
         SistemaQuillas: selectedText('customFinSystem'),
@@ -653,11 +667,13 @@ async function addCustomToCart() {
         Diseno: selectedText('customDesign'), ColorPrimario: primaryColor,
         ColorSecundario: secondaryColor, DetallesAdicionales: activeDetails.join(', '),
         AccesoriosJson: JSON.stringify(Array.from(selectedAccessories.values())),
-        Notas: document.getElementById('shaperNotes')?.value.trim() || '',
+        Notas: combinedNotes,
         __RequestVerificationToken: token
     });
 
     try {
+        setSubmitMessage('Enviando pedido personalizado…');
+        if (submitButton) submitButton.disabled = true;
         const response = await fetch(requestUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
@@ -667,13 +683,25 @@ async function addCustomToCart() {
             window.location.href = response.url;
             return;
         }
-        const result = await response.json();
-        showToast(result.mensaje || (result.creado ? 'Solicitud enviada' : 'No se pudo enviar'));
-        if (result.creado && window.shaperPageData?.customRequestsUrl) {
-            setTimeout(() => window.location.href = window.shaperPageData.customRequestsUrl, 900);
+        if (!response.ok) {
+            throw new Error(response.status === 400
+                ? 'La sesión o el formulario vencieron. Recargá la página e intentá nuevamente.'
+                : 'El servidor no pudo guardar el pedido personalizado.');
         }
-    } catch {
-        showToast('No se pudo enviar la solicitud. Intentá nuevamente.');
+        const result = await response.json();
+        showToast(result.mensaje || (result.creado ? 'Pedido personalizado enviado' : 'No se pudo enviar'));
+        if (result.creado && window.shaperPageData?.customRequestsUrl) {
+            setSubmitMessage('Pedido personalizado enviado. Abriendo Mis pedidos…');
+            setTimeout(() => window.location.href = window.shaperPageData.customRequestsUrl, 900);
+        } else {
+            setSubmitMessage(result.mensaje || 'No se pudo enviar el pedido personalizado.', true);
+        }
+    } catch (error) {
+        const message = error?.message || 'No se pudo enviar el pedido personalizado. Intentá nuevamente.';
+        setSubmitMessage(message, true);
+        showToast(message);
+    } finally {
+        if (submitButton) submitButton.disabled = false;
     }
 }
 
@@ -716,20 +744,48 @@ renderOrderSummary();
 ════════════════════════════════════ */
 const QUESTIONS = [
     {
-        num: 'Pregunta 1 de 6',
-        text: '¿Cuánto tiempo llevás surfeando?',
-        hint: 'Esto nos ayuda a entender qué tan familiarizado estás con el surf y qué tipo de tabla te va a funcionar mejor.',
+        num: 'Pregunta 1 de 8',
+        text: '¿Cuál es tu altura?',
+        hint: 'Ingresala en centímetros. La altura ayuda a estimar el largo y la distribución de volumen adecuados.',
+        type: 'slider', key: 'height', min: 140, max: 210, step: 1, default: 175, unit: 'cm'
+    },
+    {
+        num: 'Pregunta 2 de 8',
+        text: '¿Cuánto pesás?',
+        hint: 'Ingresalo en kilogramos. Se utiliza junto con tu nivel para estimar el volumen necesario.',
+        type: 'slider', key: 'weight', min: 40, max: 140, step: 1, default: 72, unit: 'kg'
+    },
+    {
+        num: 'Pregunta 3 de 8',
+        text: '¿Cuál es tu nivel de surf?',
+        hint: 'Elegí el nivel que mejor represente lo que podés hacer hoy, no el que esperás alcanzar.',
         type: 'options',
         key: 'experience',
         options: [
-            { icon: '🌊', label: 'Estoy empezando', desc: 'Menos de 1 año o todavía aprendiendo a pararme.', value: 'beginner' },
-            { icon: '🏄', label: '1 a 3 años', desc: 'Ya me paro y surfeo olas chicas con algo de control.', value: 'intermediate' },
-            { icon: '🏄‍♂️', label: '3 a 7 años', desc: 'Surfeo seguido, hago maniobras básicas y me defiendo.', value: 'advanced' },
-            { icon: '🔥', label: 'Más de 7 años', desc: 'Surfeo hace rato, soy consistente y quiero performance.', value: 'expert' },
+            { label: 'Principiante', desc: 'Estoy aprendiendo a remar, pararme y correr la pared de la ola.', value: 'beginner' },
+            { label: 'Intermedio', desc: 'Agarro olas sin ayuda y realizo maniobras básicas.', value: 'intermediate' },
+            { label: 'Avanzado', desc: 'Tengo control, lectura de ola y maniobras consistentes.', value: 'advanced' },
+            { label: 'Profesional / competitivo', desc: 'Busco precisión y rendimiento para surf de alta exigencia.', value: 'expert' },
         ]
     },
     {
-        num: 'Pregunta 2 de 6',
+        num: 'Pregunta 4 de 8',
+        text: '¿Cuánto tiempo llevás surfeando y con qué frecuencia lo hacés?',
+        hint: 'Esto permite diferenciar el nivel declarado de la experiencia y práctica reales.',
+        type: 'compound-options',
+        fields: [
+            { key: 'surfTime', label: 'Tiempo surfeando', options: [
+                { value: 'less_one', label: 'Menos de 1 año' }, { value: 'one_three', label: '1 a 3 años' },
+                { value: 'three_seven', label: '3 a 7 años' }, { value: 'more_seven', label: 'Más de 7 años' }
+            ]},
+            { key: 'frequency', label: 'Frecuencia habitual', options: [
+                { value: 'occasional', label: 'Algunas veces al mes' }, { value: 'weekly', label: '1 vez por semana' },
+                { value: 'regular', label: '2 a 3 veces por semana' }, { value: 'high', label: '4 o más veces por semana' }
+            ]}
+        ]
+    },
+    {
+        num: 'Pregunta 5 de 8',
         text: '¿Qué tipo de olas surfeás generalmente?',
         hint: 'El tipo de ola determina el rocker, el volumen y la forma del tail que necesitás.',
         type: 'options',
@@ -742,51 +798,36 @@ const QUESTIONS = [
         ]
     },
     {
-        num: 'Pregunta 3 de 6',
-        text: '¿Cuál es tu peso?',
-        hint: 'El volumen ideal de la tabla se calcula en base a tu peso y nivel. Es la variable más importante.',
-        type: 'slider',
-        key: 'weight',
-        min: 45, max: 120, step: 1, default: 72,
-        unit: 'kg'
-    },
-    {
-        num: 'Pregunta 4 de 6',
-        text: '¿Qué estilo de surf te identifica?',
-        hint: 'Cada tabla está diseñada para un estilo particular. Elegí el que más te representa o al que aspirás.',
-        type: 'options',
-        key: 'style',
-        options: [
-            { icon: '⚡', label: 'Agresivo / performance', desc: 'Maniobras verticales, aéreos, surf de alta intensidad.', value: 'performance' },
-            { icon: '🌀', label: 'Fluido / maniobras largas', desc: 'Turns suaves, longboard vibes, nose time.', value: 'cruisy' },
-            { icon: '🎯', label: 'Versátil / intermedio', desc: 'Un poco de todo. Quiero divertirme en todas las olas.', value: 'versatile' },
-            { icon: '🏖️', label: 'Recreativo', desc: 'Me divierto sin complicarme. No compito.', value: 'fun' },
-        ]
-    },
-    {
-        num: 'Pregunta 5 de 6',
-        text: '¿Qué querés mejorar de tu surf?',
-        hint: 'La tabla correcta puede acelerar enormemente tu progresión en el área que más te importa.',
+        num: 'Pregunta 6 de 8',
+        text: '¿Qué buscás principalmente en tu próxima tabla?',
+        hint: 'La geometría de una tabla implica compromisos. Elegí el objetivo más importante para vos.',
         type: 'options',
         key: 'goal',
         options: [
-            { icon: '⬆️', label: 'Surf más arriba en la ola', desc: 'Quiero maniobras más en el lip y verticales.', value: 'attack' },
-            { icon: '🔄', label: 'Más control y consistencia', desc: 'Caigo mucho, quiero ser más consistente.', value: 'control' },
-            { icon: '🕊️', label: 'Más deslizamiento y flow', desc: 'Quiero que el surf se sienta más fluido.', value: 'flow' },
-            { icon: '📈', label: 'Subir de nivel en general', desc: 'Estoy estancado y necesito un cambio.', value: 'level_up' },
+            { label: 'Estabilidad y facilidad', desc: 'Más confianza, remada y facilidad para agarrar olas.', value: 'stability' },
+            { label: 'Velocidad y fluidez', desc: 'Generar velocidad y conectar las secciones con continuidad.', value: 'speed' },
+            { label: 'Maniobrabilidad', desc: 'Una tabla ágil que responda y permita girar con facilidad.', value: 'maneuver' },
+            { label: 'Performance', desc: 'Mayor respuesta para maniobras exigentes y surf vertical.', value: 'performance' },
+            { label: 'Versatilidad', desc: 'Un equilibrio que funcione en diferentes condiciones.', value: 'versatility' },
         ]
     },
     {
-        num: 'Pregunta 6 de 6',
-        text: '¿Qué priorizás en una tabla?',
-        hint: 'Todos queremos todo, pero la geometría de la tabla implica compromisos. ¿Qué va primero?',
+        num: 'Pregunta 7 de 8',
+        text: '¿Qué tabla usás actualmente y qué te gusta o cambiarías de ella?',
+        hint: 'Si conocés las medidas, incluilas. Contanos si te falta estabilidad, velocidad, remada o maniobrabilidad.',
+        type: 'textarea', key: 'currentBoard', placeholder: 'Ej.: Shortboard 6\'0, 30 L. Me gusta cómo gira, pero me cuesta remar y entrar temprano...'
+    },
+    {
+        num: 'Pregunta 8 de 8',
+        text: '¿Qué tipo de surfer sentís que sos?',
+        hint: 'Esto describe tu forma de surfear. Es independiente de tu nivel técnico.',
         type: 'options',
-        key: 'priority',
+        key: 'style',
         options: [
-            { icon: '⚡', label: 'Velocidad', desc: 'Que vuele y entre rápido en la ola.', value: 'speed' },
-            { icon: '🎛️', label: 'Maniobrabilidad', desc: 'Que gire fácil y responda en el lip.', value: 'maneuver' },
-            { icon: '⚖️', label: 'Estabilidad', desc: 'Que sea predecible y me dé confianza.', value: 'stability' },
-            { icon: '🌊', label: 'Paddle power', desc: 'Que entre en todas las olas sin esfuerzo.', value: 'paddle' },
+            { label: 'Performance / agresivo', desc: 'Busco maniobras verticales, respuesta e intensidad.', value: 'performance' },
+            { label: 'Fluido', desc: 'Prefiero líneas largas, velocidad natural y continuidad.', value: 'cruisy' },
+            { label: 'Versátil', desc: 'Me adapto a distintas tablas, olas y formas de surfear.', value: 'versatile' },
+            { label: 'Recreativo', desc: 'Priorizo disfrutar, agarrar olas y surfear sin complicaciones.', value: 'fun' },
         ]
     }
 ];
@@ -797,6 +838,8 @@ const answers = {};
 function renderQuestion() {
     const q = QUESTIONS[currentQ];
     const card = document.getElementById('recCard');
+
+    ensureProgressSteps();
 
     // Progress dots
     document.querySelectorAll('.rec-step-dot').forEach((dot, i) => {
@@ -835,6 +878,20 @@ function renderQuestion() {
         </div>
       `;
         answers[q.key] = val;
+    } else if (q.type === 'compound-options') {
+        bodyHTML = `<div class="rec-compound">
+          ${q.fields.map(field => `
+            <label class="rec-compound-field">
+              <span>${field.label}</span>
+              <select onchange="updateCompound('${field.key}', this.value)">
+                <option value="">Seleccioná una opción</option>
+                ${field.options.map(opt => `<option value="${opt.value}" ${answers[field.key] === opt.value ? 'selected' : ''}>${opt.label}</option>`).join('')}
+              </select>
+            </label>`).join('')}
+        </div>`;
+    } else if (q.type === 'textarea') {
+        bodyHTML = `<textarea class="rec-textarea" maxlength="500" rows="5"
+          placeholder="${q.placeholder}" oninput="updateTextAnswer('${q.key}', this.value)">${answers[q.key] || ''}</textarea>`;
     }
 
     card.innerHTML = `
@@ -845,11 +902,20 @@ function renderQuestion() {
       <div class="rec-nav">
         <button class="btn-rec-back" onclick="goBack()" ${currentQ === 0 ? 'style="opacity:0;pointer-events:none"' : ''}>← Atrás</button>
         <button class="btn-rec-next" id="recNext" onclick="goNext()"
-                ${(q.type !== 'options' || answers[q.key]) ? '' : 'disabled'}>
+                ${isQuestionAnswered(q) ? '' : 'disabled'}>
           ${currentQ < QUESTIONS.length - 1 ? 'Siguiente →' : 'Ver mi tabla ideal →'}
         </button>
       </div>
     `;
+}
+
+function ensureProgressSteps() {
+    const progress = document.getElementById('recProgress');
+    if (!progress || progress.querySelectorAll('.rec-step-dot').length === QUESTIONS.length) return;
+
+    progress.innerHTML = QUESTIONS.map((_, index) =>
+        `${index > 0 ? '<div class="rec-step-line"></div>' : ''}<div class="rec-step-dot ${index === 0 ? 'active' : ''}" data-step="${index}">${index + 1}</div>`
+    ).join('');
 }
 
 function selectAnswer(key, value, el) {
@@ -863,6 +929,23 @@ function updateSlider(val, unit, key) {
     document.getElementById('sliderVal').textContent = `${val} ${unit}`;
     answers[key] = parseInt(val);
     document.getElementById('recNext').disabled = false;
+}
+
+function isQuestionAnswered(question) {
+    if (question.type === 'compound-options') return question.fields.every(field => Boolean(answers[field.key]));
+    if (question.type === 'textarea') return Boolean((answers[question.key] || '').trim());
+    if (question.type === 'slider') return answers[question.key] !== undefined;
+    return Boolean(answers[question.key]);
+}
+
+function updateCompound(key, value) {
+    answers[key] = value;
+    document.getElementById('recNext').disabled = !isQuestionAnswered(QUESTIONS[currentQ]);
+}
+
+function updateTextAnswer(key, value) {
+    answers[key] = value;
+    document.getElementById('recNext').disabled = value.trim().length < 3;
 }
 
 function goNext() {
@@ -889,44 +972,8 @@ function restartRec() {
 
 /* ── RECOMMENDATION ENGINE ── */
 function computeRecommendation() {
-    const { experience, waves, weight, style, goal, priority } = answers;
+    const { experience, waves, weight, style, goal } = answers;
     const wt = weight || 72;
-
-    if (dynamicBoards.length > 0) {
-        const experienceMap = {
-            beginner: ['SinExperiencia', 'Iniciado'],
-            intermediate: ['Intermedio'],
-            advanced: ['Avanzado'],
-            expert: ['Avanzado']
-        };
-        const waveMap = {
-            small: ['Chica', 'Plana'],
-            medium: ['Chica', 'Power'],
-            powerful: ['Power'],
-            varies: ['Plana', 'Chica', 'Power']
-        };
-        const styleMap = {
-            performance: ['Agresivo'],
-            cruisy: ['Fluido', 'Recreativo'],
-            versatile: ['Versatil'],
-            fun: ['Recreativo', 'Fluido']
-        };
-
-        const scored = dynamicBoards.map(board => {
-            let score = 0;
-            if ((experienceMap[experience] || []).includes(board.experience)) score += 4;
-            if ((waveMap[waves] || []).includes(board.wave)) score += 3;
-            if ((styleMap[style] || []).includes(board.style)) score += 3;
-            if (wt >= board.weightMin && wt <= board.weightMax) score += 4;
-            else score -= Math.min(3, Math.abs(wt - Math.max(board.weightMin, Math.min(wt, board.weightMax))) / 10);
-
-            const targetVolume = wt * (experience === 'beginner' ? .65 : experience === 'intermediate' ? .55 : experience === 'advanced' ? .42 : .36);
-            score += Math.max(0, 3 - Math.abs(board.vol - targetVolume) / 8);
-            return [board.key, score];
-        });
-
-        return scored.sort((a, b) => b[1] - a[1])[0][0];
-    }
 
     // Scoring
     const scores = { gaucho: 0, pampeano: 0, charrua: 0, playero: 0 };
@@ -958,73 +1005,109 @@ function computeRecommendation() {
     if (style === 'fun') { scores.playero += 2; scores.pampeano += 2; }
 
     // Goal
-    if (goal === 'attack') { scores.gaucho += 2; }
-    if (goal === 'control') { scores.pampeano += 2; scores.charrua += 1; }
-    if (goal === 'flow') { scores.charrua += 2; scores.pampeano += 1; }
-    if (goal === 'level_up') { scores.pampeano += 2; }
-
-    // Priority
-    if (priority === 'speed') { scores.gaucho += 2; scores.playero += 1; }
-    if (priority === 'maneuver') { scores.gaucho += 2; scores.playero += 2; }
-    if (priority === 'stability') { scores.charrua += 2; scores.pampeano += 2; }
-    if (priority === 'paddle') { scores.charrua += 3; scores.pampeano += 2; }
+    if (goal === 'stability') { scores.charrua += 3; scores.pampeano += 2; }
+    if (goal === 'speed') { scores.playero += 3; scores.gaucho += 1; }
+    if (goal === 'maneuver') { scores.gaucho += 2; scores.playero += 2; }
+    if (goal === 'performance') { scores.gaucho += 3; }
+    if (goal === 'versatility') { scores.pampeano += 3; }
 
     const best = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
     return best;
 }
 
+function buildRecommendedSpecs(shape) {
+    const experienceIndex = { beginner: 0, intermediate: 1, advanced: 2, expert: 3 }[answers.experience] ?? 1;
+    const lengths = {
+        gaucho: ['6\'2"', '6\'0"', '5\'10"', '5\'8"'],
+        pampeano: ['7\'0"', '6\'10"', '6\'8"', '6\'6"'],
+        charrua: ['9\'0"', '9\'0"', '8\'0"', '8\'0"'],
+        playero: ['6\'2"', '6\'0"', '5\'10"', '5\'8"']
+    };
+    const widths = {
+        gaucho: answers.weight >= 85 ? '19 1/2"' : answers.weight >= 70 ? '19"' : '18 3/4"',
+        pampeano: answers.weight >= 85 ? '21"' : '20 1/2"',
+        charrua: '22"',
+        playero: answers.weight >= 85 ? '21"' : '20 1/2"'
+    };
+    const thicknesses = {
+        gaucho: answers.weight >= 85 ? '2 1/2"' : '2 3/8"',
+        pampeano: answers.weight >= 85 ? '2 3/4"' : '2 5/8"',
+        charrua: '3"',
+        playero: answers.weight >= 85 ? '2 3/4"' : '2 1/2"'
+    };
+    const factors = { beginner: .62, intermediate: .50, advanced: .40, expert: .34 };
+    let volume = Number(answers.weight || 72) * factors[answers.experience];
+    if (answers.goal === 'stability') volume += 4;
+    if (answers.goal === 'performance') volume -= 2;
+    if (shape === 'charrua') volume = Math.max(volume, 55);
+    if (shape === 'playero') volume += 2;
+
+    return {
+        length: lengths[shape][experienceIndex],
+        width: widths[shape],
+        thickness: thicknesses[shape],
+        volume: `${Math.max(22, Math.round(volume * 10) / 10)}L`
+    };
+}
+
 const RESULT_REASONS = {
-    gaucho: 'Con tu nivel y el tipo de olas que surfeás, el Gaucho es la herramienta perfecta: rocker medio, raíles medios-bajos y el volumen justo para que surfées agresivo sin perder flujo. Es la tabla con la que más vas a mejorar este año.',
-    pampeano: 'El Pampeano es exactamente lo que necesitás ahora: volumen suficiente para entrar cómodo en cualquier ola, pero con una plantilla que ya te permite explorar maniobras. Es la tabla que más surfers en tu nivel disfrutan.',
-    charrua: 'El Charrúa es tu tabla. Para las olas que surfeás y tu estilo, el volumen y el deslizamiento de un longboard clásico te van a dar una experiencia completamente diferente y mucho más placer en el agua.',
-    playero: 'El Playero fue hecho para vos. Con las olas más chatas, el twin-fin fish te da una velocidad y soltura que ninguna tabla de rocker convencional puede igualar. Una vez que la probás, es difícil volver.',
+    gaucho: 'Una forma shortboard ofrece la respuesta y maniobrabilidad que mejor coinciden con tu perfil. Las medidas son iniciales y el shaper deberá validarlas.',
+    pampeano: 'Una forma híbrida equilibra remada, estabilidad y maniobrabilidad para distintas condiciones. Las medidas son iniciales y el shaper deberá validarlas.',
+    charrua: 'Una forma longboard prioriza estabilidad, remada y facilidad para entrar en la ola. Las medidas son iniciales y el shaper deberá validarlas.',
+    playero: 'Una forma fish aporta velocidad y fluidez, especialmente en olas chicas o con poca fuerza. Las medidas son iniciales y el shaper deberá validarlas.',
 };
 
 let recommendedBoard = null;
+let recommendedSpecs = null;
 
 function showResult() {
     const best = computeRecommendation();
     recommendedBoard = best;
     const b = BOARDS[best];
+    recommendedSpecs = buildRecommendedSpecs(best);
 
     document.getElementById('rec-form').style.display = 'none';
     document.getElementById('rec-result').style.display = 'block';
     document.getElementById('recProgress').style.display = 'none';
 
     document.getElementById('resultTitle').textContent = b.name;
+    const surferTypes = { performance: 'performance', cruisy: 'fluido', versatile: 'versátil', fun: 'recreativo' };
+    document.getElementById('resultSub').textContent = `Perfil ${surferTypes[answers.style] || 'personalizado'} · recomendación inicial para revisar con el shaper`;
     document.getElementById('resultCat').textContent = b.cat;
     document.getElementById('resultName').textContent = b.name;
-    document.getElementById('resultSpec').textContent = b.spec;
-    document.getElementById('resultWhy').textContent = b.description || RESULT_REASONS[best] || 'Esta tabla es la que mejor coincide con tus respuestas y características.';
-    document.getElementById('resultPrice').textContent = `USD ${b.price}`;
+    document.getElementById('resultSpec').textContent = `${recommendedSpecs.length} × ${recommendedSpecs.width} × ${recommendedSpecs.thickness}`;
+    document.getElementById('resultWhy').textContent = RESULT_REASONS[best];
+    document.getElementById('resultPrice').textContent = 'Precio a confirmar por el shaper';
     document.getElementById('resultSpecStats').innerHTML = `
-      <div><div class="rspec-num">${b.vol}</div><div class="rspec-label">Volumen</div></div>
-      <div><div class="rspec-num">${b.spec.split('×')[0].trim()}</div><div class="rspec-label">Largo</div></div>
+      <div><div class="rspec-num">${recommendedSpecs.volume}</div><div class="rspec-label">Volumen inicial</div></div>
+      <div><div class="rspec-num">${recommendedSpecs.length}</div><div class="rspec-label">Largo inicial</div></div>
+      <div><div class="rspec-num">${answers.height} cm</div><div class="rspec-label">Tu altura</div></div>
+      <div><div class="rspec-num">${answers.weight} kg</div><div class="rspec-label">Tu peso</div></div>
     `;
 
-    // Board SVG
-    const colors = { gaucho: '#c9a84c', pampeano: '#4394e0', charrua: '#2ec27e', playero: '#9060c8' };
-    const col = colors[best] || '#4394e0';
-    const shaperLabel = window.shaperPageData?.shaperName || 'ZEPHYR';
-    document.getElementById('resultBoardSvg').innerHTML = `
-      <svg width="90" height="280" viewBox="0 0 90 280" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 12px 28px rgba(0,0,0,.7))">
-        <path d="M45 5 C62 28, 70 75, 70 140 C70 195 62 248 45 274 C28 248 20 195 20 140 C20 75 28 28 45 5Z" fill="${col}" opacity=".85"/>
-        <line x1="45" y1="7" x2="45" y2="272" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
-        <text x="45" y="100" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7" fill="rgba(255,255,255,.6)" letter-spacing="1">${shaperLabel.substring(0, 12).toUpperCase()}</text>
-      </svg>
-    `;
+    const visual = document.getElementById('resultBoardSvg');
+    const boardImage = document.createElement('img');
+    boardImage.className = 'result-board-image';
+    boardImage.src = '/img/boards/deck-mask.png';
+    boardImage.alt = `Vista frontal de ${b.name}`;
+    boardImage.addEventListener('error', function () {
+        if (!this.src.endsWith('/img/boards/deck-mask.png')) this.src = '/img/boards/deck-mask.png';
+    });
+    visual.replaceChildren(boardImage);
 }
 
 function addResultToCart() {
-    if (!recommendedBoard) return;
-    const b = BOARDS[recommendedBoard];
-    addToCart(recommendedBoard, b.name, b.price);
+    applyRecommendedBoard();
 }
 
 function applyRecommendedBoard() {
     if (!recommendedBoard) {
+        showToast('Primero completá el cuestionario para obtener una recomendación');
         return;
     }
+
+    const customizer = document.getElementById('customizador');
+    customizer?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     const modelSelect =
         document.getElementById('customModel');
@@ -1039,18 +1122,81 @@ function applyRecommendedBoard() {
         if (optionExists) {
             modelSelect.value = recommendedBoard;
 
-            modelSelect.dispatchEvent(
-                new Event('change')
-            );
+            try {
+                modelSelect.dispatchEvent(new Event('change'));
+            } catch (error) {
+                console.error('No se pudieron aplicar automáticamente todos los datos recomendados.', error);
+            }
         }
     }
 
-    document
-        .getElementById('customizador')
-        ?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
+    if (recommendedSpecs) {
+        setSelectRecommendation('customLength', recommendedSpecs.length);
+        setSelectRecommendation('customWidth', recommendedSpecs.width);
+        setSelectRecommendation('customThickness', recommendedSpecs.thickness);
+        const volumeInput = document.getElementById('customVolume');
+        if (volumeInput) volumeInput.value = recommendedSpecs.volume;
+        updateCustomPreview();
+    }
+
+    const paintOptions = document.getElementById('paintOptions');
+    if (paintOptions) paintOptions.hidden = false;
+
+    const transfer = document.getElementById('questionnaireTransfer');
+    const transferText = document.getElementById('questionnaireTransferText');
+    if (transfer && transferText) {
+        transferText.textContent = buildQuestionnaireProfile(true);
+        transfer.hidden = false;
+    }
+
+    window.history.replaceState(null, '', '#customizador');
+}
+
+function setSelectRecommendation(id, value) {
+    const select = document.getElementById(id);
+    if (!select) return;
+    let option = Array.from(select.options).find(item => item.value === value || item.text === value);
+    if (!option) {
+        option = new Option(value, value);
+        select.add(option);
+    }
+    select.value = option.value;
+}
+
+function buildQuestionnaireProfile(compact = false) {
+    if (!answers.height || !answers.weight || !answers.experience) return '';
+
+    const labels = {
+        experience: { beginner: 'Principiante', intermediate: 'Intermedio', advanced: 'Avanzado', expert: 'Profesional/competitivo' },
+        surfTime: { less_one: 'Menos de 1 año', one_three: '1 a 3 años', three_seven: '3 a 7 años', more_seven: 'Más de 7 años' },
+        frequency: { occasional: 'Algunas veces al mes', weekly: '1 vez por semana', regular: '2 a 3 veces por semana', high: '4 o más veces por semana' },
+        waves: { small: 'Olas chicas y planas', medium: 'Olas medianas', powerful: 'Olas con power', varies: 'Condiciones variadas' },
+        goal: { stability: 'Estabilidad y facilidad', speed: 'Velocidad y fluidez', maneuver: 'Maniobrabilidad', performance: 'Performance', versatility: 'Versatilidad' },
+        style: { performance: 'Performance/agresivo', cruisy: 'Fluido', versatile: 'Versátil', fun: 'Recreativo' }
+    };
+    const value = (group, key) => labels[group][answers[key]] || answers[key] || 'Sin indicar';
+
+    if (compact) {
+        return `${answers.height} cm · ${answers.weight} kg · ${value('experience', 'experience')} · ${value('style', 'style')}. Objetivo: ${value('goal', 'goal')}.`;
+    }
+
+    return [
+        `Altura: ${answers.height} cm`,
+        `Peso: ${answers.weight} kg`,
+        `Nivel: ${value('experience', 'experience')}`,
+        `Experiencia: ${value('surfTime', 'surfTime')}`,
+        `Frecuencia: ${value('frequency', 'frequency')}`,
+        `Olas habituales: ${value('waves', 'waves')}`,
+        `Objetivo principal: ${value('goal', 'goal')}`,
+        `Tipo de surfer: ${value('style', 'style')}`,
+        `Tabla actual y cambios buscados: ${answers.currentBoard || 'Sin indicar'}`
+    ].join('\n');
+}
+
+function restartQuestionnaireFromOrder() {
+    restartRec();
+    document.getElementById('questionnaireTransfer')?.setAttribute('hidden', 'hidden');
+    document.getElementById('recomendador')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 renderQuestion();
@@ -1526,8 +1672,7 @@ function updateCustomSummary() {
     }
 
     if (summaryBoardPrice) {
-        summaryBoardPrice.textContent =
-            'USD ' + boardPrice;
+        summaryBoardPrice.textContent = 'A confirmar por el shaper';
     }
 
     const selectedFin =
@@ -1597,9 +1742,9 @@ function updateCustomSummary() {
     }
 
     if (summaryTotal) {
-        summaryTotal.textContent =
-            'USD ' +
-            (boardPrice + accessoriesTotal);
+        summaryTotal.textContent = accessoriesTotal > 0
+            ? `Tabla a confirmar · Accesorios USD ${accessoriesTotal}`
+            : 'A confirmar por el shaper';
     }
 
     /*
@@ -1610,9 +1755,7 @@ function updateCustomSummary() {
         document.getElementById('sidePreviewPrice');
 
     if (sidePreviewPrice) {
-        sidePreviewPrice.textContent =
-            'USD ' +
-            (boardPrice + accessoriesTotal);
+        sidePreviewPrice.textContent = 'A confirmar por el shaper';
     }
 }
 

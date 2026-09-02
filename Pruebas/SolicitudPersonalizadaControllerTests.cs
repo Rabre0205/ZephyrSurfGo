@@ -78,5 +78,6 @@ public class SolicitudPersonalizadaControllerTests
         public SolicitudPersonalizada? ObtenerDetalleParaShaper(int id, int shaperId) { UltimoUsuarioId = shaperId; return Detalle; }
         public SolicitudPersonalizada? ObtenerDetalleParaCliente(int id, int clienteId) { UltimoUsuarioId = clienteId; return Detalle; }
         public bool CambiarEstado(int id, int shaperId, byte estado) { UltimoUsuarioId = shaperId; UltimoEstado = estado; return ResultadoCambio; }
+        public (bool Exito, string Error) DefinirPrecio(int id, int shaperId, decimal precio) { UltimoUsuarioId = shaperId; return (true, string.Empty); }
     }
 }

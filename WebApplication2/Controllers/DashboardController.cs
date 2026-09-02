@@ -11,13 +11,16 @@ namespace WebApplication2.Controllers
     {
         private readonly IPedidoServicio _pedidoServicio;
         private readonly IProductoServicio _productoServicio;
+        private readonly ISolicitudPersonalizadaServicio _personalizados;
 
         public DashboardController(
             IPedidoServicio pedidoServicio,
-            IProductoServicio productoServicio)
+            IProductoServicio productoServicio,
+            ISolicitudPersonalizadaServicio personalizados)
         {
             _pedidoServicio = pedidoServicio;
             _productoServicio = productoServicio;
+            _personalizados = personalizados;
         }
 
         public IActionResult Index()
@@ -45,6 +48,7 @@ namespace WebApplication2.Controllers
             busqueda = busqueda?.Trim() ?? string.Empty;
             pagina = Math.Max(1, pagina);
             int total = _pedidoServicio.ContarPedidosShaper(shaperId, busqueda, estadoId);
+            var personalizados = _personalizados.ObtenerPorShaper(shaperId);
             int paginas = (int)Math.Ceiling(total / (double)cantidadPorPagina);
             if (paginas > 0 && pagina > paginas) pagina = paginas;
 
@@ -52,11 +56,12 @@ namespace WebApplication2.Controllers
             {
                 Pedidos = _pedidoServicio.ObtenerPedidosShaper(
                     shaperId, busqueda, estadoId, pagina, cantidadPorPagina),
+                Personalizados = personalizados,
                 Busqueda = busqueda,
                 EstadoId = estadoId,
                 PaginaActual = pagina,
                 TotalPaginas = paginas,
-                TotalResultados = total
+                TotalResultados = total + personalizados.Count
             });
         }
 
