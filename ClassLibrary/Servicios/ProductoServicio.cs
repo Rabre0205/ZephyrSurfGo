@@ -8,18 +8,6 @@ using System.Text;
 
 namespace ClassLibrary.Servicios
 {
-    public interface IProductoServicio
-    {
-        List<Producto> BuscarPorShaper(int shaperId);
-        List<Tabla> ObtenerTablasDelShaper(int shaperId);
-        int AgregarTabla(
-            string titulo, string subtitulo, double precio, string descripcion, int shaperId,
-            string altura, int ancho, double volumen,
-            SistemaDeEncaje sistemaDeEncaje, TipoDeOla tipoDeOla, EstiloDeSurf estiloDeSurf,
-            int pesoMinimo, int pesoMaximo, Experiencia experiencia,
-            IFormFile imagenFrontal, IFormFile imagenTrasera);
-    }
-
     public class ProductoServicio : IProductoServicio
     {
         private readonly IProductoRepositorio _productoRepositorio;

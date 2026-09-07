@@ -1,33 +1,25 @@
 ﻿using ClassLibrary.Datos;
-using ClassLibrary.Servicios;
 using ClassLibrary.Enums;
 using ClassLibrary.Persona;
+using ClassLibrary.Servicios;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
+
 namespace ClassLibrary.Servicios
 {
-    public interface IUsuarioServicio
-    {
-        Usuario Login(string email, string contrasenia);
-        (bool Exito, string Error, int UsuarioId) RegistrarCliente(
-        string email, string nombre, Pais pais, string contrasenia, string confirmarContrasenia);
-        (bool Exito, string Error, int UsuarioId) RegistrarShaper(
-        string email, string nombre, Pais pais, string contrasenia, string confirmarContrasenia,
-        string nombreDeNegosio, string contacto);
-        (bool Exito, string Error, int UsuarioId) RegistrarAdmin(
-        string email, string nombre, Pais pais, string contrasenia, string confirmarContrasenia);
-        Usuario BuscarPorId(int id);
-
-    }
     public class UsuarioServicio : IUsuarioServicio
     {
         private readonly IUsuarioRepositorio _usuarioRepositorio;
+        private readonly ICloudinaryServicio _cloudinarioServicio; 
 
-        public UsuarioServicio(IUsuarioRepositorio usuarioRepositorio)
+
+        public UsuarioServicio(IUsuarioRepositorio usuarioRepositorio, ICloudinaryServicio cloudinarioServicio)
         {
             _usuarioRepositorio = usuarioRepositorio;
+            _cloudinarioServicio = cloudinarioServicio;
         }
 
         public Usuario Login(string email, string contrasenia)
@@ -139,7 +131,39 @@ namespace ClassLibrary.Servicios
 
             return (true, null, idGenerado);
         }
+        public (bool Exito, string Error) ActualizarCliente(int usuarioId, string nombre, Pais pais)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                return (false, "El nombre es obligatorio.");
 
+            _usuarioRepositorio.ActualizarDatosCliente(usuarioId, nombre.Trim(), pais);
+            return (true, null);
+        }
+
+        public async Task<(bool Exito, string Error)> ActualizarShaper(
+            int usuarioId, string nombre, Pais pais, string nombreDeNegosio, string contacto, IFormFile logo)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                return (false, "El nombre es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(nombreDeNegosio) || string.IsNullOrWhiteSpace(contacto))
+                return (false, "El nombre de negocio y el contacto son obligatorios.");
+
+            string logoUrl = null; // null = "no cambió", gracias al COALESCE del repositorio
+            if (logo != null && logo.Length > 0)
+            {
+                string nombrePublico = $"shaper_{usuarioId}_logo_{DateTime.Now.Ticks}";
+                logoUrl = _cloudinarioServicio.SubirImagen(logo, nombrePublico);
+
+                if (string.IsNullOrEmpty(logoUrl))
+                    return (false, "No se pudo subir el logo. Intentá nuevamente.");
+            }
+
+            _usuarioRepositorio.ActualizarDatosShaper(
+                usuarioId, nombre.Trim(), pais, nombreDeNegosio.Trim(), contacto.Trim(), logoUrl);
+
+            return (true, null);
+        }
         public Usuario BuscarPorId(int id) => _usuarioRepositorio.ObtenerPorId(id);
     }
 }

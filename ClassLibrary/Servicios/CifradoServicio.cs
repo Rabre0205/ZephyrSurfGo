@@ -6,12 +6,6 @@ using Microsoft.AspNetCore.DataProtection;
 
 namespace ClassLibrary.Servicios
 {
-    public interface ICifradoServicio
-    {
-        string Cifrar(string textoPlano);
-        string Descifrar(string textoCifrado);
-    }
-
     public class CifradoServicio : ICifradoServicio
     {
         private readonly IDataProtector _protector;

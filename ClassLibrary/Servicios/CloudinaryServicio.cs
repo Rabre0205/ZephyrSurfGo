@@ -7,11 +7,6 @@ using System.Text;
 
 namespace ClassLibrary.Servicios
 {
-    public interface ICloudinaryServicio
-    {
-        string SubirImagen(IFormFile archivo, string nombrePublico);
-    }
-
     public class CloudinaryServicio : ICloudinaryServicio
     {
         private readonly Cloudinary _cloudinary;
