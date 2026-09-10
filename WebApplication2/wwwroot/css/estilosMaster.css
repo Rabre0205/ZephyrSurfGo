@@ -809,6 +809,27 @@ body {
     margin-bottom: 3rem;
 }
 
+.product-rating { display:block; color:var(--gold); font-size:.82rem; margin:.7rem 0; text-decoration:none; }
+.product-rating.empty { color:rgba(255,255,255,.45); }
+.favorite-form { margin:0; }
+.favorite-button { border:1px solid rgba(201,168,76,.35); background:transparent; color:var(--gold-lt); padding:.5rem .8rem; cursor:pointer; }
+.favorite-button.saved { background:rgba(201,168,76,.16); }
+.custom-save-design-button { width:100%; margin-top:.75rem; padding:1rem; border:1px solid rgba(201,168,76,.45); background:transparent; color:var(--gold-lt); text-transform:uppercase; letter-spacing:.08em; cursor:pointer; }
+.custom-save-design-button:hover { background:rgba(201,168,76,.12); }
+
+[data-board-gallery] {
+    cursor: crosshair;
+}
+
+[data-board-gallery]:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 5px;
+}
+
+[data-board-gallery] .master-board-img {
+    transition: opacity .18s ease;
+}
+
 .custom-design-preview {
     margin: 14px 0 0;
     padding: 10px;
@@ -1577,8 +1598,21 @@ body {
 }
 
 .bottom-paint-layer {
-    -webkit-mask-image: url("/img/boards/bottom-base.png");
-    mask-image: url("/img/boards/bottom-base.png");
+    -webkit-mask-image: url("/img/boards/deck-mask.png");
+    mask-image: url("/img/boards/deck-mask.png");
+}
+
+/*
+   Los archivos base tienen márgenes transparentes distintos. Normalizamos
+   el frente para que la silueta conserve el mismo tamaño visual que el dorso
+   al alternar entre ambas vistas.
+*/
+#deckBase,
+#bottomBase,
+.deck-paint-layer,
+.bottom-paint-layer {
+    transform: scale(1.34, 1.44);
+    transform-origin: center;
 }
 
 /* Capas de accesorios */

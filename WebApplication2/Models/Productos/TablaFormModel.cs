@@ -24,7 +24,7 @@ namespace WebApplication2.Models.Productos
 
         // Archivos de imagen
         public IFormFile? ImagenFrontal { get; set; }
-        public IFormFile? ImagenTrasera { get; set; }  // Imagen trasera (opcional)
+        public IFormFile? ImagenTrasera { get; set; }
 
         // Especificaciones de la tabla
         public string Altura { get; set; } = string.Empty;

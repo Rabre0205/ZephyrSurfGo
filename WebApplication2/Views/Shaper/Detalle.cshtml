@@ -181,13 +181,21 @@
                     string productoId = $"producto-{producto.Id}";
                     string categoria = $"{producto.Subtitulo} · {tabla.EstiloDeSurf}";
                     string especificaciones = $"{tabla.Altura} · {tabla.Volumen:0.#}L · {tabla.SistemaDeEncaje}";
+                    string imagenFrontal = string.IsNullOrWhiteSpace(producto.ImagenUrl) ? Url.Content("~/img/tabla.png") : producto.ImagenUrl;
 
                     <article class="board-card reveal">
                         <div class="board-visual" style="background:linear-gradient(135deg,#0a1828,#0d2040);">
                             <div class="board-bg-circle"></div>
-                            <div class="board-shape-wrap" data-board-gallery>
-                                <img src="@(string.IsNullOrWhiteSpace(producto.ImagenUrl) ? Url.Content("~/img/tabla.png") : producto.ImagenUrl)"
-                                     data-front="@producto.ImagenUrl" data-back="@tabla.ImagenAtrasUrl"
+                            <div class="board-shape-wrap" data-board-gallery
+                                 tabindex="0"
+                                 role="img"
+                                 aria-label="Frente de @producto.Titulo. Pasá el cursor para ver el dorso."
+                                 onmouseenter="showCatalogBoardSideFromGallery(this, 'back')"
+                                 onmouseleave="showCatalogBoardSideFromGallery(this, 'front')"
+                                 onfocus="showCatalogBoardSideFromGallery(this, 'back')"
+                                 onblur="showCatalogBoardSideFromGallery(this, 'front')">
+                                <img src="@imagenFrontal"
+                                     data-front="@imagenFrontal" data-back="@tabla.ImagenAtrasUrl"
                                      alt="Frente de @producto.Titulo" class="master-board-img"
                                      onerror="this.src='@Url.Content("~/img/tabla.png")'" />
                             </div>
@@ -198,16 +206,30 @@
                             <p class="board-name">@producto.Titulo</p>
                             <p class="board-spec">@especificaciones</p>
                             <p class="board-desc">@producto.Descripcion</p>
+                            @if (Model.Resenas.TryGetValue(producto.Id, out var resumenResenas))
+                            {
+                                <a asp-controller="Resenas" asp-action="Producto" asp-route-id="@producto.Id" class="product-rating">
+                                    <span aria-hidden="true">★</span> @resumenResenas.Promedio.ToString("0.0") · @resumenResenas.Cantidad reseña@(resumenResenas.Cantidad == 1 ? "" : "s")
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="product-rating empty">Todavía no tiene reseñas</span>
+                            }
                             <div class="board-footer">
                                 <span class="board-price">USD @producto.Precio.ToString("N2")</span>
                                 <button class="btn-add-small" type="button"
                                         onclick="addToCart('@productoId', '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(producto.Titulo))', @producto.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture))">
                                     Agregar
                                 </button>
-                            </div>
-                            <div class="board-footer" style="margin-top:.75rem;justify-content:flex-start;gap:.5rem;">
-                                <button class="btn-add-small" type="button" onclick="showCatalogBoardSide(this, 'front')">Frente</button>
-                                <button class="btn-add-small" type="button" onclick="showCatalogBoardSide(this, 'back')" @(string.IsNullOrWhiteSpace(tabla.ImagenAtrasUrl) ? "disabled" : null)>Dorso</button>
+                                <form asp-controller="Favoritos" asp-action="Alternar" method="post" class="favorite-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="productoId" value="@producto.Id" />
+                                    <input type="hidden" name="volverA" value="@Context.Request.Path@Context.Request.QueryString" />
+                                    <button class="favorite-button @(Model.Favoritos.Contains(producto.Id) ? "saved" : "")" type="submit">
+                                        @(Model.Favoritos.Contains(producto.Id) ? "♥ Guardada" : "♡ Guardar")
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </article>
@@ -241,10 +263,28 @@
                                 <p class="board-cat">@tipo · @accesorio.Subtitulo</p>
                                 <p class="board-name">@accesorio.Titulo</p>
                                 <p class="board-desc">@accesorio.Descripcion</p>
+                                @if (Model.Resenas.TryGetValue(accesorio.Id, out var resumenAccesorio))
+                                {
+                                    <a asp-controller="Resenas" asp-action="Producto" asp-route-id="@accesorio.Id" class="product-rating">
+                                        <span aria-hidden="true">★</span> @resumenAccesorio.Promedio.ToString("0.0") · @resumenAccesorio.Cantidad reseña@(resumenAccesorio.Cantidad == 1 ? "" : "s")
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="product-rating empty">Todavía no tiene reseñas</span>
+                                }
                                 <div class="board-footer">
                                     <span class="board-price">USD @accesorio.Precio.ToString("N2")</span>
                                     <button class="btn-add-small" type="button"
                                             onclick="addToCart('producto-@accesorio.Id', '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(accesorio.Titulo))', @accesorio.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture))">Agregar</button>
+                                    <form asp-controller="Favoritos" asp-action="Alternar" method="post" class="favorite-form">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="productoId" value="@accesorio.Id" />
+                                        <input type="hidden" name="volverA" value="@Context.Request.Path@Context.Request.QueryString" />
+                                        <button class="favorite-button @(Model.Favoritos.Contains(accesorio.Id) ? "saved" : "")" type="submit">
+                                            @(Model.Favoritos.Contains(accesorio.Id) ? "♥ Guardado" : "♡ Guardar")
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </article>
@@ -438,6 +478,8 @@
         <div class="custom-intro reveal">
             <p class="section-eyebrow">Pedido personalizado</p>
             <h2 class="section-title">Customiza tu tabla</h2>
+            <p class="section-sub">1. Elegí las características · 2. Agregá tu diseño · 3. Enviá el pedido al shaper.</p>
+            <p class="section-sub">La vista previa es orientativa. El shaper confirma las medidas y el precio; enviar este pedido no realiza un cobro.</p>
 
             <p class="section-sub">
                 Revisá la recomendación, ajustá la forma, las medidas, la construcción,
@@ -467,14 +509,14 @@
                             class="board-view-tab active"
                             data-board-view="deck"
                             onclick="changeBoardView('deck', this)">
-                        Deck
+                        Frente (deck)
                     </button>
 
                     <button type="button"
                             class="board-view-tab"
                             data-board-view="bottom"
                             onclick="changeBoardView('bottom', this)">
-                        Bottom
+                        Dorso (bottom)
                     </button>
                 </div>
 
@@ -490,18 +532,6 @@
                          class="board-image-layer board-base-layer"
                          src="~/img/boards/deck-mask.png"
                          alt="Vista superior de la tabla">
-
-                    <img id="deckCarbon"
-                         class="board-accessory board-carbon"
-                         src="~/img/boards/carbon-patch.png"
-                         alt="Parche de carbono"
-                         hidden>
-
-                    <img id="deckGrip"
-                         class="board-accessory board-grip"
-                         src="~/img/boards/grip-black.png"
-                         alt="Grip"
-                         hidden>
 
                     <div id="deckLogo"
                          class="board-master-logo">
@@ -525,19 +555,8 @@
 
                     <img id="bottomBase"
                          class="board-image-layer board-base-layer"
-                         src="~/img/boards/bottom-base.png"
+                         src="~/img/boards/deck-mask.png"
                          alt="Vista inferior de la tabla">
-
-                    <img id="bottomCarbon"
-                         class="board-accessory board-carbon bottom-carbon"
-                         src="~/img/boards/carbon-patch.png"
-                         alt="Parche de carbono"
-                         hidden>
-
-                    <img id="bottomFins"
-                         class="board-accessory board-fin-preview"
-                         src="~/img/boards/thruster.png"
-                         alt="Configuración de quillas">
 
                 </div>
 
@@ -621,7 +640,7 @@
                 <!-- Modelo -->
                 <div class="custom-field">
                     <label for="customModel">
-                        Modelo base recomendado
+                        Forma de la tabla
                     </label>
 
                     <select class="custom-select"
@@ -780,7 +799,7 @@
 
                     <div class="custom-measurement-field">
                         <label for="customLength">
-                            Size
+                            Largo (pies y pulgadas)
                         </label>
 
                         <select class="custom-select"
@@ -807,7 +826,7 @@
 
                     <div class="custom-measurement-field">
                         <label for="customWidth">
-                            Width
+                            Ancho (pulgadas)
                         </label>
 
                         <select class="custom-select"
@@ -832,7 +851,7 @@
 
                     <div class="custom-measurement-field">
                         <label for="customThickness">
-                            Thickness
+                            Grosor (pulgadas)
                         </label>
 
                         <select class="custom-select"
@@ -854,7 +873,7 @@
 
                     <div class="custom-measurement-field">
                         <label for="customVolume">
-                            Volume
+                            Volumen (litros)
                         </label>
 
                         <input class="custom-input volume-input"
@@ -868,7 +887,7 @@
                 <!-- Tail -->
                 <div class="custom-field">
                     <label for="customTail">
-                        Tail type
+                        Forma de la cola (tail)
                     </label>
 
                     <select class="custom-select tail-select"
@@ -910,7 +929,7 @@
 
                     <div class="custom-field">
                         <label for="customFinSystem">
-                            Fins system
+                            Sistema de encaje de quillas
                         </label>
 
                         <select class="custom-select"
@@ -933,7 +952,7 @@
 
                     <div class="custom-field">
                         <label for="customFinConfiguration">
-                            Fins number
+                            Distribución de quillas
                         </label>
 
                         <select class="custom-select"
@@ -968,7 +987,7 @@
 
                     <div class="custom-field">
                         <label for="customFinOption">
-                            Fins option
+                            Opción de quillas
                         </label>
 
                         <select class="custom-select"
@@ -1098,7 +1117,7 @@
                         </option>
 
                         <option value="none">
-                            No decal
+                            Sin calcomanía
                         </option>
 
                     </select>
@@ -1154,7 +1173,7 @@
 
                         <div class="custom-field">
                             <label for="customColor">
-                                Primary color
+                                Color principal
                             </label>
 
                             <input class="custom-color-input"
@@ -1165,7 +1184,7 @@
 
                         <div class="custom-field">
                             <label for="customSecondaryColor">
-                                Secondary color
+                                Color secundario
                             </label>
 
                             <input class="custom-color-input"
@@ -1220,7 +1239,7 @@
         <!-- ═══════════════════════════════════════════════════════
          ADD ACCESSORIES
     ════════════════════════════════════════════════════════ -->
-        <section class="custom-accessories-section" id="dynamicAccessories">
+        <section class="custom-accessories-section" id="dynamicAccessories" hidden aria-hidden="true">
             <p class="section-eyebrow">Accesorios compatibles</p>
             <h3 class="custom-accessories-title">Completá tu tabla</h3>
             <div class="accessory-tabs">
@@ -1566,10 +1585,6 @@
                 </span>
             </div>
 
-            <div class="custom-summary-accessories"
-                 id="summaryAccessories">
-            </div>
-
             <div class="custom-summary-row custom-summary-total">
                 <span>Total</span>
 
@@ -1583,6 +1598,9 @@
                     class="custom-add-cart-button"
                     onclick="addCustomToCart()">
                 Enviar pedido personalizado
+            </button>
+            <button type="button" id="saveCustomDesignButton" class="custom-save-design-button" onclick="saveCustomDesign()">
+                ♡ Guardar diseño para después
             </button>
             <p class="custom-submit-message" id="customSubmitMessage" role="status" aria-live="polite"></p>
 
@@ -1670,6 +1688,7 @@
             cartAddUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Agregar", "Carrito"))),
             cartUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Index", "Carrito"))),
             customRequestUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Crear", "SolicitudPersonalizada"))),
+            saveDesignUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Guardar", "DisenosGuardados"))),
             customRequestsUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Index", "MisPedidos"))),
             boards: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Tablas.Select(tabla => new
             {
@@ -1690,6 +1709,8 @@
                 finSystem = tabla.SistemaDeEncaje.ToString()
             })))
         };
+        window.savedCustomDesignJson = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ConfiguracionGuardadaJson));
+        window.savedCustomDesign = window.savedCustomDesignJson ? JSON.parse(window.savedCustomDesignJson) : null;
 
         document.querySelectorAll('#customModel optgroup:not(#legacyDemoModels)').forEach(group => group.remove());
         document.getElementById('legacyAccessories')?.remove();

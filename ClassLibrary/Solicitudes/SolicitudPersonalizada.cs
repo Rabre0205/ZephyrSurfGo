@@ -32,6 +32,10 @@ public class SolicitudPersonalizada
     public byte Estado { get; set; }
     public DateTime FechaCreacion { get; set; }
     public DateTime? FechaRespuestaCliente { get; set; }
+    public DateTime? EntregaEstimada { get; set; }
+    public DateTime? EntregaOriginal { get; set; }
+    public string AvanceShaper { get; set; } = string.Empty;
+    public DateTime? FechaSeguimiento { get; set; }
     public EstadoPedidoPersonalizado EstadoFlujo => (EstadoPedidoPersonalizado)Estado;
 
     public string EstadoNombre => Estado switch

@@ -67,9 +67,10 @@
                 </label>
                 <label class="imagen-campo">
                     <span class="imagen-icono" aria-hidden="true">↑</span>
-                    <strong>Imagen trasera</strong>
+                    <strong>Imagen trasera <span aria-hidden="true">*</span></strong>
                     <small>JPG, PNG o WEBP</small>
-                    <input asp-for="ImagenTrasera" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                    <input asp-for="ImagenTrasera" type="file" accept=".jpg,.jpeg,.png,.webp" required />
+                    <span asp-validation-for="ImagenTrasera" class="campo-error"></span>
                 </label>
             </div>
         </section>

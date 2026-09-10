@@ -73,4 +73,15 @@ public class SolicitudPersonalizadaController : Controller
             throw new InvalidOperationException("No se pudo identificar al usuario.");
         return id;
     }
+
+    [Authorize(Roles = "Shaper")]
+    [HttpPost, ValidateAntiForgeryToken]
+    public IActionResult ActualizarSeguimiento(int id, byte estado, DateTime entrega, string mensaje)
+    {
+        var resultado=ModelState.IsValid
+            ? _servicio.ActualizarSeguimiento(id,ObtenerUsuarioId(),estado,entrega,mensaje)
+            : (Exito:false,Error:"Revisá la fecha y los datos del seguimiento.");
+        TempData[resultado.Exito?"Mensaje":"Error"]=resultado.Exito?"Seguimiento actualizado. El cliente ya puede verlo en Mis pedidos.":resultado.Error;
+        return RedirectToAction(nameof(DetalleShaper),new{id});
+    }
 }

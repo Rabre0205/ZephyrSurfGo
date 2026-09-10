@@ -7,15 +7,18 @@ namespace WebApplication2.Controllers
         private readonly ClassLibrary.Servicios.IUsuarioServicio _usuarioServicio;
         private readonly ClassLibrary.Servicios.IProductoServicio _productoServicio;
         private readonly ClassLibrary.Servicios.IPuntoRetiroServicio _puntoRetiroServicio;
+        private readonly WebApplication2.Servicios.ICorreoNotificacionServicio _correo;
 
         public SurfController(
             ClassLibrary.Servicios.IUsuarioServicio usuarioServicio,
             ClassLibrary.Servicios.IProductoServicio productoServicio,
-            ClassLibrary.Servicios.IPuntoRetiroServicio puntoRetiroServicio)
+            ClassLibrary.Servicios.IPuntoRetiroServicio puntoRetiroServicio,
+            WebApplication2.Servicios.ICorreoNotificacionServicio correo)
         {
             _usuarioServicio = usuarioServicio;
             _productoServicio = productoServicio;
             _puntoRetiroServicio = puntoRetiroServicio;
+            _correo = correo;
         }
 
         public IActionResult carrito() { return View(); }
@@ -50,6 +53,35 @@ namespace WebApplication2.Controllers
         [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Cliente")]
         public IActionResult shapers()
         {
+            return View(CrearCatalogoShapers());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Cliente")]
+        public async Task<IActionResult> SolicitarIngresoShaper(WebApplication2.Models.UnirseShaperViewModel solicitud)
+        {
+            var modelo = CrearCatalogoShapers();
+            modelo.Solicitud = solicitud;
+            if (!ModelState.IsValid)
+            {
+                ViewBag.AbrirSolicitudShaper = true;
+                return View("shapers", modelo);
+            }
+
+            if (!await _correo.EnviarSolicitudShaperAsync(solicitud))
+            {
+                ModelState.AddModelError(string.Empty, "No pudimos enviar tu solicitud en este momento. Intentá nuevamente.");
+                ViewBag.AbrirSolicitudShaper = true;
+                return View("shapers", modelo);
+            }
+
+            TempData["SolicitudShaperEnviada"] = "Recibimos tu solicitud. El equipo de Zephyr Surf Go se comunicará contigo.";
+            return RedirectToAction(nameof(shapers), new { enviado = true });
+        }
+
+        private WebApplication2.Models.ShapersCatalogoViewModel CrearCatalogoShapers()
+        {
             var modelo = new WebApplication2.Models.ShapersCatalogoViewModel();
 
             foreach (var shaper in _usuarioServicio.ObtenerShapers())
@@ -63,7 +95,7 @@ namespace WebApplication2.Controllers
                 });
             }
 
-            return View(modelo);
+            return modelo;
         }
     }
 }

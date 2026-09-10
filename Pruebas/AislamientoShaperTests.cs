@@ -67,6 +67,7 @@ public class AislamientoShaperTests
         public SolicitudPersonalizada? ObtenerDetalleParaShaper(int id, int shaperId) => null;
         public SolicitudPersonalizada? ObtenerDetalleParaCliente(int id, int clienteId) => null;
         public bool CambiarEstado(int id, int shaperId, byte estado) => true;
+        public (bool Exito,string Error) ActualizarSeguimiento(int id,int shaperId,byte estado,DateTime entrega,string mensaje)=>(true,"");
         public (bool Exito, string Error) DefinirPrecio(int id, int shaperId, decimal precio) => (true, string.Empty);
         public (bool Exito, string Error) ResponderCotizacion(int id, int clienteId, bool aceptar) => (true, string.Empty);
     }

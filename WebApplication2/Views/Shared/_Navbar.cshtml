@@ -175,8 +175,10 @@
                     @if (esCliente)
                     {
                         <a asp-controller="MisPedidos" asp-action="Index">
-                            Mis pedidos
+                            Pedidos e historial
                         </a>
+                        <a asp-controller="Favoritos" asp-action="Index">Mis favoritos</a>
+                        <a asp-controller="DisenosGuardados" asp-action="Index">Mis diseños guardados</a>
                     }
 
                     @if (esShaper)

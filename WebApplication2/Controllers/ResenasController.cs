@@ -1,0 +1,35 @@
+using ClassLibrary.Datos;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
+namespace WebApplication2.Controllers;
+
+[Authorize(Roles="Cliente")]
+public class ResenasController(IInteraccionesRepositorio repositorio) : Controller
+{
+    [HttpGet]
+    public IActionResult Crear(int pedidoId, int productoId)
+    {
+        if (!repositorio.PuedeResenar(ClienteId(), pedidoId, productoId)) return Forbid();
+        ViewBag.PedidoId=pedidoId; ViewBag.ProductoId=productoId;
+        return View();
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public IActionResult Crear(int pedidoId, int productoId, byte estrellas, string comentario)
+    {
+        comentario=(comentario??"").Trim();
+        if(estrellas is < 1 or > 5) ModelState.AddModelError("estrellas","Elegí entre 1 y 5 estrellas.");
+        if(comentario.Length<3 || comentario.Length>1000) ModelState.AddModelError("comentario","El comentario debe tener entre 3 y 1000 caracteres.");
+        if(!ModelState.IsValid){ViewBag.PedidoId=pedidoId;ViewBag.ProductoId=productoId;return View();}
+        if(!repositorio.GuardarResena(ClienteId(),pedidoId,productoId,estrellas,comentario)){
+            TempData["Error"]="Solo podés reseñar una vez un producto de una compra completada.";
+        } else TempData["Mensaje"]="Gracias. Tu reseña fue publicada.";
+        return RedirectToAction("Detalle","MisPedidos",new{id=pedidoId});
+    }
+
+    [AllowAnonymous]
+    public IActionResult Producto(int id) => View(repositorio.ObtenerResenas(id));
+    private int ClienteId()=>int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier),out int id)?id:throw new UnauthorizedAccessException();
+}

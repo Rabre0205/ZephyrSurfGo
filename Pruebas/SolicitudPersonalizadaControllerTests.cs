@@ -68,6 +68,7 @@ public class SolicitudPersonalizadaControllerTests
     private sealed class ServicioFalso : ISolicitudPersonalizadaServicio
     {
         public int UltimoUsuarioId { get; private set; }
+        public (bool Exito,string Error) ActualizarSeguimiento(int id,int shaperId,byte estado,DateTime entrega,string mensaje)=>(true,"");
         public byte UltimoEstado { get; private set; }
         public (bool Exito, string Error, int Id) ResultadoCrear { get; set; }
         public bool ResultadoCambio { get; set; }

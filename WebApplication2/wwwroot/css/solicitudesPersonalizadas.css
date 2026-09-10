@@ -1,5 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap');
 :root{--navy:#0d204b;--blue:#4394e0;--paper:#f5f1e9;--line:#d7dfe3;--green:#147357}
+.tracking-summary,.tracking-editor{margin-top:24px}
+.configuration-details{margin-top:24px}
+.configuration-details summary{cursor:pointer;padding:18px;border:1px solid var(--line);border-radius:12px;background:white;color:var(--navy);font-weight:600}
+.configuration-details summary:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.configuration-details dd{white-space:pre-wrap;overflow-wrap:anywhere}
+.tracking-summary{border-left:5px solid var(--blue)}
+.tracking-message{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+.tracking-editor form{display:grid;gap:12px;max-width:680px}
+.tracking-editor label{font-weight:600}
+.tracking-editor input,.tracking-editor select,.tracking-editor textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;font:inherit}
+.tracking-editor button{padding:14px;border:0;border-radius:8px;background:var(--green);color:white;font:inherit;font-weight:600;cursor:pointer}
+.tracking-editor :focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.alert{padding:16px;border-radius:8px;margin:16px 0}.alert-success{background:#dff4e9;color:#146143}.alert-danger{background:#f8dddd;color:#9b2727}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:#10201c;font-family:'DM Sans',sans-serif}
 .requests-page{max-width:1180px;margin:auto;padding:70px 28px 110px}

@@ -51,7 +51,7 @@ namespace WebApplication2.Controllers
             }
 
             string imagenFrontalUrl;
-            string imagenTraseraUrl = string.Empty;
+            string imagenTraseraUrl;
 
             try
             {
@@ -60,13 +60,10 @@ namespace WebApplication2.Controllers
                         modelo.ImagenFrontal!
                     );
 
-                if (modelo.ImagenTrasera != null)
-                {
-                    imagenTraseraUrl =
-                        await GuardarImagenAsync(
-                            modelo.ImagenTrasera
-                        );
-                }
+                imagenTraseraUrl =
+                    await GuardarImagenAsync(
+                        modelo.ImagenTrasera!
+                    );
             }
             catch (InvalidOperationException ex)
             {
@@ -460,6 +457,24 @@ namespace WebApplication2.Controllers
                 ModelState.AddModelError(
                     nameof(modelo.ImagenFrontal),
                     "La imagen frontal es obligatoria."
+                );
+            }
+
+            if (modelo.Id == 0 && modelo.ImagenTrasera == null)
+            {
+                ModelState.AddModelError(
+                    nameof(modelo.ImagenTrasera),
+                    "La imagen trasera es obligatoria."
+                );
+            }
+
+            if (modelo.Id != 0 &&
+                modelo.ImagenTrasera == null &&
+                string.IsNullOrWhiteSpace(modelo.ImagenTraseraActual))
+            {
+                ModelState.AddModelError(
+                    nameof(modelo.ImagenTrasera),
+                    "La tabla debe tener una imagen trasera."
                 );
             }
 

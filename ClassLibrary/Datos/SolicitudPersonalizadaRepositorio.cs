@@ -13,10 +13,29 @@ public interface ISolicitudPersonalizadaRepositorio
     bool CambiarEstado(int id, int shaperId, byte estado);
     bool DefinirPrecio(int id, int shaperId, decimal precio);
     bool ResponderCotizacion(int id, int clienteId, bool aceptar);
+    bool ActualizarSeguimiento(int id, int shaperId, byte anterior, byte estado, DateTime entrega, string mensaje);
 }
 
 public class SolicitudPersonalizadaRepositorio : ISolicitudPersonalizadaRepositorio
 {
+    public bool ActualizarSeguimiento(int id, int shaperId, byte anterior, byte estado, DateTime entrega, string mensaje)
+    {
+        const string sql = @"UPDATE SolicitudesPersonalizadas SET
+            Estado=CASE WHEN Estado=3 AND (EntregaEstimada IS NULL OR EntregaEstimada<>@Entrega) THEN 1 ELSE @Estado END,
+            FechaRespuestaCliente=CASE WHEN Estado=3 AND (EntregaEstimada IS NULL OR EntregaEstimada<>@Entrega) THEN NULL ELSE FechaRespuestaCliente END,
+            EntregaOriginal=COALESCE(EntregaOriginal,@Entrega), EntregaEstimada=@Entrega,
+            AvanceShaper=@Mensaje, FechaSeguimiento=SYSUTCDATETIME(), FechaActualizacion=SYSUTCDATETIME()
+            WHERE Id=@Id AND ShaperId=@ShaperId AND Estado=@Anterior;";
+        using var conexion=Conexion.ObtenerConexion();
+        using var comando=new SqlCommand(sql,conexion);
+        comando.Parameters.Add("@Id",SqlDbType.Int).Value=id;
+        comando.Parameters.Add("@ShaperId",SqlDbType.Int).Value=shaperId;
+        comando.Parameters.Add("@Anterior",SqlDbType.TinyInt).Value=anterior;
+        comando.Parameters.Add("@Estado",SqlDbType.TinyInt).Value=estado;
+        comando.Parameters.Add("@Entrega",SqlDbType.Date).Value=entrega.Date;
+        comando.Parameters.Add("@Mensaje",SqlDbType.NVarChar,1000).Value=mensaje;
+        conexion.Open(); return comando.ExecuteNonQuery()==1;
+    }
     public int Insertar(SolicitudPersonalizada s)
     {
         const string sql = @"
@@ -151,6 +170,10 @@ public class SolicitudPersonalizadaRepositorio : ISolicitudPersonalizadaReposito
 
     private static SolicitudPersonalizada Mapear(SqlDataReader r) => new()
     {
+        EntregaEstimada = r["EntregaEstimada"] == DBNull.Value ? null : Convert.ToDateTime(r["EntregaEstimada"]),
+        EntregaOriginal = r["EntregaOriginal"] == DBNull.Value ? null : Convert.ToDateTime(r["EntregaOriginal"]),
+        AvanceShaper = Convert.ToString(r["AvanceShaper"]) ?? "",
+        FechaSeguimiento = r["FechaSeguimiento"] == DBNull.Value ? null : Convert.ToDateTime(r["FechaSeguimiento"]),
         Id = Convert.ToInt32(r["Id"]), ClienteId = Convert.ToInt32(r["ClienteId"]),
         ShaperId = Convert.ToInt32(r["ShaperId"]),
         ProductoBaseId = r["ProductoBaseId"] == DBNull.Value ? null : Convert.ToInt32(r["ProductoBaseId"]),

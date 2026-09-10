@@ -251,6 +251,8 @@
         <div class="custom-intro reveal">
             <p class="section-eyebrow">Pedido personalizado</p>
             <h2 class="section-title">Customiza tu tabla</h2>
+            <p class="section-sub">1. Elegí las características · 2. Agregá tu diseño · 3. Enviá el pedido al shaper.</p>
+            <p class="section-sub">La vista previa es orientativa. El shaper confirma las medidas y el precio; enviar este pedido no realiza un cobro.</p>
 
             <p class="section-sub">
                 Revisá la recomendación, ajustá la forma, las medidas, la construcción,
@@ -280,14 +282,14 @@
                             class="board-view-tab active"
                             data-board-view="deck"
                             onclick="changeBoardView('deck', this)">
-                        Deck
+                        Frente (deck)
                     </button>
 
                     <button type="button"
                             class="board-view-tab"
                             data-board-view="bottom"
                             onclick="changeBoardView('bottom', this)">
-                        Bottom
+                        Dorso (bottom)
                     </button>
                 </div>
 
@@ -303,18 +305,6 @@
                          class="board-image-layer board-base-layer"
                          src="~/img/boards/deck-mask.png"
                          alt="Vista superior de la tabla">
-
-                    <img id="deckCarbon"
-                         class="board-accessory board-carbon"
-                         src="~/img/boards/carbon-patch.png"
-                         alt="Parche de carbono"
-                         hidden>
-
-                    <img id="deckGrip"
-                         class="board-accessory board-grip"
-                         src="~/img/boards/grip-black.png"
-                         alt="Grip"
-                         hidden>
 
                     <div id="deckLogo"
                          class="board-master-logo">
@@ -338,19 +328,8 @@
 
                     <img id="bottomBase"
                          class="board-image-layer board-base-layer"
-                         src="~/img/boards/bottom-base.png"
+                         src="~/img/boards/deck-mask.png"
                          alt="Vista inferior de la tabla">
-
-                    <img id="bottomCarbon"
-                         class="board-accessory board-carbon bottom-carbon"
-                         src="~/img/boards/carbon-patch.png"
-                         alt="Parche de carbono"
-                         hidden>
-
-                    <img id="bottomFins"
-                         class="board-accessory board-fin-preview"
-                         src="~/img/boards/thruster.png"
-                         alt="Configuración de quillas">
 
                 </div>
 
@@ -434,7 +413,7 @@
                 <!-- Modelo -->
                 <div class="custom-field">
                     <label for="customModel">
-                        Modelo base recomendado
+                        Forma de la tabla
                     </label>
 
                     <select class="custom-select"
@@ -667,7 +646,7 @@
 
                     <div class="custom-measurement-field">
                         <label for="customVolume">
-                            Volumen
+                            Volumen (litros)n
                         </label>
 
                         <input class="custom-input volume-input"
@@ -681,7 +660,7 @@
                 <!-- Tail -->
                 <div class="custom-field">
                     <label for="customTail">
-                        Tail type
+                        Forma de la cola (tail)
                     </label>
 
                     <select class="custom-select tail-select"
@@ -723,7 +702,7 @@
 
                     <div class="custom-field">
                         <label for="customFinSystem">
-                            Fins system
+                            Sistema de encaje de quillas
                         </label>
 
                         <select class="custom-select"
@@ -746,7 +725,7 @@
 
                     <div class="custom-field">
                         <label for="customFinConfiguration">
-                            Fins number
+                            Distribución de quillas
                         </label>
 
                         <select class="custom-select"
@@ -781,7 +760,7 @@
 
                     <div class="custom-field">
                         <label for="customFinOption">
-                            Fins option
+                            Opción de quillas
                         </label>
 
                         <select class="custom-select"
@@ -911,7 +890,7 @@
                         </option>
 
                         <option value="none">
-                            No decal
+                            Sin calcomanía
                         </option>
 
                     </select>
@@ -937,7 +916,7 @@
                                 id="customDesign">
 
                             <option value="sin-pintura">
-                                No paint
+                                Sin pintura
                             </option>
 
                             <option value="sol-pampeano" selected>
@@ -1003,7 +982,7 @@
 
                         <div class="custom-field">
                             <label for="customColor">
-                                Primary color
+                                Color principal
                             </label>
 
                             <input class="custom-color-input"
@@ -1014,7 +993,7 @@
 
                         <div class="custom-field">
                             <label for="customSecondaryColor">
-                                Secondary color
+                                Color secundario
                             </label>
 
                             <input class="custom-color-input"
@@ -1069,7 +1048,7 @@
         <!-- ═══════════════════════════════════════════════════════
          ADD ACCESSORIES
     ════════════════════════════════════════════════════════ -->
-        <section class="custom-accessories-section">
+        <section class="custom-accessories-section" hidden aria-hidden="true">
 
             <h3 class="custom-accessories-title">
                 Agregar accesorios
@@ -1343,10 +1322,6 @@
                 <span id="summaryFinPrice">
                     USD 25
                 </span>
-            </div>
-
-            <div class="custom-summary-accessories"
-                 id="summaryAccessories">
             </div>
 
             <div class="custom-summary-row custom-summary-total">

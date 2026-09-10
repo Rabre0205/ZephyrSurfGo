@@ -13,12 +13,26 @@ public interface ISolicitudPersonalizadaServicio
     SolicitudPersonalizada? ObtenerDetalleParaShaper(int id, int shaperId);
     SolicitudPersonalizada? ObtenerDetalleParaCliente(int id, int clienteId);
     bool CambiarEstado(int id, int shaperId, byte estado);
+    (bool Exito, string Error) ActualizarSeguimiento(int id, int shaperId, byte estado, DateTime entrega, string mensaje);
     (bool Exito, string Error) DefinirPrecio(int id, int shaperId, decimal precio);
     (bool Exito, string Error) ResponderCotizacion(int id, int clienteId, bool aceptar);
 }
 
 public class SolicitudPersonalizadaServicio : ISolicitudPersonalizadaServicio
 {
+    public (bool Exito, string Error) ActualizarSeguimiento(int id, int shaperId, byte estado, DateTime entrega, string mensaje)
+    {
+        var pedido=ObtenerDetalleParaShaper(id,shaperId);
+        if(pedido==null) return(false,"No se encontró el pedido.");
+        if(!ReglasSeguimiento.Permite(pedido.Estado,estado))
+            return(false,"No se puede avanzar a esa etapa. La preparación requiere un pago confirmado.");
+        if(entrega.Date<DateTime.Today || entrega.Date>DateTime.Today.AddYears(2))
+            return(false,"Elegí una fecha estimada desde hoy y dentro de los próximos dos años.");
+        if(string.IsNullOrWhiteSpace(mensaje) || mensaje.Length>1000)
+            return(false,"Escribí una actualización para el cliente de hasta 1.000 caracteres.");
+        return _repositorio.ActualizarSeguimiento(id,shaperId,pedido.Estado,estado,entrega,mensaje.Trim())
+            ? (true,string.Empty) : (false,"El pedido cambió. Recargá la página antes de volver a guardar.");
+    }
     private readonly ISolicitudPersonalizadaRepositorio _repositorio;
     private readonly IProductoRepositorio _productos;
     private readonly IUsuarioRepositorio _usuarios;

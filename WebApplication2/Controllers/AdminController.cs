@@ -35,6 +35,12 @@ namespace WebApplication2.Controllers
                 return View(modelo);
             }
 
+            if (modelo.ImagenTrasera == null || modelo.ImagenTrasera.Length == 0)
+            {
+                ViewBag.Error = "La imagen trasera es obligatoria.";
+                return View(modelo);
+            }
+
             if (modelo.Precio <= 0)
             {
                 ViewBag.Error = "El precio debe ser mayor a 0.";

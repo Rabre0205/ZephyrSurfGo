@@ -153,7 +153,7 @@ function updateBoardImages() {
     const deckBase = document.getElementById('deckBase');
     const bottomBase = document.getElementById('bottomBase');
     if (deckBase) deckBase.src = '/img/boards/deck-mask.png';
-    if (bottomBase) bottomBase.src = '/img/boards/bottom-base.png';
+    if (bottomBase) bottomBase.src = '/img/boards/deck-mask.png';
 
     const design = getSelectedValue('customDesign', 'sin-pintura');
     const designOption = document.getElementById('customDesign')?.selectedOptions?.[0];
@@ -216,13 +216,15 @@ function filterCompatibleFins(finSystem) {
     });
 }
 
-function showCatalogBoardSide(button, side) {
-    const card = button.closest('.board-card');
-    const image = card?.querySelector('[data-board-gallery] img');
+function showCatalogBoardSideFromGallery(gallery, side) {
+    const image = gallery?.querySelector('img');
     if (!image) return;
+
     const nextImage = side === 'back' ? image.dataset.back : image.dataset.front;
     if (!nextImage) return;
+
     image.src = nextImage;
+    image.dataset.visibleSide = side;
     image.alt = `${side === 'back' ? 'Dorso' : 'Frente'} de la tabla`;
 }
 
@@ -644,14 +646,6 @@ async function addCustomToCart() {
     const volume =
         document.getElementById('customVolume')?.value || '';
 
-    const boardPrice = calculateCustomPrice();
-
-    let accessoriesPrice = 0;
-
-    selectedAccessories.forEach(function (accessory) {
-        accessoriesPrice += Number(accessory.price) || 0;
-    });
-
     const price = 0;
     const activeDetails = Array.from(
         document.querySelectorAll(
@@ -687,7 +681,7 @@ async function addCustomToCart() {
         Laminado: selectedText('customGlassing'), ParcheCarbono: selectedText('customCarbonPatch'),
         Diseno: selectedText('customDesign'), ColorPrimario: primaryColor,
         ColorSecundario: secondaryColor, DetallesAdicionales: activeDetails.join(', '),
-        AccesoriosJson: JSON.stringify(Array.from(selectedAccessories.values())),
+        AccesoriosJson: '[]',
         Notas: combinedNotes,
         __RequestVerificationToken: token
     });
@@ -725,6 +719,72 @@ async function addCustomToCart() {
         if (submitButton) submitButton.disabled = false;
     }
 }
+
+function collectCustomDesign() {
+    const ids = [
+        'customModel', 'customSweetSpot', 'customConstruction', 'customLength',
+        'customWidth', 'customThickness', 'customVolume', 'customTail',
+        'customFinSystem', 'customFinConfiguration', 'customGlassing',
+        'customCarbonPatch', 'customDecal', 'customDesign', 'customColor',
+        'customSecondaryColor', 'customDesignNotes', 'customStringerName', 'shaperNotes'
+    ];
+    const values = {};
+    ids.forEach(id => {
+        const control = document.getElementById(id);
+        if (control) values[id] = control.value;
+    });
+    values.activeDetails = Array.from(document.querySelectorAll('#customizador [data-detail].active'))
+        .map(button => button.dataset.detail);
+    return values;
+}
+
+async function saveCustomDesign() {
+    const url = window.shaperPageData?.saveDesignUrl;
+    if (!url) return showToast('Iniciá sesión como cliente para guardar el diseño.');
+    const name = window.prompt('Poné un nombre para reconocer este diseño:', 'Mi tabla personalizada');
+    if (!name) return;
+    const token = document.querySelector('#realCartToken input[name="__RequestVerificationToken"]')?.value || '';
+    const button = document.getElementById('saveCustomDesignButton');
+    if (button) button.disabled = true;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type':'application/x-www-form-urlencoded','X-Requested-With':'XMLHttpRequest'},
+            body: new URLSearchParams({
+                shaperId: String(window.shaperPageData?.shaperId || ''),
+                nombre: name,
+                configuracionJson: JSON.stringify(collectCustomDesign()),
+                __RequestVerificationToken: token
+            })
+        });
+        const result = await response.json();
+        if (!response.ok || !result.guardado) throw new Error(result.mensaje || 'No se pudo guardar el diseño.');
+        showToast(result.mensaje || result.mensajeZ || 'Diseño guardado.');
+    } catch (error) {
+        showToast(error?.message || 'No se pudo guardar el diseño.');
+    } finally {
+        if (button) button.disabled = false;
+    }
+}
+
+function applySavedCustomDesign(saved) {
+    if (!saved || typeof saved !== 'object') return;
+    Object.entries(saved).forEach(([id, value]) => {
+        if (id === 'activeDetails') return;
+        const control = document.getElementById(id);
+        if (!control || typeof value !== 'string') return;
+        if (control.tagName === 'SELECT' && !Array.from(control.options).some(o => o.value === value)) return;
+        control.value = value;
+        control.dispatchEvent(new Event('change', {bubbles:true}));
+    });
+    const details = new Set(Array.isArray(saved.activeDetails) ? saved.activeDetails : []);
+    document.querySelectorAll('#customizador [data-detail]').forEach(button =>
+        button.classList.toggle('active', details.has(button.dataset.detail)));
+    updateCustomPreview();
+    document.getElementById('customizador')?.scrollIntoView({behavior:'smooth'});
+}
+
+document.addEventListener('DOMContentLoaded', () => applySavedCustomDesign(window.savedCustomDesign));
 
 function renderOrderSummary() {
     // orderItems / subtotalVal / totalVal live in carrito.html; skip gracefully if absent
@@ -1644,31 +1704,6 @@ function updateCustomSummary() {
     const boardPrice =
         calculateCustomPrice();
 
-    let accessoriesTotal = 0;
-    let accessoryHtml = '';
-
-    selectedAccessories.forEach(function (item) {
-        accessoriesTotal += item.price;
-
-        const optionText =
-            item.option
-                ? ` · ${escapeAccessoryHtml(item.option)}`
-                : '';
-
-        accessoryHtml += `
-            <div class="custom-summary-row">
-                <span>
-                    ${escapeAccessoryHtml(item.name)}
-                    ${optionText}
-                </span>
-
-                <span>
-                    USD ${item.price}
-                </span>
-            </div>
-        `;
-    });
-
     const summaryBoardName =
         document.getElementById('summaryBoardName');
 
@@ -1680,9 +1715,6 @@ function updateCustomSummary() {
 
     const summaryFinPrice =
         document.getElementById('summaryFinPrice');
-
-    const summaryAccessories =
-        document.getElementById('summaryAccessories');
 
     const summaryTotal =
         document.getElementById('summaryTotal');
@@ -1696,76 +1728,19 @@ function updateCustomSummary() {
         summaryBoardPrice.textContent = 'A confirmar por el shaper';
     }
 
-    const selectedFin =
-        Array
-            .from(selectedAccessories.values())
-            .find(function (item) {
-                return item.id.startsWith('fins-');
-            });
-
     if (summaryFinSetup) {
-        if (selectedFin) {
-            summaryFinSetup.textContent =
-                selectedFin.name +
-                (
-                    selectedFin.option
-                        ? ` · ${selectedFin.option}`
-                        : ''
-                );
-        } else {
-            summaryFinSetup.textContent =
-                'Fin Setup (' +
-                getSelectedOptionText(
-                    'customFinConfiguration'
-                ) +
-                ')';
-        }
+        summaryFinSetup.textContent =
+            'Configuración de quillas (' +
+            getSelectedOptionText('customFinConfiguration') +
+            ')';
     }
 
     if (summaryFinPrice) {
-        summaryFinPrice.textContent =
-            selectedFin
-                ? 'USD ' + selectedFin.price
-                : 'Incluido';
-    }
-
-    if (summaryAccessories) {
-        /*
-           Evita repetir la quilla porque ya se muestra
-           en summaryFinSetup.
-        */
-        let otherAccessoriesHtml = '';
-
-        selectedAccessories.forEach(function (item) {
-            if (item.id.startsWith('fins-')) {
-                return;
-            }
-
-            otherAccessoriesHtml += `
-                <div class="custom-summary-row">
-                    <span>
-                        ${escapeAccessoryHtml(item.name)}
-                        ${item.option
-                    ? ` · ${escapeAccessoryHtml(item.option)}`
-                    : ''
-                }
-                    </span>
-
-                    <span>
-                        USD ${item.price}
-                    </span>
-                </div>
-            `;
-        });
-
-        summaryAccessories.innerHTML =
-            otherAccessoriesHtml;
+        summaryFinPrice.textContent = 'A confirmar';
     }
 
     if (summaryTotal) {
-        summaryTotal.textContent = accessoriesTotal > 0
-            ? `Tabla a confirmar · Accesorios USD ${accessoriesTotal}`
-            : 'A confirmar por el shaper';
+        summaryTotal.textContent = 'A confirmar por el shaper';
     }
 
     /*

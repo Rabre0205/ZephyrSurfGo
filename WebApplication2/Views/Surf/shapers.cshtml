@@ -114,6 +114,44 @@
         }
     </section>
 
+    <section class="join-shaper" id="unirse">
+        @if (TempData["SolicitudShaperEnviada"] is string mensaje)
+        {
+            <div class="join-success" role="status">✓ @mensaje</div>
+        }
+        <span class="section-label">Para quienes fabrican</span>
+        <h2>¿SOS SHAPER?</h2>
+        <p>Sumá tu marca y empezá a recibir pedidos completos y organizados. Primero revisaremos tu información y nos comunicaremos contigo.</p>
+        <button type="button" class="join-button" id="openShaperApplication">SUMAR MI MARCA →</button>
+    </section>
+
+    <dialog class="join-dialog" id="shaperApplicationDialog" aria-labelledby="joinDialogTitle">
+        <button type="button" class="join-close" id="closeShaperApplication" aria-label="Cerrar">×</button>
+        <span class="section-label">Comunidad de shapers</span>
+        <h2 id="joinDialogTitle">SUMÁ TU MARCA</h2>
+        <p>Estos datos se enviarán únicamente al equipo de Zephyr Surf Go. Completar el formulario no crea una cuenta automáticamente.</p>
+        <form asp-controller="Surf" asp-action="SolicitarIngresoShaper" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="join-errors" role="alert"></div>
+            <div class="join-form-grid">
+                <label>Nombre y apellido<input asp-for="Solicitud.Nombre" autocomplete="name" /><span asp-validation-for="Solicitud.Nombre"></span></label>
+                <label>Correo electrónico<input asp-for="Solicitud.Email" autocomplete="email" /><span asp-validation-for="Solicitud.Email"></span></label>
+                <label>Marca o taller<input asp-for="Solicitud.Marca" /><span asp-validation-for="Solicitud.Marca"></span></label>
+                <label>País y ciudad<input asp-for="Solicitud.Ubicacion" placeholder="Ej.: Montevideo, Uruguay" /><span asp-validation-for="Solicitud.Ubicacion"></span></label>
+                <label>Celular o WhatsApp<input asp-for="Solicitud.Celular" autocomplete="tel" placeholder="Incluí el código de país" /><span asp-validation-for="Solicitud.Celular"></span></label>
+                <label>Instagram de la marca<input asp-for="Solicitud.Instagram" placeholder="Ej.: @@mi_taller" /><span asp-validation-for="Solicitud.Instagram"></span></label>
+                <label>Años de experiencia<input asp-for="Solicitud.AniosExperiencia" min="0" max="80" /><span asp-validation-for="Solicitud.AniosExperiencia"></span></label>
+                <div class="join-options join-wide">
+                    <label class="join-check"><input asp-for="Solicitud.RealizaPersonalizadas" /> Fabrico tablas completamente personalizadas</label>
+                    <label class="join-check"><input asp-for="Solicitud.RealizaEnvios" /> Puedo realizar envíos</label>
+                </div>
+                <label class="join-wide">Sobre tu trabajo<textarea asp-for="Solicitud.Presentacion" placeholder="Tipos de tablas que fabricás y qué distingue a tu marca..."></textarea><span asp-validation-for="Solicitud.Presentacion"></span></label>
+                <label class="join-check join-wide"><input asp-for="Solicitud.AceptaContacto" /> Acepto que Zephyr Surf Go use estos datos para evaluar la solicitud y contactarme.<span asp-validation-for="Solicitud.AceptaContacto"></span></label>
+            </div>
+            <button type="submit" class="join-submit">ENVIAR SOLICITUD</button>
+        </form>
+    </dialog>
+
     <script>
         (() => {
             const cards = [...document.querySelectorAll('.shaper-card')];
@@ -147,8 +185,20 @@
                 if (entry.isIntersecting) entry.target.classList.add('visible');
             }), { threshold: .08 });
             document.querySelectorAll('.reveal').forEach(element => observer.observe(element));
+
+            const applicationDialog = document.getElementById('shaperApplicationDialog');
+            document.getElementById('openShaperApplication')?.addEventListener('click', () => applicationDialog?.showModal());
+            document.getElementById('closeShaperApplication')?.addEventListener('click', () => applicationDialog?.close());
+            applicationDialog?.addEventListener('click', event => {
+                if (event.target === applicationDialog) applicationDialog.close();
+            });
+            @if (ViewBag.AbrirSolicitudShaper == true)
+            {
+                <text>applicationDialog?.showModal();</text>
+            }
         })();
     </script>
+    <partial name="_ValidationScriptsPartial" />
     <script src="~/js/navbar.js" asp-append-version="true"></script>
 </body>
 </html>

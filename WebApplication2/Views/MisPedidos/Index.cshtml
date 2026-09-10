@@ -1,16 +1,43 @@
 @model WebApplication2.Models.MisPedidos.MisPedidosViewModel
-@{ Layout = null; ViewData["Title"] = "Mis pedidos"; }
+@{ Layout = null; ViewData["Title"] = "Pedidos e historial"; }
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width"/>
-<title>Mis pedidos - Zephyr Surf Go</title><link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true"/><link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/></head>
-<body><partial name="_Navbar"/><main class="container py-5" style="max-width:1000px;margin-top:70px">
-<small class="text-uppercase text-primary fw-bold">Tu cuenta</small><h1 class="display-4 fw-bold">Mis pedidos</h1>
-<p class="text-secondary">Consultá en un solo lugar tus compras y las tablas personalizadas encargadas a un shaper.</p>
-@if(Model.EstaVacio){
-<section class="border rounded-4 p-5 text-center mt-4"><div class="fs-1">🏄</div><h2>Todavía no realizaste pedidos</h2><p class="text-secondary">Cuando compres un producto o encargues una tabla personalizada, aparecerá acá.</p><a asp-controller="Surf" asp-action="Home" class="btn btn-primary btn-lg">Explorar tablas</a></section>
-}else{
-<div class="row g-3 mt-3">
-@foreach(var p in Model.Personalizados){<div class="col-12"><article class="border border-warning rounded-4 p-4 d-flex justify-content-between align-items-center flex-wrap gap-3"><div><span class="badge text-bg-warning mb-2">Tabla personalizada</span><small class="d-block text-secondary">@p.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy")</small><h2 class="h4 mb-1">Pedido personalizado #@p.Id</h2><p class="mb-0">@p.Modelo · @p.ShaperNombre</p></div><div class="text-md-end"><span class="badge text-bg-primary mb-2">@p.EstadoNombre</span><strong class="d-block fs-6">@(p.PrecioEstimado > 0 ? $"USD {p.PrecioEstimado:N2}" : "Precio a confirmar por el shaper")</strong><a asp-action="DetallePersonalizado" asp-route-id="@p.Id" class="btn btn-outline-primary mt-2">@(p.Estado == 1 ? "Responder cotización" : "Ver configuración")</a></div></article></div>}
-@foreach(var p in Model.Compras){<div class="col-12"><article class="border rounded-4 p-4 d-flex justify-content-between align-items-center flex-wrap gap-3"><div><span class="badge text-bg-light mb-2">Compra</span><small class="d-block text-secondary">@p.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy")</small><h2 class="h4 mb-1">Pedido #@p.Id</h2><p class="mb-0">@(!string.IsNullOrWhiteSpace(p.NegocioShaper)?p.NegocioShaper:p.ShaperNombre)</p></div><div class="text-md-end"><span class="badge text-bg-primary mb-2">@p.EstadoNombre</span><strong class="d-block fs-5">USD @p.Total.ToString("N2")</strong><a asp-action="Detalle" asp-route-id="@p.Id" class="btn btn-outline-primary mt-2">Ver detalle</a></div></article></div>}
-</div>}
-</main><script src="~/js/navbar.js" asp-append-version="true"></script></body></html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width" />
+    <title>Pedidos e historial - Zephyr Surf Go</title>
+    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body{background:#f5f2eb;color:#0c1d43}.orders-page{max-width:1050px;margin:70px auto 0;padding:60px 24px 90px}.orders-heading{max-width:720px}.orders-heading h1{font-size:clamp(2.8rem,5vw,4.2rem);font-weight:800;line-height:1;margin:8px 0 14px}.orders-heading p{font-size:1.02rem;line-height:1.65}.order-tabs{display:flex;gap:6px;margin:34px 0 22px;padding:6px;background:#e8e5df;border-radius:14px;width:max-content}.order-tab{display:flex;align-items:center;gap:10px;border:0;background:transparent;padding:11px 17px;border-radius:10px;color:#5d6675;font-weight:700;transition:.2s}.order-tab span{display:grid;place-items:center;min-width:23px;height:23px;padding:0 6px;border-radius:999px;background:rgba(12,29,67,.08);font-size:.74rem}.order-tab.active{background:#fff;color:#0c1d43;box-shadow:0 4px 14px rgba(12,29,67,.1)}.order-tab.active span{background:#0c1d43;color:#fff}.order-card{position:relative;overflow:hidden;background:#fff;border:1px solid #d8dee8;border-radius:18px;padding:25px 25px 25px 34px;display:flex;justify-content:space-between;align-items:center;gap:22px;margin-bottom:14px;box-shadow:0 8px 24px rgba(12,29,67,.05);transition:transform .2s,box-shadow .2s}.order-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:#4194e0}.order-card[data-group="history"]::before{background:#8d97a6}.order-card:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(12,29,67,.09)}.order-main{display:flex;align-items:center;gap:18px}.order-icon{display:grid;place-items:center;width:48px;height:48px;flex:none;border-radius:14px;background:#edf5fd;color:#2674c2;font-size:1.25rem}.order-card[data-group="history"] .order-icon{background:#f0f1f3;color:#697386}.order-type{display:inline-block;color:#337fd0;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.13em}.order-date{color:#8b93a1;font-size:.82rem}.order-card h2{font-size:1.25rem;margin:7px 0 4px}.order-meta{text-align:right;min-width:185px}.order-status{display:inline-block;background:#edf4fc;color:#2367ac;padding:7px 11px;border-radius:999px;font-size:.74rem;font-weight:750}.order-card[data-group="history"] .order-status{background:#f0f1f3;color:#646d7a}.order-price{display:block;margin:10px 0;font-size:1.15rem}.order-empty{text-align:center;background:#fff;border:1px solid #d8dee8;border-radius:18px;padding:60px 25px}.hidden-order{display:none}@@media(max-width:780px){.order-card{align-items:flex-start;flex-direction:column}.order-meta{text-align:left;width:100%}.order-main{align-items:flex-start}.order-tabs{max-width:100%;overflow:auto}.orders-page{padding-top:35px}}@@media(max-width:480px){.order-icon{display:none}.order-card{padding-left:25px}.order-tab{padding:10px 12px}.order-tab span{display:none}}
+    </style>
+</head>
+<body><partial name="_Navbar" />
+<main class="orders-page">
+    <header class="orders-heading">
+        <div><small class="text-uppercase text-primary fw-bold">Tu cuenta</small><h1>MIS PEDIDOS</h1><p class="text-secondary mb-0">Seguí los pedidos que están en curso o consultá tus compras anteriores desde el historial.</p></div>
+    </header>
+    @if (Model.EstaVacio)
+    {
+        <section class="order-empty mt-4"><div class="fs-1">🏄</div><h2>Todavía no realizaste pedidos</h2><p class="text-secondary">Cuando compres un producto o encargues una tabla personalizada, aparecerá acá.</p><a asp-controller="Surf" asp-action="Home" class="btn btn-primary btn-lg">Explorar tablas</a></section>
+    }
+    else
+    {
+        <nav class="order-tabs" aria-label="Filtrar pedidos"><button class="order-tab active" type="button" data-filter="all">Todos <span>@(Model.CantidadEnCurso + Model.CantidadHistorial)</span></button><button class="order-tab" type="button" data-filter="active">En curso <span>@Model.CantidadEnCurso</span></button><button class="order-tab" type="button" data-filter="history">Historial <span>@Model.CantidadHistorial</span></button></nav>
+        <div id="ordersList">
+            @foreach (var pedido in Model.Personalizados.OrderByDescending(x => x.FechaCreacion))
+            {
+                bool finalizado = pedido.Estado is 2 or 4 or 9;
+                <article class="order-card" data-group="@(finalizado ? "history" : "active")"><div class="order-main"><div class="order-icon" aria-hidden="true">◇</div><div><span class="order-type">Tabla personalizada</span><span class="order-date"> · @pedido.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy")</span><h2>Pedido personalizado #@pedido.Id</h2><p class="mb-0 text-secondary">@pedido.Modelo · @pedido.ShaperNombre</p></div></div><div class="order-meta"><span class="order-status">@pedido.EstadoNombre</span><strong class="order-price">@(pedido.PrecioEstimado > 0 ? $"USD {pedido.PrecioEstimado:N2}" : "Precio pendiente")</strong><a asp-action="DetallePersonalizado" asp-route-id="@pedido.Id" class="btn btn-outline-primary">@(pedido.Estado == 1 ? "Responder cotización" : "Ver detalle")</a></div></article>
+            }
+            @foreach (var pedido in Model.Compras.OrderByDescending(x => x.FechaCreacion))
+            {
+                bool finalizado = pedido.EstadoId == 4;
+                <article class="order-card" data-group="@(finalizado ? "history" : "active")"><div class="order-main"><div class="order-icon" aria-hidden="true">▣</div><div><span class="order-type">Compra</span><span class="order-date"> · @pedido.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy")</span><h2>Pedido #@pedido.Id</h2><p class="mb-0 text-secondary">@(!string.IsNullOrWhiteSpace(pedido.NegocioShaper) ? pedido.NegocioShaper : pedido.ShaperNombre)</p></div></div><div class="order-meta"><span class="order-status">@pedido.EstadoNombre</span><strong class="order-price">USD @pedido.Total.ToString("N2")</strong><a asp-action="Detalle" asp-route-id="@pedido.Id" class="btn btn-outline-primary">Ver detalle</a></div></article>
+            }
+        </div>
+        <section id="filteredEmpty" class="order-empty hidden-order"><h2>No hay pedidos en esta sección</h2><p class="text-secondary mb-0">Probá seleccionando otro filtro.</p></section>
+    }
+</main>
+<script>
+document.querySelectorAll('.order-tab').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.order-tab').forEach(x=>x.classList.remove('active'));button.classList.add('active');let visible=0;document.querySelectorAll('.order-card').forEach(card=>{const show=button.dataset.filter==='all'||card.dataset.group===button.dataset.filter;card.classList.toggle('hidden-order',!show);if(show)visible++;});document.getElementById('filteredEmpty')?.classList.toggle('hidden-order',visible!==0);}));
+</script><script src="~/js/navbar.js" asp-append-version="true"></script></body></html>

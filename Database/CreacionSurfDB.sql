@@ -1,5 +1,9 @@
 ﻿/* ============================================================
    ESQUEMA DE BASE DE DATOS - SurfDB
+   Versión consolidada: septiembre de 2026.
+   Incluye carrito y pedidos, pedidos personalizados y seguimiento,
+   reseñas verificadas, favoritos, diseños guardados, diseños del
+   shaper, puntos de retiro y solicitudes de soporte.
    Estrategias:
      - Usuario / Shaper  -> TPH (Table per Hierarchy)
      - Producto (Leash, Pad, Quilla, Tabla, Traje) -> TPT (Table per Type)
@@ -753,6 +757,45 @@ GO
 CREATE INDEX IX_PedidoItems_PedidoId ON PedidoItems(PedidoId);
 GO
 
+-- Reseñas verificadas, favoritos y borradores del customizador.
+CREATE TABLE ResenasProductos (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    ProductoId INT NOT NULL REFERENCES Productos(Id),
+    ClienteId INT NOT NULL REFERENCES Usuarios(Id),
+    PedidoId INT NOT NULL REFERENCES Pedidos(Id),
+    Estrellas TINYINT NOT NULL,
+    Comentario NVARCHAR(1000) NOT NULL,
+    FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT CK_ResenasProductos_Estrellas CHECK (Estrellas BETWEEN 1 AND 5),
+    CONSTRAINT UQ_ResenasProductos_ClienteProducto UNIQUE (ClienteId, ProductoId)
+);
+GO
+CREATE INDEX IX_ResenasProductos_ProductoFecha ON ResenasProductos(ProductoId, FechaCreacion DESC);
+GO
+
+CREATE TABLE FavoritosProductos (
+    ClienteId INT NOT NULL REFERENCES Usuarios(Id),
+    ProductoId INT NOT NULL REFERENCES Productos(Id),
+    FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT PK_FavoritosProductos PRIMARY KEY (ClienteId, ProductoId)
+);
+GO
+CREATE INDEX IX_FavoritosProductos_ProductoId ON FavoritosProductos(ProductoId);
+GO
+
+CREATE TABLE DisenosGuardados (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    ClienteId INT NOT NULL REFERENCES Usuarios(Id),
+    ShaperId INT NOT NULL REFERENCES Usuarios(Id),
+    Nombre NVARCHAR(100) NOT NULL,
+    ConfiguracionJson NVARCHAR(MAX) NOT NULL,
+    FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT CK_DisenosGuardados_Json CHECK (ISJSON(ConfiguracionJson)=1)
+);
+GO
+CREATE INDEX IX_DisenosGuardados_ClienteFecha ON DisenosGuardados(ClienteId, FechaCreacion DESC);
+GO
+
 -- Puntos de retiro públicos administrados por cada shaper.
 -- No se guarda ni publica la ubicación privada del taller.
 CREATE TABLE PuntosRetiro (
@@ -828,6 +871,10 @@ CREATE TABLE SolicitudesPersonalizadas (
     FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
     FechaActualizacion DATETIME2 NULL,
     FechaRespuestaCliente DATETIME2 NULL,
+    EntregaEstimada DATE NULL,
+    EntregaOriginal DATE NULL,
+    AvanceShaper NVARCHAR(1000) NOT NULL DEFAULT '',
+    FechaSeguimiento DATETIME2 NULL,
 
     CONSTRAINT PK_SolicitudesPersonalizadas_Id PRIMARY KEY (Id),
     CONSTRAINT CK_SolicitudesPersonalizadas_Estado CHECK (Estado BETWEEN 0 AND 9),
@@ -894,4 +941,7 @@ GO
    4. Los catálogos (Paises, TiposDeUsuario, SistemasDeEncaje,
       TiposDeOla, EstilosDeSurf, Experiencias, Generos, Talles) no
       llevan auditoría ni soft delete; son datos de referencia fijos.
+
+   5. Las solicitudes públicas para que una marca se una como shaper
+      se envían por correo y no se almacenan en SurfDB.
    ============================================================ */

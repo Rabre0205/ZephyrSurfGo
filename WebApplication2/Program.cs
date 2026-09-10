@@ -36,6 +36,8 @@ namespace WebApplication2
             builder.Services.AddScoped<ISolicitudSoporteServicio, SolicitudSoporteServicio>();
             builder.Services.AddScoped<IDisenoShaperRepositorio, DisenoShaperRepositorio>();
             builder.Services.AddScoped<IDisenoShaperServicio, DisenoShaperServicio>();
+            builder.Services.AddScoped<IInteraccionesRepositorio, InteraccionesRepositorio>();
+            builder.Services.AddScoped<WebApplication2.Servicios.ICorreoNotificacionServicio, WebApplication2.Servicios.CorreoNotificacionServicio>();
      
 
             //cosa de cloudinary, echo por claude ni idea que es
