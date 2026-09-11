@@ -57,6 +57,10 @@ public class ContratoInteraccionesClienteTests
     public void SolicitudPublicaDeShaperProtegeElEnvio()
     {
         AssertPostSeguro(typeof(SurfController), "SolicitarIngresoShaper", 1);
+        var accionLista = Assert.Single(typeof(SurfController).GetMethods(), m => m.Name == "shapers" && m.GetParameters().Length == 0);
+        var accionSolicitud = Assert.Single(typeof(SurfController).GetMethods(), m => m.Name == "SolicitarIngresoShaper");
+        Assert.Empty(accionLista.GetCustomAttributes(typeof(AuthorizeAttribute), true));
+        Assert.Empty(accionSolicitud.GetCustomAttributes(typeof(AuthorizeAttribute), true));
         string vista = File.ReadAllText(Path.Combine(BuscarRaizProyecto(), "WebApplication2", "Views", "Surf", "shapers.cshtml"));
         Assert.Contains("asp-for=\"Solicitud.AceptaContacto\"", vista);
         Assert.Contains("@Html.AntiForgeryToken()", vista);

@@ -50,7 +50,6 @@ namespace WebApplication2.Controllers
             return View();
         }
         public IActionResult master() { return View(); }
-        [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Cliente")]
         public IActionResult shapers()
         {
             return View(CrearCatalogoShapers());
@@ -58,7 +57,6 @@ namespace WebApplication2.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Cliente")]
         public async Task<IActionResult> SolicitarIngresoShaper(WebApplication2.Models.UnirseShaperViewModel solicitud)
         {
             var modelo = CrearCatalogoShapers();

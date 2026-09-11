@@ -110,8 +110,9 @@ Esta guía permite verificar los flujos principales antes de integrar una rama o
 | I06 | Cliente | Personalizar una tabla, pulsar “Guardar diseño” y asignarle un nombre. | Aparece en “Mis diseños guardados”; no crea pedido ni reserva precio. | |
 | I07 | Cliente | Abrir “Continuar diseño” desde un borrador. | Regresa al shaper y restaura las opciones y colores guardados. | |
 | I08 | Cliente | Eliminar un diseño guardado. | Desaparece de la lista y no altera pedidos existentes. | |
-| I09 | Visitante | Desde el inicio pulsar “Sumar mi marca”, completar el formulario y enviarlo. | Muestra la confirmación y llega un correo a `zephyrsurfgo@gmail.com` con todos los datos, sin incluir contraseñas. | |
+| I09 | Visitante sin sesión | Abrir “Shapers”, pulsar “Sumar mi marca”, completar el formulario y enviarlo. | No exige una cuenta; muestra la confirmación y llega un correo a `zephyrsurfgo@gmail.com` con todos los datos, sin incluir contraseñas. | |
 | I10 | Visitante | Enviar la solicitud sin aceptar el contacto o con datos incompletos. | No envía el correo e indica claramente qué falta. | |
+| I10b | Visitante sin sesión | Desde la lista pública intentar abrir el perfil completo de un shaper. | Redirige al inicio de sesión y no permite personalizar, guardar favoritos ni comprar. | |
 | I11 | Cliente | Abrir “Pedidos e historial” desde el menú del perfil y seleccionar “En curso”. | Solo aparecen compras y pedidos personalizados que todavía requieren seguimiento. | |
 | I12 | Cliente | Seleccionar “Historial”. | Aparecen compras entregadas y solicitudes personalizadas finalizadas, rechazadas o no disponibles. | |
 | I13 | Cliente | Abrir un elemento del historial. | Puede consultar vendedor, fecha, estado, importe y detalle sin modificar otros pedidos. | |
