@@ -38,7 +38,7 @@
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <div class="breadcrumb-nav">
-                <a href="index2.html">Dealers</a>
+                <a asp-controller="Surf" asp-action="Dealers">Puntos de retiro</a>
                 <span class="sep">›</span>
                 <a href="#">Uruguay</a>
                 <span class="sep">›</span>
@@ -646,7 +646,7 @@
 
                     <div class="custom-measurement-field">
                         <label for="customVolume">
-                            Volumen (litros)n
+                            Volumen (litros)
                         </label>
 
                         <input class="custom-input volume-input"
@@ -1351,7 +1351,7 @@
             <p style="font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:.75rem;">Último paso</p>
             <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,5vw,4.5rem);color:#fff;line-height:1;margin-bottom:1rem;">Listo para pedir?</h2>
             <p style="font-size:.95rem;color:rgba(255,255,255,.4);line-height:1.8;font-weight:300;margin-bottom:2.5rem;">Revisá tu selección, completá tus datos de surf y confirmá el pedido. Francisco se comunica en 24hs para cerrar los detalles.</p>
-            <a href="carrito.html" class="btn-gold" style="display:inline-block;padding:1.1rem 3rem;font-size:.92rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-decoration:none;">
+            <a asp-controller="Carrito" asp-action="Index" class="btn-gold" style="display:inline-block;padding:1.1rem 3rem;font-size:.92rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;text-decoration:none;">
                 Ir al carrito y confirmar pedido →
             </a>
             <p style="font-size:.72rem;color:rgba(255,255,255,.2);margin-top:1.5rem;letter-spacing:.04em;">Cada tabla se hace a mano, a tu medida.</p>
@@ -1370,11 +1370,11 @@
                 <div class="footer-tagline">Tablas de autor. Olas uruguayas.</div>
             </div>
             <ul class="footer-links">
-                <li><a href="index.html">Inicio</a></li>
+                <li><a asp-controller="Surf" asp-action="Home">Inicio</a></li>
                 <li><a href="#tablas">Catálogo Master</a></li>
                 <li><a href="#recomendador">Recomendador</a></li>
                 <li><a href="#customizador">Customizador</a></li>
-                <li><a href="index2.html">Dealers</a></li>
+                <li><a asp-controller="Surf" asp-action="Dealers">Puntos de retiro</a></li>
             </ul>
             <div style="font-size:.75rem;letter-spacing:.08em;">
                 <p style="color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.12em;font-size:.65rem;margin-bottom:.6rem;">Contacto</p>

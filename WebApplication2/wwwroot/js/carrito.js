@@ -119,7 +119,7 @@ function renderCart() {
             </svg>
             <h2>Tu carrito está vacío</h2>
             <p>Explorá nuestra selección de tablas de autor y encontrá la ideal para tu ola.</p>
-            <a href="master.html#tablas" class="btn-primary-custom" style="display:inline-block;background:var(--accent);color:#fff;padding:.85rem 2rem;border-radius:2px;text-decoration:none;font-size:.88rem;letter-spacing:.06em;text-transform:uppercase;font-weight:500;">Ver tablas</a>
+            <a href="/Surf/master" class="btn-primary-custom" style="display:inline-block;background:var(--accent);color:#fff;padding:.85rem 2rem;border-radius:2px;text-decoration:none;font-size:.88rem;letter-spacing:.06em;text-transform:uppercase;font-weight:500;">Ver tablas</a>
           </div>
           ${renderRecommended()}
         `;
@@ -275,7 +275,7 @@ function renderCart() {
           <button class="btn-checkout" onclick="openOrderForm()" id="btnProceed">
             Finalizar pedido →
           </button>
-          <a href="master.html#tablas" class="btn-continue">Seguir eligiendo</a>
+          <a href="/Surf/master" class="btn-continue">Seguir eligiendo</a>
 
           <div class="trust-badges">
             <div class="badge-item">

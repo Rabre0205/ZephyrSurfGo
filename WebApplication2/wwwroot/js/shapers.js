@@ -361,7 +361,7 @@ function openModal(key) {
           <p class="modal-boards-title">Tablas disponibles</p>
           <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:.5rem;">${boardsHTML}</div>
           <div class="modal-cta">
-            <a href="index.html#contacto" class="btn-primary-custom" style="font-size:.82rem;padding:.75rem 1.5rem;">Contactar shaper</a>
+            <a href="/Surf/Home#contacto" class="btn-primary-custom" style="font-size:.82rem;padding:.75rem 1.5rem;">Contactar shaper</a>
             <button class="btn-outline-white" onclick="closeModal()" style="border-color:rgba(0,0,0,.15);color:var(--muted);font-size:.82rem;padding:.75rem 1.5rem;background:none;">Cerrar</button>
           </div>
         </div>

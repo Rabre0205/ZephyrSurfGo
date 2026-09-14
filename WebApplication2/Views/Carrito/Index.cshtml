@@ -330,10 +330,10 @@
                 <div class="footer-tagline">Tablas de autor. Olas latinoamericanas.</div>
             </div>
             <ul class="footer-links">
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="index.html#tablas">Tablas</a></li>
-                <li><a href="index2.html">Dealers</a></li>
-                <li><a href="index.html#contacto">Contacto</a></li>
+                <li><a asp-controller="Surf" asp-action="Home">Inicio</a></li>
+                <li><a asp-controller="Surf" asp-action="master">Tablas</a></li>
+                <li><a asp-controller="Surf" asp-action="Dealers">Puntos de retiro</a></li>
+                <li><a asp-controller="Surf" asp-action="Home" asp-fragment="contacto">Contacto</a></li>
             </ul>
         </div>
         <p class="footer-copy">© 2025 Zephyr Surf Go — Todos los derechos reservados.</p>

@@ -21,7 +21,7 @@ namespace WebApplication2.Controllers
             _correo = correo;
         }
 
-        public IActionResult carrito() { return View(); }
+        public IActionResult carrito() { return RedirectToAction("Index", "Carrito"); }
         public IActionResult Dealers()
         {
             return View(_puntoRetiroServicio.ObtenerActivos());
