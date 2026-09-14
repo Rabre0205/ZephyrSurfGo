@@ -105,7 +105,7 @@ public class CarritoControllerTests
         if (ajax)
             contexto.Request.Headers["X-Requested-With"] = "XMLHttpRequest";
 
-        return new CarritoController(repositorio, new PedidoServicioFalso())
+        return new CarritoController(repositorio, new PedidoServicioFalso(), null!)
         {
             ControllerContext = new ControllerContext { HttpContext = contexto },
             TempData = new TempDataDictionary(contexto, new TempDataProviderFalso())

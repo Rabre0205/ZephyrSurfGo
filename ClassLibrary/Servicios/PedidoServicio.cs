@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text;
 using System.Globalization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ClassLibrary.Servicios
 {
@@ -64,15 +65,8 @@ namespace ClassLibrary.Servicios
             ICarritoRepositorio carritoRepositorio,
             IProductoRepositorio productoRepositorio,
             IPedidoRepositorio pedidoRepositorio,
-            IMercadoPagoServicio mercadoPagoServicio)
-            : this(carritoRepositorio, productoRepositorio, pedidoRepositorio, mercadoPagoServicio, null) { }
-
-        public PedidoServicio(
-            ICarritoRepositorio carritoRepositorio,
-            IProductoRepositorio productoRepositorio,
-            IPedidoRepositorio pedidoRepositorio,
             IMercadoPagoServicio mercadoPagoServicio,
-            IPuntoRetiroRepositorio? puntoRetiroRepositorio)
+            IPuntoRetiroRepositorio puntoRetiroRepositorio)
         {
             _carritoRepositorio = carritoRepositorio;
             _productoRepositorio = productoRepositorio;

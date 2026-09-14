@@ -4,6 +4,7 @@ using ClassLibrary.Servicios;
 using MercadoPago.Resource.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
 
 namespace WebApplication2.Controllers
@@ -15,10 +16,7 @@ namespace WebApplication2.Controllers
         private readonly IPedidoServicio _pedidoServicio;
         private readonly IPuntoRetiroServicio? _puntoRetiroServicio;
 
-        public CarritoController(ICarritoRepositorio carritoRepositorio, IPedidoServicio pedidoServicio)
-            : this(carritoRepositorio, pedidoServicio, null) { }
-
-        public CarritoController(ICarritoRepositorio carritoRepositorio, IPedidoServicio pedidoServicio, IPuntoRetiroServicio? puntoRetiroServicio)
+        public CarritoController(ICarritoRepositorio carritoRepositorio, IPedidoServicio pedidoServicio, IPuntoRetiroServicio puntoRetiroServicio)
         {
             _carritoRepositorio = carritoRepositorio;
             _pedidoServicio = pedidoServicio;
