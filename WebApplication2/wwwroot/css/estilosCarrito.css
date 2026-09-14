@@ -1050,3 +1050,10 @@ footer {
 .cart-item * {
     color: #222;
 }
+
+.pickup-selection { margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid rgba(34,34,34,.18); }
+.pickup-selection h2 { margin: 0 0 .25rem; font-family: 'Bebas Neue', sans-serif; font-size: 1.35rem; }
+.pickup-selection p { margin: 0 0 1rem; color: #665f54; font-size: .85rem; }
+.pickup-selection label { display: block; margin: .8rem 0 .35rem; color: #222; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.pickup-selection select { width: 100%; padding: .75rem; border: 1px solid rgba(34,34,34,.3); background: #f7f1e4; color: #222; font: inherit; }
+.pickup-selection select:focus { outline: 2px solid #d3a64a; outline-offset: 2px; }

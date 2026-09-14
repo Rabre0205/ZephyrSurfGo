@@ -13,16 +13,28 @@ namespace WebApplication2.Controllers
     {
         private readonly ICarritoRepositorio _carritoRepositorio;
         private readonly IPedidoServicio _pedidoServicio;
+        private readonly IPuntoRetiroServicio? _puntoRetiroServicio;
 
         public CarritoController(ICarritoRepositorio carritoRepositorio, IPedidoServicio pedidoServicio)
+            : this(carritoRepositorio, pedidoServicio, null) { }
+
+        public CarritoController(ICarritoRepositorio carritoRepositorio, IPedidoServicio pedidoServicio, IPuntoRetiroServicio? puntoRetiroServicio)
         {
             _carritoRepositorio = carritoRepositorio;
             _pedidoServicio = pedidoServicio;
+            _puntoRetiroServicio = puntoRetiroServicio;
         }
         public IActionResult Index()
         {
             int clienteId = ObtenerClienteId();
             var items = _carritoRepositorio.ObtenerPorUsuario(clienteId);
+            if (_puntoRetiroServicio != null)
+            {
+                var shapers = items.Select(i => i.ShaperId).Distinct().ToHashSet();
+                ViewBag.PuntosRetiro = _puntoRetiroServicio.ObtenerActivos()
+                    .Where(p => shapers.Contains(p.ShaperId)).GroupBy(p => p.ShaperId)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+            }
             return View(items);
         }
 
@@ -146,7 +158,7 @@ namespace WebApplication2.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Checkout()
+        public async Task<IActionResult> Checkout(Dictionary<int,int>? puntosRetiro)
         {
             int clienteId = ObtenerClienteId();
 
@@ -159,7 +171,9 @@ namespace WebApplication2.Controllers
             List<(Pedido Pedido, string UrlPago)> pedidos;
             try
             {
-                pedidos = await _pedidoServicio.CrearPedidosDesdeCarritoAsync(clienteId);
+                pedidos = _puntoRetiroServicio == null
+                    ? await _pedidoServicio.CrearPedidosDesdeCarritoAsync(clienteId)
+                    : await _pedidoServicio.CrearPedidosDesdeCarritoAsync(clienteId, puntosRetiro ?? new Dictionary<int,int>());
             }
             catch (InvalidOperationException ex)
             {

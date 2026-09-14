@@ -30,5 +30,14 @@ public class PuntosRetiroController : Controller
             : "No se pudo modificar el punto de retiro.";
         return RedirectToAction(nameof(Index));
     }
+    [HttpPost,ValidateAntiForgeryToken]
+    public IActionResult Eliminar(int id)
+    {
+        bool eliminado=_servicio.Eliminar(id,UsuarioId());
+        TempData[eliminado?"Mensaje":"Error"]=eliminado
+            ? "El punto de retiro se eliminó correctamente."
+            : "No se pudo eliminar el punto de retiro.";
+        return RedirectToAction(nameof(Index));
+    }
     private int UsuarioId()=>int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }

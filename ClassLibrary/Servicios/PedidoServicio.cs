@@ -14,6 +14,10 @@ namespace ClassLibrary.Servicios
         Task<List<(Pedido Pedido, string UrlPago)>>
             CrearPedidosDesdeCarritoAsync(int clienteId);
 
+        Task<List<(Pedido Pedido, string UrlPago)>>
+            CrearPedidosDesdeCarritoAsync(int clienteId, IReadOnlyDictionary<int,int> puntosRetiroPorShaper)
+            => CrearPedidosDesdeCarritoAsync(clienteId);
+
         Task ProcesarNotificacionPagoAsync(
             string mercadoPagoPaymentId
         );
@@ -51,6 +55,7 @@ namespace ClassLibrary.Servicios
         private readonly IProductoRepositorio _productoRepositorio;
         private readonly IPedidoRepositorio _pedidoRepositorio;
         private readonly IMercadoPagoServicio _mercadoPagoServicio;
+        private readonly IPuntoRetiroRepositorio? _puntoRetiroRepositorio;
 
 
         private readonly decimal _comision;
@@ -60,11 +65,20 @@ namespace ClassLibrary.Servicios
             IProductoRepositorio productoRepositorio,
             IPedidoRepositorio pedidoRepositorio,
             IMercadoPagoServicio mercadoPagoServicio)
+            : this(carritoRepositorio, productoRepositorio, pedidoRepositorio, mercadoPagoServicio, null) { }
+
+        public PedidoServicio(
+            ICarritoRepositorio carritoRepositorio,
+            IProductoRepositorio productoRepositorio,
+            IPedidoRepositorio pedidoRepositorio,
+            IMercadoPagoServicio mercadoPagoServicio,
+            IPuntoRetiroRepositorio? puntoRetiroRepositorio)
         {
             _carritoRepositorio = carritoRepositorio;
             _productoRepositorio = productoRepositorio;
             _pedidoRepositorio = pedidoRepositorio;
             _mercadoPagoServicio = mercadoPagoServicio;
+            _puntoRetiroRepositorio = puntoRetiroRepositorio;
 
             string? comisionConfigurada =
                 Environment.GetEnvironmentVariable("MP_COMISION_PLATAFORMA");
@@ -140,6 +154,9 @@ namespace ClassLibrary.Servicios
         }
 
         public async Task<List<(Pedido, string)>> CrearPedidosDesdeCarritoAsync(int clienteId)
+            => await CrearPedidosDesdeCarritoAsync(clienteId, new Dictionary<int,int>());
+
+        public async Task<List<(Pedido, string)>> CrearPedidosDesdeCarritoAsync(int clienteId, IReadOnlyDictionary<int,int> puntosRetiroPorShaper)
         {
             List<CarritoItemDetallado> items = _carritoRepositorio.ObtenerPorUsuario(clienteId);
             if (items.Count == 0)
@@ -166,6 +183,18 @@ namespace ClassLibrary.Servicios
                     List<CarritoItemDetallado> itemsShaper = grupo.Value;
 
                     Pedido pedido = new Pedido { ClienteId = clienteId, ShaperId = shaperId, EstadoPedidoId = 0 };
+                    if (_puntoRetiroRepositorio != null)
+                    {
+                        if (!puntosRetiroPorShaper.TryGetValue(shaperId, out int puntoId))
+                            throw new InvalidOperationException("Elegí un punto de retiro para cada shaper.");
+                        var punto = _puntoRetiroRepositorio.ObtenerPorId(puntoId);
+                        if (punto == null || punto.ShaperId != shaperId || !punto.Activo)
+                            throw new InvalidOperationException("El punto de retiro seleccionado ya no está disponible.");
+                        pedido.PuntoRetiroId=punto.Id; pedido.PuntoRetiroNombre=punto.Nombre;
+                        pedido.PuntoRetiroDireccion=punto.Direccion; pedido.PuntoRetiroCiudad=punto.Ciudad;
+                        pedido.PuntoRetiroHorario=punto.Horario; pedido.PuntoRetiroIndicaciones=punto.Indicaciones;
+                        pedido.PuntoRetiroLatitud=punto.Latitud; pedido.PuntoRetiroLongitud=punto.Longitud;
+                    }
 
                     using (SqlTransaction transaccion = conexion.BeginTransaction())
                     {

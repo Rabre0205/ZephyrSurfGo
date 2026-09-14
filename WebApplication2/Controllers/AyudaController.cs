@@ -9,13 +9,23 @@ namespace WebApplication2.Controllers;
 public class AyudaController : Controller
 {
     private readonly ISolicitudSoporteServicio _servicio;
-    public AyudaController(ISolicitudSoporteServicio servicio)=>_servicio=servicio;
+    private readonly WebApplication2.Servicios.ICorreoNotificacionServicio _correo;
+    public AyudaController(ISolicitudSoporteServicio servicio, WebApplication2.Servicios.ICorreoNotificacionServicio correo)
+    { _servicio=servicio; _correo=correo; }
     public IActionResult Index()=>View(_servicio.ObtenerPorShaper(UsuarioId()));
     [HttpPost,ValidateAntiForgeryToken]
-    public IActionResult Crear(string asunto,string mensaje)
+    public async Task<IActionResult> Crear(string asunto,string mensaje)
     {
         var r=_servicio.Crear(UsuarioId(),asunto,mensaje);
-        TempData[r.Exito?"Mensaje":"Error"]=r.Exito?"Recibimos tu consulta. Podés seguir la respuesta desde esta página.":r.Error;
+        if(!r.Exito) TempData["Error"]=r.Error;
+        else
+        {
+            var consulta=_servicio.ObtenerPorId(r.Id);
+            bool notificada=consulta!=null && await _correo.EnviarConsultaSoporteAsync(consulta);
+            TempData["Mensaje"]=notificada
+                ? "Recibimos tu consulta y notificamos al equipo por correo. Podés seguir la respuesta desde esta página."
+                : "Recibimos tu consulta y quedó registrada. No se pudo enviar la notificación por correo; el equipo igualmente podrá verla en el panel.";
+        }
         return RedirectToAction(nameof(Index));
     }
     public IActionResult Detalle(int id){var s=_servicio.ObtenerParaShaper(id,UsuarioId());return s==null?NotFound():View(s);}

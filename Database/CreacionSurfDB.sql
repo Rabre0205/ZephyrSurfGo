@@ -729,6 +729,14 @@ CREATE TABLE Pedidos (
     ComisionPlataforma DECIMAL(10,2) NOT NULL,
     MercadoPagoPreferenceId NVARCHAR(100) NULL,
     MercadoPagoPaymentId NVARCHAR(100) NULL,
+    PuntoRetiroId INT NULL,
+    PuntoRetiroNombre NVARCHAR(150) NULL,
+    PuntoRetiroDireccion NVARCHAR(250) NULL,
+    PuntoRetiroCiudad NVARCHAR(120) NULL,
+    PuntoRetiroHorario NVARCHAR(250) NULL,
+    PuntoRetiroIndicaciones NVARCHAR(500) NULL,
+    PuntoRetiroLatitud DECIMAL(9,6) NULL,
+    PuntoRetiroLongitud DECIMAL(9,6) NULL,
     FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
     FechaActualizacion DATETIME2 NULL,
 
@@ -739,6 +747,8 @@ GO
 CREATE INDEX IX_Pedidos_ClienteId ON Pedidos(ClienteId);
 GO
 CREATE INDEX IX_Pedidos_ShaperId ON Pedidos(ShaperId);
+GO
+CREATE INDEX IX_Pedidos_PuntoRetiroId ON Pedidos(PuntoRetiroId) WHERE PuntoRetiroId IS NOT NULL;
 GO
 
 -- Pedido -Snapshot del item comprado-

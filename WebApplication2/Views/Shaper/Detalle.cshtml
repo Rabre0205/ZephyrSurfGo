@@ -219,6 +219,7 @@
                             }
                             <div class="board-footer">
                                 <span class="board-price">USD @producto.Precio.ToString("N2")</span>
+                                <a class="btn-add-small product-detail-link" asp-controller="Shaper" asp-action="Producto" asp-route-id="@producto.Id">Ver detalle</a>
                                 <button class="btn-add-small" type="button"
                                         onclick="addToCart('@productoId', '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(producto.Titulo))', @producto.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture))">
                                     Agregar
@@ -276,6 +277,7 @@
                                 }
                                 <div class="board-footer">
                                     <span class="board-price">USD @accesorio.Precio.ToString("N2")</span>
+                                    <a class="btn-add-small product-detail-link" asp-controller="Shaper" asp-action="Producto" asp-route-id="@accesorio.Id">Ver detalle</a>
                                     <button class="btn-add-small" type="button"
                                             onclick="addToCart('producto-@accesorio.Id', '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(accesorio.Titulo))', @accesorio.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture))">Agregar</button>
                                     <form asp-controller="Favoritos" asp-action="Alternar" method="post" class="favorite-form">

@@ -10,6 +10,7 @@ public interface IPuntoRetiroServicio
     PuntoRetiro? ObtenerParaEditar(int id,int shaperId);
     (bool Exito,string Error) Guardar(PuntoRetiro punto,int shaperId);
     bool CambiarEstado(int id,int shaperId,bool activo);
+    bool Eliminar(int id,int shaperId);
 }
 public class PuntoRetiroServicio : IPuntoRetiroServicio
 {
@@ -29,5 +30,6 @@ public class PuntoRetiroServicio : IPuntoRetiroServicio
         return ok?(true,string.Empty):(false,"No se pudo guardar el punto de retiro.");
     }
     public bool CambiarEstado(int id,int shaperId,bool activo)=>ObtenerParaEditar(id,shaperId)!=null&&_repositorio.CambiarEstado(id,shaperId,activo);
+    public bool Eliminar(int id,int shaperId)=>ObtenerParaEditar(id,shaperId)!=null&&_repositorio.Eliminar(id,shaperId);
     private static string Limitar(string? s,int n){s=s?.Trim()??"";return s[..Math.Min(s.Length,n)];}
 }

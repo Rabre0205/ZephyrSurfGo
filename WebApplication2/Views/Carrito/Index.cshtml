@@ -1,5 +1,6 @@
 ﻿@model List<ClassLibrary.Carrito.CarritoItemDetallado>
 
+@using ClassLibrary.PuntosRetiro
 @{
     Layout = null;
     ViewData["Title"] = "Carrito";
@@ -143,6 +144,9 @@
             </div>
 
             bool carritoDisponible = Model.All(item => item.Disponible);
+            var puntosPorShaper = ViewBag.PuntosRetiro as Dictionary<int,List<PuntoRetiro>> ?? new();
+            var shaperIds = Model.Select(item => item.ShaperId).Distinct().ToList();
+            bool hayRetiroParaTodos = shaperIds.All(id => puntosPorShaper.TryGetValue(id, out var puntos) && puntos.Count > 0);
 
             <aside class="cart-summary">
 
@@ -160,9 +164,30 @@
 
                     @Html.AntiForgeryToken()
 
+                    <div class="pickup-selection">
+                        <h2>¿Dónde querés retirar?</h2>
+                        <p>Elegí un punto por cada shaper de tu compra.</p>
+                        @foreach (var shaperId in shaperIds)
+                        {
+                            var puntos = puntosPorShaper.TryGetValue(shaperId, out var disponibles) ? disponibles : new List<PuntoRetiro>();
+                            <label for="pickup-@shaperId">Punto de retiro</label>
+                            <select id="pickup-@shaperId" name="puntosRetiro[@shaperId]" required disabled="@(puntos.Count == 0)">
+                                <option value="">Seleccioná una ubicación</option>
+                                @foreach (var punto in puntos)
+                                {
+                                    <option value="@punto.Id">@punto.Nombre — @punto.Direccion, @punto.Ciudad</option>
+                                }
+                            </select>
+                            @if (puntos.Count == 0)
+                            {
+                                <span class="cart-checkout-warning">Este shaper todavía no publicó un punto de retiro.</span>
+                            }
+                        }
+                    </div>
+
                     <button type="submit"
                             class="btn-checkout"
-                            disabled="@(!carritoDisponible)">
+                            disabled="@(!carritoDisponible || !hayRetiroParaTodos)">
                         Finalizar compra →
                     </button>
                 </form>
@@ -170,6 +195,10 @@
                 @if (!carritoDisponible)
                 {
                     <p class="cart-checkout-warning">Revisá los productos sin disponibilidad antes de continuar.</p>
+                }
+                else if (!hayRetiroParaTodos)
+                {
+                    <p class="cart-checkout-warning">La compra podrá continuar cuando todos los shapers tengan un punto de retiro activo.</p>
                 }
 
                 <a asp-controller="Surf"

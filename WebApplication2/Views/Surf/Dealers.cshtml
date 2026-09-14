@@ -15,7 +15,7 @@
 <main class="locator-page"><div class="locator-note"><strong>Solo puntos habilitados</strong><span>El mapa muestra lugares de retiro cargados por los shapers. Los talleres o domicilios privados no se publican.</span></div>
 <div class="filter-bar"><span class="filter-label">Filtrar:</span><button class="filter-btn active" data-filter="all">Todos</button><button class="filter-btn" data-filter="ar">🇦🇷 Argentina</button><button class="filter-btn" data-filter="br">🇧🇷 Brasil</button><button class="filter-btn" data-filter="uy">🇺🇾 Uruguay</button><div class="search-wrap"><span>⌕</span><input type="search" id="searchInput" placeholder="Buscar shaper o país…"/></div></div>
 <div class="results-summary"><span id="resultCount">@Model.Count puntos</span><small>Seleccioná un punto para ver sus datos.</small></div>
-<div class="dealers-layout"><div class="dealers-list" id="dealersList"></div><div class="map-panel"><div id="map"></div><p>Los marcadores representan cobertura por país, no la dirección exacta.</p></div></div>
+<div class="dealers-layout"><div class="dealers-list" id="dealersList"></div><div class="map-panel"><div id="map"></div><p>Cada marcador indica la ubicación exacta informada por el shaper para ese punto de retiro.</p></div></div>
 </main>
 <script>
 window.zephyrPickups = @Html.Raw(JsonSerializer.Serialize(Model.Select(item => new {

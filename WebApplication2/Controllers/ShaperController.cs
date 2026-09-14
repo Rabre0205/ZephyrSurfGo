@@ -76,5 +76,29 @@ namespace WebApplication2.Controllers
 
             return View(modelo);
         }
+
+        public IActionResult Producto(int id)
+        {
+            if (User.Identity?.IsAuthenticated != true) return Challenge();
+            var producto = _productoServicio.ObtenerProducto(id);
+            if (producto == null) return NotFound();
+            if (User.IsInRole("Shaper"))
+            {
+                string? valor = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(valor, out int shaperId) || shaperId != producto.ShaperId) return Forbid();
+            }
+            else if (!User.IsInRole("Cliente")) return Forbid();
+
+            var shaper = _usuarioServicio.ObtenerShaperPorId(producto.ShaperId);
+            if (shaper == null || !shaper.Activo) return NotFound();
+            int clienteId = User.IsInRole("Cliente") && int.TryParse(
+                User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out int idCliente) ? idCliente : 0;
+            return View("Producto", new ProductoDetalleViewModel
+            {
+                Producto=producto, Shaper=shaper,
+                Resenas=_interacciones.ObtenerResenas(id),
+                EsFavorito=clienteId>0 && _interacciones.EsFavorito(clienteId,id)
+            });
+        }
     }
 }

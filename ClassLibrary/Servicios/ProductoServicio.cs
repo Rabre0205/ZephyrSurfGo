@@ -11,6 +11,7 @@ namespace ClassLibrary.Servicios
     public interface IProductoServicio
     {
         List<Producto> BuscarPorShaper(int shaperId);
+        Producto? ObtenerProducto(int id) => null;
 
         List<Tabla> ObtenerTablasDelShaper(int shaperId);
 
@@ -64,6 +65,8 @@ namespace ClassLibrary.Servicios
         {
             return _productoRepositorio.ContarProductosPublicados();
         }
+
+        public Producto? ObtenerProducto(int id) => _productoRepositorio.ObtenerPorId(id);
 
         public int ContarProductosAdministracion(string busqueda, string tipo, string estado)
         {

@@ -13,6 +13,7 @@ public interface IPuntoRetiroRepositorio
     int Insertar(PuntoRetiro punto);
     bool Actualizar(PuntoRetiro punto);
     bool CambiarEstado(int id, int shaperId, bool activo);
+    bool Eliminar(int id, int shaperId);
 }
 
 public class PuntoRetiroRepositorio : IPuntoRetiroRepositorio
@@ -56,6 +57,15 @@ public class PuntoRetiroRepositorio : IPuntoRetiroRepositorio
         const string sql = "UPDATE PuntosRetiro SET Activo=@Activo, FechaActualizacion=SYSUTCDATETIME() WHERE Id=@Id AND ShaperId=@ShaperId;";
         using var conexion = Conexion.ObtenerConexion(); using var comando = new SqlCommand(sql, conexion);
         comando.Parameters.Add("@Activo", SqlDbType.Bit).Value = activo;
+        comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+        comando.Parameters.Add("@ShaperId", SqlDbType.Int).Value = shaperId;
+        conexion.Open(); return comando.ExecuteNonQuery() == 1;
+    }
+
+    public bool Eliminar(int id, int shaperId)
+    {
+        const string sql = "DELETE FROM PuntosRetiro WHERE Id=@Id AND ShaperId=@ShaperId;";
+        using var conexion = Conexion.ObtenerConexion(); using var comando = new SqlCommand(sql, conexion);
         comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
         comando.Parameters.Add("@ShaperId", SqlDbType.Int).Value = shaperId;
         conexion.Open(); return comando.ExecuteNonQuery() == 1;

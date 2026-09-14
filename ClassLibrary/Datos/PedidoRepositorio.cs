@@ -283,6 +283,7 @@ namespace ClassLibrary.Datos
             const string cabecera = @"
                 SELECT p.Id,p.EstadoPedidoId,e.Nombre EstadoNombre,p.Total,p.ComisionPlataforma,
                        p.FechaCreacion,p.MercadoPagoPreferenceId,p.MercadoPagoPaymentId,
+                       p.PuntoRetiroNombre,p.PuntoRetiroDireccion,p.PuntoRetiroCiudad,p.PuntoRetiroHorario,p.PuntoRetiroIndicaciones,
                        c.Nombre ClienteNombre,c.Email ClienteEmail,
                        s.Nombre ShaperNombre,s.NombreDeNegosio NegocioShaper
                 FROM Pedidos p INNER JOIN Usuarios c ON c.Id=p.ClienteId
@@ -304,7 +305,10 @@ namespace ClassLibrary.Datos
                     EstadoId=baseItem.EstadoId, EstadoNombre=baseItem.EstadoNombre, Total=baseItem.Total,
                     ComisionPlataforma=baseItem.ComisionPlataforma, FechaCreacion=baseItem.FechaCreacion,
                     MercadoPagoPreferenceId=lector["MercadoPagoPreferenceId"]==DBNull.Value?string.Empty:Convert.ToString(lector["MercadoPagoPreferenceId"])??string.Empty,
-                    MercadoPagoPaymentId=lector["MercadoPagoPaymentId"]==DBNull.Value?string.Empty:Convert.ToString(lector["MercadoPagoPaymentId"])??string.Empty
+                    MercadoPagoPaymentId=lector["MercadoPagoPaymentId"]==DBNull.Value?string.Empty:Convert.ToString(lector["MercadoPagoPaymentId"])??string.Empty,
+                    PuntoRetiroNombre=TextoNullable(lector,"PuntoRetiroNombre"), PuntoRetiroDireccion=TextoNullable(lector,"PuntoRetiroDireccion"),
+                    PuntoRetiroCiudad=TextoNullable(lector,"PuntoRetiroCiudad"), PuntoRetiroHorario=TextoNullable(lector,"PuntoRetiroHorario"),
+                    PuntoRetiroIndicaciones=TextoNullable(lector,"PuntoRetiroIndicaciones")
                 };
             }
             const string itemsSql = "SELECT ProductoId,TituloSnapshot,PrecioUnitarioSnapshot,Cantidad FROM PedidoItems WHERE PedidoId=@Id ORDER BY Id;";
@@ -379,6 +383,7 @@ namespace ClassLibrary.Datos
             const string cabecera = @"
                 SELECT p.Id,p.EstadoPedidoId,e.Nombre EstadoNombre,p.Total,p.ComisionPlataforma,
                        p.FechaCreacion,p.MercadoPagoPreferenceId,p.MercadoPagoPaymentId,
+                       p.PuntoRetiroNombre,p.PuntoRetiroDireccion,p.PuntoRetiroCiudad,p.PuntoRetiroHorario,p.PuntoRetiroIndicaciones,
                        c.Nombre ClienteNombre,c.Email ClienteEmail,
                        s.Nombre ShaperNombre,s.NombreDeNegosio NegocioShaper
                 FROM Pedidos p INNER JOIN Usuarios c ON c.Id=p.ClienteId
@@ -402,7 +407,10 @@ namespace ClassLibrary.Datos
                     EstadoId=item.EstadoId,EstadoNombre=item.EstadoNombre,Total=item.Total,
                     ComisionPlataforma=item.ComisionPlataforma,FechaCreacion=item.FechaCreacion,
                     MercadoPagoPreferenceId=lector["MercadoPagoPreferenceId"]==DBNull.Value?string.Empty:Convert.ToString(lector["MercadoPagoPreferenceId"])??string.Empty,
-                    MercadoPagoPaymentId=lector["MercadoPagoPaymentId"]==DBNull.Value?string.Empty:Convert.ToString(lector["MercadoPagoPaymentId"])??string.Empty
+                    MercadoPagoPaymentId=lector["MercadoPagoPaymentId"]==DBNull.Value?string.Empty:Convert.ToString(lector["MercadoPagoPaymentId"])??string.Empty,
+                    PuntoRetiroNombre=TextoNullable(lector,"PuntoRetiroNombre"), PuntoRetiroDireccion=TextoNullable(lector,"PuntoRetiroDireccion"),
+                    PuntoRetiroCiudad=TextoNullable(lector,"PuntoRetiroCiudad"), PuntoRetiroHorario=TextoNullable(lector,"PuntoRetiroHorario"),
+                    PuntoRetiroIndicaciones=TextoNullable(lector,"PuntoRetiroIndicaciones")
                 };
             }
             using (var comando = new SqlCommand("SELECT ProductoId,TituloSnapshot,PrecioUnitarioSnapshot,Cantidad FROM PedidoItems WHERE PedidoId=@Id ORDER BY Id", conexion))
@@ -495,6 +503,9 @@ namespace ClassLibrary.Datos
             FechaCreacion=Convert.ToDateTime(lector["FechaCreacion"])
         };
 
+        private static string TextoNullable(SqlDataReader lector,string columna) =>
+            lector[columna]==DBNull.Value ? string.Empty : Convert.ToString(lector[columna])??string.Empty;
+
         public int Insertar(
             Pedido pedido,
             SqlConnection conexion,
@@ -510,6 +521,8 @@ namespace ClassLibrary.Datos
                     EstadoPedidoId,
                     Total,
                     ComisionPlataforma
+                    ,PuntoRetiroId,PuntoRetiroNombre,PuntoRetiroDireccion,PuntoRetiroCiudad,
+                    PuntoRetiroHorario,PuntoRetiroIndicaciones,PuntoRetiroLatitud,PuntoRetiroLongitud
                 )
                 OUTPUT INSERTED.Id INTO @Insertados
                 VALUES
@@ -519,6 +532,8 @@ namespace ClassLibrary.Datos
                     @EstadoPedidoId,
                     @Total,
                     @ComisionPlataforma
+                    ,@PuntoRetiroId,@PuntoRetiroNombre,@PuntoRetiroDireccion,@PuntoRetiroCiudad,
+                    @PuntoRetiroHorario,@PuntoRetiroIndicaciones,@PuntoRetiroLatitud,@PuntoRetiroLongitud
                 );
 
                 SELECT Id FROM @Insertados;
@@ -557,6 +572,15 @@ namespace ClassLibrary.Datos
                     "@ComisionPlataforma",
                     SqlDbType.Decimal
                 ).Value = (decimal)pedido.ComisionPlataforma;
+
+                comando.Parameters.Add("@PuntoRetiroId",SqlDbType.Int).Value=(object?)pedido.PuntoRetiroId??DBNull.Value;
+                comando.Parameters.Add("@PuntoRetiroNombre",SqlDbType.NVarChar,150).Value=pedido.PuntoRetiroNombre;
+                comando.Parameters.Add("@PuntoRetiroDireccion",SqlDbType.NVarChar,250).Value=pedido.PuntoRetiroDireccion;
+                comando.Parameters.Add("@PuntoRetiroCiudad",SqlDbType.NVarChar,120).Value=pedido.PuntoRetiroCiudad;
+                comando.Parameters.Add("@PuntoRetiroHorario",SqlDbType.NVarChar,250).Value=pedido.PuntoRetiroHorario;
+                comando.Parameters.Add("@PuntoRetiroIndicaciones",SqlDbType.NVarChar,500).Value=pedido.PuntoRetiroIndicaciones;
+                comando.Parameters.Add("@PuntoRetiroLatitud",SqlDbType.Decimal).Value=(object?)pedido.PuntoRetiroLatitud??DBNull.Value;
+                comando.Parameters.Add("@PuntoRetiroLongitud",SqlDbType.Decimal).Value=(object?)pedido.PuntoRetiroLongitud??DBNull.Value;
 
                 pedidoId = (int)comando.ExecuteScalar();
             }
