@@ -68,6 +68,9 @@ namespace ClassLibrary.Servicios
 
         bool CambiarEstadoShaper(int id, bool activo);
 
+        (bool Exito, string Error) EliminarShaper(int id) =>
+            (false, "No se pudo eliminar el shaper.");
+
         (bool Exito, string Error) ActualizarCuenta(
             int id, string email, string nombre, Pais pais);
 
@@ -164,6 +167,26 @@ namespace ClassLibrary.Servicios
         {
             return _usuarioRepositorio
                 .CambiarEstadoShaper(id, activo);
+        }
+
+        public (bool Exito, string Error) EliminarShaper(int id)
+        {
+            Shaper? shaper = _usuarioRepositorio.ObtenerPorId(id) as Shaper;
+
+            if (shaper == null)
+            {
+                return (false, "No se encontró el shaper.");
+            }
+
+            if (!_usuarioRepositorio.EliminarShaper(id))
+            {
+                return (
+                    false,
+                    "Este shaper tiene productos, pedidos u otros datos asociados. Desactivalo para conservar el historial."
+                );
+            }
+
+            return (true, string.Empty);
         }
 
         public (

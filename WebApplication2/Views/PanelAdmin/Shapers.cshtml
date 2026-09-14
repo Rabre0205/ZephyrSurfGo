@@ -40,6 +40,14 @@
         </div>
     }
 
+    @if (TempData["Error"] != null)
+    {
+        <div class="shapers-error" role="alert">
+            <strong>No se pudo eliminar</strong>
+            <span>@TempData["Error"]</span>
+        </div>
+    }
+
     <div class="shapers-toolbar">
 
         <form asp-controller="PanelAdmin"
@@ -210,6 +218,19 @@
 
                                         </form>
 
+                                        <form asp-controller="PanelAdmin"
+                                              asp-action="EliminarShaper"
+                                              method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@shaper.Id" />
+                                            <button type="submit"
+                                                    class="action-delete"
+                                                    aria-label="Eliminar a @shaper.Nombre"
+                                                    onclick="return confirm('¿Eliminar definitivamente este shaper? Esta acción no se puede deshacer. Si tiene pedidos o productos asociados, el sistema protegerá esos datos y no permitirá eliminarlo.');">
+                                                Eliminar
+                                            </button>
+                                        </form>
+
                                     </div>
                                 </td>
 
@@ -349,6 +370,20 @@
         background: #edf7f2;
         color: #17583f;
     }
+
+    .shapers-error {
+        display: flex;
+        margin-bottom: 20px;
+        padding: 16px 18px;
+        gap: 5px;
+        flex-direction: column;
+        border: 1px solid #d7aaa3;
+        border-left: 4px solid #9b3434;
+        background: #fff1ee;
+        color: #792b2b;
+    }
+
+    .shapers-error span { font-size: 14px; }
 
         .shapers-success span {
             font-size: 14px;
@@ -533,7 +568,8 @@
         }
 
     .action-disable,
-    .action-enable {
+    .action-enable,
+    .action-delete {
         min-height: 34px;
         padding: 0 12px;
         border-radius: 8px;
@@ -552,6 +588,17 @@
         border: 1px solid #b9d9ca;
         background: #edf8f2;
         color: #176342;
+    }
+
+    .action-delete {
+        border: 1px solid #9b3434;
+        background: #9b3434;
+        color: #ffffff;
+    }
+
+    .action-delete:hover {
+        border-color: #762525;
+        background: #762525;
     }
 
     .shapers-toolbar {

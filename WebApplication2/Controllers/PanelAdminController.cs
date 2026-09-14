@@ -201,6 +201,22 @@ namespace WebApplication2.Controllers
             return RedirectToAction(nameof(Shapers));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EliminarShaper(int id)
+        {
+            var resultado = _usuarioServicio.EliminarShaper(id);
+
+            if (!resultado.Exito)
+            {
+                TempData["Error"] = resultado.Error;
+                return RedirectToAction(nameof(Shapers));
+            }
+
+            TempData["Mensaje"] = "El shaper fue eliminado correctamente.";
+            return RedirectToAction(nameof(Shapers));
+        }
+
         [HttpGet]
         public IActionResult RegistrarShaper()
         {

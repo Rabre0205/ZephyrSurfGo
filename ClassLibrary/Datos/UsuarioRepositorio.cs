@@ -35,6 +35,7 @@ namespace ClassLibrary.Datos
 
 
         bool CambiarEstadoShaper(int id, bool activo);
+        bool EliminarShaper(int id) => false;
         bool ActualizarCuenta(int id, string email, string nombre, Pais pais);
         bool ActualizarContrasenia(int id, string contraseniaHash);
         bool ActualizarLogoShaper(int id, string? logoUrl);
@@ -588,6 +589,31 @@ namespace ClassLibrary.Datos
                 return Convert.ToInt32(
                     comando.ExecuteScalar()
                 );
+            }
+        }
+
+        public bool EliminarShaper(int id)
+        {
+            const string sql = @"
+                DELETE FROM Usuarios
+                WHERE Id = @Id
+                  AND TipoDeUsuarioId = @TipoShaper;";
+
+            using SqlConnection conexion = Conexion.ObtenerConexion();
+            using SqlCommand comando = new SqlCommand(sql, conexion);
+            comando.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+            comando.Parameters.Add("@TipoShaper", SqlDbType.Int).Value =
+                Convert.ToInt32(TipoDeUsuario.Shaper);
+
+            try
+            {
+                conexion.Open();
+                return comando.ExecuteNonQuery() > 0;
+            }
+            catch (SqlException excepcion) when (excepcion.Number == 547)
+            {
+                // Hay productos, pedidos u otros registros que deben conservarse.
+                return false;
             }
         }
 

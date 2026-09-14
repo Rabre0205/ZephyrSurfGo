@@ -71,6 +71,34 @@ public class UsuarioServicioTests
         Assert.False(repositorio.SeActualizoContrasenia);
     }
 
+    [Fact]
+    public void EliminarShaperPermiteBorrarUnaCuentaSinDependencias()
+    {
+        var shaper = CrearShaper();
+        var repositorio = new UsuarioRepositorioFalso(shaper)
+        {
+            ResultadoEliminarShaper = true
+        };
+        var servicio = new UsuarioServicio(repositorio);
+
+        var resultado = servicio.EliminarShaper(shaper.Id);
+
+        Assert.True(resultado.Exito);
+        Assert.Equal(shaper.Id, repositorio.ShaperEliminadoId);
+    }
+
+    [Fact]
+    public void EliminarShaperProtegeLaCuentaCuandoTieneDatosAsociados()
+    {
+        var shaper = CrearShaper();
+        var servicio = new UsuarioServicio(new UsuarioRepositorioFalso(shaper));
+
+        var resultado = servicio.EliminarShaper(shaper.Id);
+
+        Assert.False(resultado.Exito);
+        Assert.Contains("datos asociados", resultado.Error);
+    }
+
     private static Usuario CrearUsuario(string clave, bool activo) => new(
         4,
         "cliente@ejemplo.com",
@@ -82,12 +110,18 @@ public class UsuarioServicioTests
         TipoDeUsuario = TipoDeUsuario.Cliente
     };
 
+    private static Shaper CrearShaper() => new(
+        12, "shaper@ejemplo.com", "hash", "Shaper prueba", Pais.Uruguay,
+        "Taller prueba", "099000000", null);
+
     private sealed class UsuarioRepositorioFalso : IUsuarioRepositorio
     {
         private readonly List<Usuario> _usuarios;
 
         public bool SeActualizoCuenta { get; private set; }
         public bool SeActualizoContrasenia { get; private set; }
+        public bool ResultadoEliminarShaper { get; init; }
+        public int? ShaperEliminadoId { get; private set; }
 
         public UsuarioRepositorioFalso(params Usuario[] usuarios) =>
             _usuarios = usuarios.ToList();
@@ -123,6 +157,11 @@ public class UsuarioServicioTests
         public int InsertarUsuario(Usuario usuario) => 0;
         public int InsertarShaper(Shaper shaper) => 0;
         public bool CambiarEstadoShaper(int id, bool activo) => false;
+        public bool EliminarShaper(int id)
+        {
+            ShaperEliminadoId = id;
+            return ResultadoEliminarShaper;
+        }
         public bool ActualizarShaper(int id, string email, string nombre, Pais pais, string nombreDeNegosio, string contacto) => false;
     }
 }
