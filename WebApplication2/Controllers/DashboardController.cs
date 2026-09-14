@@ -41,28 +41,68 @@ namespace WebApplication2.Controllers
         }
 
         public IActionResult Pedidos(
-            string busqueda = "", byte? estadoId = null, int pagina = 1)
+            string busqueda = "", string tipo = "todos", string estado = "", int pagina = 1)
         {
             const int cantidadPorPagina = 20;
             int shaperId = ObtenerUsuarioId();
             busqueda = busqueda?.Trim() ?? string.Empty;
+            tipo = (tipo ?? "todos").Trim().ToLowerInvariant();
+            if (tipo is not ("todos" or "compras" or "personalizados")) tipo = "todos";
+            estado = (estado ?? string.Empty).Trim().ToLowerInvariant();
             pagina = Math.Max(1, pagina);
-            int total = _pedidoServicio.ContarPedidosShaper(shaperId, busqueda, estadoId);
-            var personalizados = _personalizados.ObtenerPorShaper(shaperId);
-            int paginas = (int)Math.Ceiling(total / (double)cantidadPorPagina);
+
+            byte? estadoCompra = null;
+            byte? estadoPersonalizado = null;
+            if (estado.StartsWith("compra:") && byte.TryParse(estado[7..], out byte compra))
+                estadoCompra = compra;
+            else if (estado.StartsWith("personalizado:") && byte.TryParse(estado[15..], out byte personalizado))
+                estadoPersonalizado = personalizado;
+            else if (!string.IsNullOrEmpty(estado))
+                estado = string.Empty;
+
+            bool mostrarCompras = tipo != "personalizados" && !estadoPersonalizado.HasValue;
+            bool mostrarPersonalizados = tipo != "compras" && !estadoCompra.HasValue;
+
+            int totalCompras = mostrarCompras
+                ? _pedidoServicio.ContarPedidosShaper(shaperId, busqueda, estadoCompra)
+                : 0;
+
+            var personalizados = mostrarPersonalizados
+                ? _personalizados.ObtenerPorShaper(shaperId)
+                    .Where(p => !estadoPersonalizado.HasValue || p.Estado == estadoPersonalizado.Value)
+                    .Where(p => CoincidePedidoPersonalizado(p, busqueda))
+                    .ToList()
+                : new List<ClassLibrary.Solicitudes.SolicitudPersonalizada>();
+
+            int paginas = (int)Math.Ceiling(totalCompras / (double)cantidadPorPagina);
             if (paginas > 0 && pagina > paginas) pagina = paginas;
 
             return View(new PedidosShaperViewModel
             {
-                Pedidos = _pedidoServicio.ObtenerPedidosShaper(
-                    shaperId, busqueda, estadoId, pagina, cantidadPorPagina),
+                Pedidos = mostrarCompras
+                    ? _pedidoServicio.ObtenerPedidosShaper(
+                        shaperId, busqueda, estadoCompra, pagina, cantidadPorPagina)
+                    : new(),
                 Personalizados = personalizados,
                 Busqueda = busqueda,
-                EstadoId = estadoId,
+                EstadoId = estadoCompra,
+                Tipo = tipo,
+                EstadoFiltro = estado,
                 PaginaActual = pagina,
                 TotalPaginas = paginas,
-                TotalResultados = total + personalizados.Count
+                TotalResultados = totalCompras + personalizados.Count
             });
+        }
+
+        private static bool CoincidePedidoPersonalizado(
+            ClassLibrary.Solicitudes.SolicitudPersonalizada pedido, string busqueda)
+        {
+            if (string.IsNullOrWhiteSpace(busqueda)) return true;
+            var comparacion = StringComparison.OrdinalIgnoreCase;
+            return pedido.Id.ToString() == busqueda
+                || pedido.ClienteNombre.Contains(busqueda, comparacion)
+                || pedido.ClienteEmail.Contains(busqueda, comparacion)
+                || pedido.Modelo.Contains(busqueda, comparacion);
         }
 
         public IActionResult DetallePedido(int id)

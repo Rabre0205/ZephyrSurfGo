@@ -36,19 +36,19 @@
                 <span class="shaper-etiqueta">Panel de trabajo</span>
                 <h1>Hola, @User.Identity?.Name</h1>
                 <p>Desde acá podés publicar tus tablas, revisar pedidos y consultar tus ventas.</p>
-            </div>
-            <div class="acciones-bienvenida">
-                <a asp-controller="Productos" asp-action="Crear" class="accion-principal-grande">
-                    <span aria-hidden="true">＋</span> Publicar una tabla
-                </a>
-                <div class="acciones-secundarias">
-                    <a asp-controller="Shaper" asp-action="Detalle"
-                       asp-route-id="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value">
-                        Ver mi página pública
+                <div class="acciones-bienvenida">
+                    <a asp-controller="Productos" asp-action="Crear" class="accion-principal-grande">
+                        <span aria-hidden="true">＋</span> Publicar una tabla
                     </a>
-                    <a asp-controller="Configuracion" asp-action="Index">
-                        Configurar mi cuenta
-                    </a>
+                    <div class="acciones-secundarias">
+                        <a asp-controller="Shaper" asp-action="Detalle"
+                           asp-route-id="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value">
+                            Ver mi página pública
+                        </a>
+                        <a asp-controller="Configuracion" asp-action="Index">
+                            Configurar mi cuenta
+                        </a>
+                    </div>
                 </div>
             </div>
         </header>

@@ -72,7 +72,7 @@
             </span>
 
             <p class="hero-eyebrow">
-                The Shaper
+                Perfil del shaper
             </p>
 
             <h1 class="hero-title">
@@ -80,8 +80,9 @@
             </h1>
 
             <p class="hero-sub">
-                Conocé los productos, tablas y opciones personalizadas de
-                @nombreNegocio.
+                Explorá sus tablas disponibles o completá el cuestionario para iniciar
+                un pedido personalizado. @nombreNegocio revisará las medidas, el diseño
+                y el precio antes de comenzar la fabricación.
             </p>
 
             @if (!string.IsNullOrWhiteSpace(logoUrl))
@@ -113,7 +114,7 @@
                     </div>
 
                     <div class="hstat-label">
-                        Productos
+                        @(Model.Productos.Count == 1 ? "Tabla publicada" : "Tablas publicadas")
                     </div>
                 </div>
 
@@ -123,17 +124,17 @@
                     </div>
 
                     <div class="hstat-label">
-                        Origen
+                        Ubicación
                     </div>
                 </div>
 
                 <div class="hstat">
                     <div class="hstat-num">
-                        100%
+                        A medida
                     </div>
 
                     <div class="hstat-label">
-                        Artesanal
+                        Pedidos personalizados
                     </div>
                 </div>
 
@@ -143,7 +144,7 @@
                     </div>
 
                     <div class="hstat-label">
-                        Shaper verificado
+                        Perfil verificado
                     </div>
                 </div>
 

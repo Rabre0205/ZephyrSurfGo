@@ -9,6 +9,8 @@ namespace WebApplication2.Models.Dashboard
         public List<SolicitudPersonalizada> Personalizados { get; set; } = new();
         public string Busqueda { get; set; } = string.Empty;
         public byte? EstadoId { get; set; }
+        public string Tipo { get; set; } = "todos";
+        public string EstadoFiltro { get; set; } = string.Empty;
         public int PaginaActual { get; set; }
         public int TotalPaginas { get; set; }
         public int TotalResultados { get; set; }

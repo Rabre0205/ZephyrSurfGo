@@ -34,7 +34,7 @@ dl{display:grid;grid-template-columns:150px 1fr;margin:0}dt,dd{padding:11px 0;bo
 .price-card{margin-top:24px;padding:26px 30px;display:flex;justify-content:space-between;align-items:center;gap:24px}
 .price-card small{display:block;color:#69767b}.price-card strong{display:block;font-size:1.8rem;color:var(--navy);margin-top:4px}.price-card p{font-size:.85rem;color:#69767b}
 .price-card form{display:flex;gap:10px}.price-card button{border:0;border-radius:8px;padding:13px 17px;background:var(--green);color:white;font-weight:600}
-.price-card button.secondary{background:#8c3535}.price-card button:disabled{background:#9aa5a2;cursor:not-allowed}.price-card input[type=number]{min-width:180px;border:1px solid var(--line);border-radius:8px;padding:12px}
+.price-card button.secondary{background:#8c3535;transition:background-color .2s ease,transform .2s ease,box-shadow .2s ease}.price-card button.secondary:hover{background:#682525;color:#fff;transform:translateY(-2px);box-shadow:0 7px 16px rgba(104,37,37,.24)}.price-card button.secondary:focus-visible{outline:3px solid rgba(140,53,53,.3);outline-offset:3px}.price-card button:disabled{background:#9aa5a2;cursor:not-allowed}.price-card input[type=number]{min-width:180px;border:1px solid var(--line);border-radius:8px;padding:12px}
 .order-progress{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin:28px 0 8px}
 .progress-step{position:relative;text-align:center;color:#879398}
 .progress-step:before{content:"";position:absolute;top:16px;left:-55%;width:110%;height:2px;background:#d9dfe1;z-index:0}
