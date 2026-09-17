@@ -1,12 +1,152 @@
 @model WebApplication2.Models.ProductoDetalleViewModel
 @using ClassLibrary.Productos
-@{ Layout=null; var p=Model.Producto; var nombre=string.IsNullOrWhiteSpace(Model.Shaper.NombreDeNegosio)?Model.Shaper.Nombre:Model.Shaper.NombreDeNegosio; string imagen=string.IsNullOrWhiteSpace(p.ImagenUrl)?Url.Content("~/img/tabla.png"):p.ImagenUrl; }
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>@p.Titulo — Zephyr Surf Go</title><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true"><link rel="stylesheet" href="~/css/productoDetalle.css" asp-append-version="true"></head>
-<body class="product-page"><partial name="_Navbar"/><main>
-<nav class="product-breadcrumb" aria-label="Navegación"><a asp-action="Detalle" asp-route-id="@p.ShaperId">@nombre</a><span>/</span><span>@Model.Tipo</span></nav>
-<section class="product-hero"><div class="product-gallery"><div class="product-image-wrap"><img id="productImage" src="@imagen" alt="@p.Titulo"></div>@if(p is Tabla tabla && !string.IsNullOrWhiteSpace(tabla.ImagenAtrasUrl)){<div class="gallery-tabs"><button type="button" class="active" data-image="@imagen">Frente</button><button type="button" data-image="@tabla.ImagenAtrasUrl">Dorso</button></div>}</div>
-<div class="product-copy"><p class="eyebrow">@Model.Tipo · @nombre</p><h1>@p.Titulo</h1>@if(!string.IsNullOrWhiteSpace(p.Subtitulo)){<p class="subtitle">@p.Subtitulo</p>}<div class="rating">@if(Model.Resenas.Count>0){<span>★ @Model.Promedio.ToString("0.0")</span><a href="#resenas">@Model.Resenas.Count reseña@(Model.Resenas.Count==1?"":"s") verificada@(Model.Resenas.Count==1?"":"s")</a>}else{<span>Sin reseñas todavía</span>}</div><p class="price">USD @p.Precio.ToString("N2")</p><p class="description">@(string.IsNullOrWhiteSpace(p.Descripcion)?"El shaper todavía no agregó una descripción para este producto.":p.Descripcion)</p>
-<div class="product-actions">@if(User.IsInRole("Cliente")){<form asp-controller="Carrito" asp-action="Agregar" method="post">@Html.AntiForgeryToken()<input type="hidden" name="productoId" value="@p.Id"><button class="primary">Agregar al carrito</button></form><form asp-controller="Favoritos" asp-action="Alternar" method="post">@Html.AntiForgeryToken()<input type="hidden" name="productoId" value="@p.Id"><input type="hidden" name="volverA" value="@Context.Request.Path"><button class="secondary">@(Model.EsFavorito?"♥ Guardado":"♡ Guardar")</button></form>}<a class="secondary" asp-action="Detalle" asp-route-id="@p.ShaperId">Ver perfil del shaper</a></div></div></section>
-<section class="product-info"><div><p class="eyebrow">Información del producto</p><h2>Características</h2><dl>@if(p is Tabla t){<dt>Medida</dt><dd>@t.Altura</dd><dt>Ancho</dt><dd>@t.Ancho</dd><dt>Volumen</dt><dd>@t.Volumen.ToString("0.#") L</dd><dt>Encaje</dt><dd>@t.SistemaDeEncaje</dd><dt>Tipo de ola</dt><dd>@t.TipoDeOla</dd><dt>Estilo</dt><dd>@t.EstiloDeSurf</dd><dt>Experiencia</dt><dd>@t.Experiencia</dd><dt>Peso recomendado</dt><dd>@t.PesoMinimo–@t.PesoMaximo kg</dd>}else if(p is Quilla q){<dt>Sistema de encaje</dt><dd>@q.SistemaDeEncaje</dd>}else if(p is Leash l){<dt>Tabla recomendada</dt><dd>Hasta @l.LargoDeTablaRecomendado pies</dd>}else if(p is Pad pad){<dt>Medidas</dt><dd>@pad.Largo × @pad.Ancho</dd><dt>Material</dt><dd>@pad.Material</dd>}else if(p is Traje tr){<dt>Género</dt><dd>@tr.Genero</dd><dt>Espesor</dt><dd>@tr.Espesor mm</dd><dt>Talle</dt><dd>@tr.Talle</dd><dt>Temperatura</dt><dd>@tr.Temperatura</dd>}</dl></div><aside><p class="eyebrow">Fabricado y publicado por</p><h2>@nombre</h2><p>@Model.Shaper.Pais</p><a asp-action="Detalle" asp-route-id="@p.ShaperId">Conocer al shaper →</a></aside></section>
-<section class="reviews" id="resenas"><p class="eyebrow">Compras verificadas</p><h2>Opiniones de clientes</h2>@if(Model.Resenas.Count==0){<div class="empty-review">Este producto todavía no recibió reseñas.</div>}else{<div class="review-grid">@foreach(var r in Model.Resenas){<article><div class="stars">@string.Concat(Enumerable.Repeat("★",r.Estrellas))</div><p>@r.Comentario</p><footer><strong>@r.ClienteNombre</strong><span>Compra verificada · @r.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy")</span></footer></article>}</div>}</section>
-</main><script>document.querySelectorAll('[data-image]').forEach(b=>b.addEventListener('click',()=>{document.getElementById('productImage').src=b.dataset.image;document.querySelectorAll('[data-image]').forEach(x=>x.classList.toggle('active',x===b));}));</script><script src="~/js/navbar.js" asp-append-version="true"></script></body></html>
+@{
+    Layout = null;
+    var p = Model.Producto;
+    var nombre = string.IsNullOrWhiteSpace(Model.Shaper.NombreDeNegosio) ? Model.Shaper.Nombre : Model.Shaper.NombreDeNegosio;
+    string imagen = string.IsNullOrWhiteSpace(p.ImagenUrl) ? Url.Content("~/img/tabla.png") : p.ImagenUrl;
+}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>@p.Titulo — Zephyr Surf Go</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/productoDetalle.css" asp-append-version="true">
+</head>
+<body class="product-page">
+    <partial name="_Navbar" />
+    <main>
+        <nav class="product-breadcrumb" aria-label="Navegación">
+            <a asp-action="Detalle" asp-route-id="@p.ShaperId">@nombre</a><span>/</span><span>@Model.Tipo</span>
+        </nav>
+
+        <section class="product-hero">
+            <div class="product-gallery">
+                <div class="product-image-wrap"><img id="productImage" src="@imagen" alt="@p.Titulo"></div>
+                @if (p is Tabla tabla && !string.IsNullOrWhiteSpace(tabla.ImagenAtrasUrl))
+                {
+                    <div class="gallery-tabs" aria-label="Vistas de la tabla">
+                        <button type="button" class="active" data-image="@imagen" aria-pressed="true">Frente</button>
+                        <button type="button" data-image="@tabla.ImagenAtrasUrl" aria-pressed="false">Dorso</button>
+                    </div>
+                }
+            </div>
+
+            <div class="product-copy">
+                <p class="eyebrow">@Model.Tipo · @nombre</p>
+                <h1>@p.Titulo</h1>
+                @if (!string.IsNullOrWhiteSpace(p.Subtitulo)) { <p class="subtitle">@p.Subtitulo</p> }
+                <div class="availability @(Model.Disponible ? "is-available" : "is-unavailable")">
+                    <span aria-hidden="true"></span>
+                    @if (Model.Disponible)
+                    {
+                        <strong>Disponible</strong>
+                        @if (Model.Stock.HasValue) { <small>@Model.Stock unidades en stock</small> }
+                        else { <small>Tabla única</small> }
+                    }
+                    else
+                    {
+                        <strong>No disponible</strong><small>Consultá otros modelos del shaper</small>
+                    }
+                </div>
+                <div class="rating">
+                    @if (Model.Resenas.Count > 0)
+                    {
+                        <span>★ @Model.Promedio.ToString("0.0")</span>
+                        <a href="#resenas">@Model.Resenas.Count reseña@(Model.Resenas.Count == 1 ? "" : "s") verificada@(Model.Resenas.Count == 1 ? "" : "s")</a>
+                    }
+                    else { <span>Sin reseñas todavía</span> }
+                </div>
+                <p class="price">USD @p.Precio.ToString("N2")</p>
+                <p class="description">@(string.IsNullOrWhiteSpace(p.Descripcion) ? "El shaper todavía no agregó una descripción para este producto." : p.Descripcion)</p>
+
+                <div class="product-actions">
+                    @if (User.IsInRole("Cliente"))
+                    {
+                        <form asp-controller="Carrito" asp-action="Agregar" method="post">
+                            @Html.AntiForgeryToken()<input type="hidden" name="productoId" value="@p.Id">
+                            <button class="primary" disabled="@(!Model.Disponible)">@(Model.Disponible ? "Agregar al carrito" : "Producto no disponible")</button>
+                        </form>
+                        <form asp-controller="Favoritos" asp-action="Alternar" method="post">
+                            @Html.AntiForgeryToken()<input type="hidden" name="productoId" value="@p.Id"><input type="hidden" name="volverA" value="@Context.Request.Path">
+                            <button class="secondary">@(Model.EsFavorito ? "♥ Guardado" : "♡ Guardar")</button>
+                        </form>
+                    }
+                    @if (Model.EsPropietario)
+                    {
+                        @if (p is Tabla)
+                        {
+                            <a class="primary" asp-controller="Productos" asp-action="Editar" asp-route-id="@p.Id">Editar producto</a>
+                        }
+                        else
+                        {
+                            <a class="primary" asp-controller="Productos" asp-action="Index">Administrar producto</a>
+                        }
+                    }
+                    <a class="secondary" asp-action="Detalle" asp-route-id="@p.ShaperId">Ver perfil del shaper</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="product-info">
+            <div><p class="eyebrow">Información del producto</p><h2>Características</h2><dl>
+                @if (p is Tabla t)
+                {
+                    <dt>Medida</dt><dd>@t.Altura</dd><dt>Ancho</dt><dd>@t.Ancho</dd><dt>Volumen</dt><dd>@t.Volumen.ToString("0.#") L</dd><dt>Encaje</dt><dd>@t.SistemaDeEncaje</dd><dt>Tipo de ola</dt><dd>@t.TipoDeOla</dd><dt>Estilo</dt><dd>@t.EstiloDeSurf</dd><dt>Experiencia</dt><dd>@t.Experiencia</dd><dt>Peso recomendado</dt><dd>@t.PesoMinimo–@t.PesoMaximo kg</dd>
+                }
+                else if (p is Quilla q) { <dt>Sistema de encaje</dt><dd>@q.SistemaDeEncaje</dd> }
+                else if (p is Leash l) { <dt>Tabla recomendada</dt><dd>Hasta @l.LargoDeTablaRecomendado pies</dd> }
+                else if (p is Pad pad) { <dt>Medidas</dt><dd>@pad.Largo × @pad.Ancho</dd><dt>Material</dt><dd>@pad.Material</dd> }
+                else if (p is Traje tr) { <dt>Género</dt><dd>@tr.Genero</dd><dt>Espesor</dt><dd>@tr.Espesor mm</dd><dt>Talle</dt><dd>@tr.Talle</dd><dt>Temperatura</dt><dd>@tr.Temperatura</dd> }
+                @if (Model.Stock.HasValue) { <dt>Stock disponible</dt><dd>@Model.Stock unidades</dd> }
+            </dl></div>
+            <aside><p class="eyebrow">Fabricado y publicado por</p><h2>@nombre</h2><p>@Model.Shaper.Pais</p><a asp-action="Detalle" asp-route-id="@p.ShaperId">Conocer al shaper →</a></aside>
+        </section>
+
+        <section class="reviews" id="resenas">
+            <p class="eyebrow">Compras verificadas</p><h2>Opiniones de clientes</h2>
+            @if (Model.Resenas.Count == 0) { <div class="empty-review">Este producto todavía no recibió reseñas.</div> }
+            else
+            {
+                <div class="review-grid">@foreach (var r in Model.Resenas) { <article><div class="stars">@string.Concat(Enumerable.Repeat("★", r.Estrellas))</div><p>@r.Comentario</p><footer><strong>@r.ClienteNombre</strong><span>Compra verificada · @r.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy")</span></footer></article> }</div>
+            }
+        </section>
+
+        @if (Model.Relacionados.Count > 0)
+        {
+            <section class="related-products">
+                <div class="related-heading"><div><p class="eyebrow">Del mismo taller</p><h2>También te puede interesar</h2></div><a asp-action="Detalle" asp-route-id="@p.ShaperId">Ver catálogo completo →</a></div>
+                <div class="related-grid">
+                    @foreach (var relacionado in Model.Relacionados)
+                    {
+                        var imagenRelacionada = string.IsNullOrWhiteSpace(relacionado.ImagenUrl) ? Url.Content("~/img/tabla.png") : relacionado.ImagenUrl;
+                        <a class="related-card" asp-action="Producto" asp-route-id="@relacionado.Id">
+                            <div><img src="@imagenRelacionada" alt="@relacionado.Titulo"></div><small>@relacionado.GetType().Name</small><h3>@relacionado.Titulo</h3><strong>USD @relacionado.Precio.ToString("N2")</strong>
+                        </a>
+                    }
+                </div>
+            </section>
+        }
+    </main>
+    <script>
+        document.querySelectorAll('[data-image]').forEach(button => button.addEventListener('click', () => {
+            const image = document.getElementById('productImage');
+            if (button.classList.contains('active')) return;
+            image.classList.add('changing');
+            window.setTimeout(() => {
+                image.src = button.dataset.image;
+                document.querySelectorAll('[data-image]').forEach(item => {
+                    const active = item === button;
+                    item.classList.toggle('active', active);
+                    item.setAttribute('aria-pressed', active.toString());
+                });
+                image.classList.remove('changing');
+            }, 160);
+        }));
+    </script>
+    <script src="~/js/navbar.js" asp-append-version="true"></script>
+</body>
+</html>

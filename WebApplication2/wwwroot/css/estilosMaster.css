@@ -510,19 +510,6 @@ body {
     overflow: hidden;
 }
 
-    #tablas::before {
-        content: 'MASTER';
-        position: absolute;
-        right: -2rem;
-        bottom: -2rem;
-        font-family: 'Bebas Neue', sans-serif;
-        font-size: 18vw;
-        color: rgba(255,255,255,.018);
-        line-height: 1;
-        pointer-events: none;
-        white-space: nowrap;
-    }
-
     #tablas .section-eyebrow {
         font-size: .68rem;
         letter-spacing: .22em;
@@ -1343,19 +1330,6 @@ body {
         left: 0;
         height: 1px;
         background: linear-gradient( 90deg, transparent, rgba(201, 168, 76, .35), transparent );
-    }
-
-    #customizador::after {
-        content: "MASTER";
-        position: absolute;
-        right: -2rem;
-        bottom: -3rem;
-        color: rgba(255, 255, 255, .016);
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 18vw;
-        line-height: 1;
-        white-space: nowrap;
-        pointer-events: none;
     }
 
 /* ── Introducción ── */

@@ -1,1 +1,62 @@
-:root{--ink:#24211b;--paper:#eee4cf;--cream:#f8f3e8;--gold:#c9a45f;--orange:#ef7638;--line:rgba(36,33,27,.2)}*{box-sizing:border-box}body.product-page{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif}.product-page main{padding:110px clamp(20px,6vw,92px) 80px}.product-breadcrumb{display:flex;gap:10px;max-width:1240px;margin:0 auto 28px;font-size:.72rem;letter-spacing:.13em;text-transform:uppercase}.product-breadcrumb a{color:var(--ink)}.product-hero{display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,.9fr);max-width:1240px;margin:auto;border:1px solid var(--line);background:var(--cream)}.product-gallery{min-width:0;padding:clamp(24px,4vw,56px);background:#d9ccb1}.product-image-wrap{display:grid;height:min(66vh,650px);place-items:center}.product-image-wrap img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 18px 20px rgba(35,30,22,.22))}.gallery-tabs{display:flex;justify-content:center;gap:8px;margin-top:20px}.gallery-tabs button{padding:10px 22px;border:1px solid var(--ink);background:transparent;color:var(--ink);font:700 .7rem 'DM Sans';letter-spacing:.12em;text-transform:uppercase;cursor:pointer}.gallery-tabs button.active,.gallery-tabs button:hover{background:var(--ink);color:#fff}.product-copy{display:flex;flex-direction:column;justify-content:center;padding:clamp(34px,6vw,78px)}.eyebrow{margin:0 0 12px;color:#a46838;font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase}.product-copy h1,.product-info h2,.reviews h2{margin:0;font:clamp(3.3rem,7vw,7rem)/.88 'Bebas Neue',sans-serif;text-transform:uppercase}.subtitle{margin:18px 0 0;color:#6d6558;font-size:1.1rem}.rating{display:flex;gap:14px;margin:28px 0 0;color:#906b27;font-size:.86rem}.rating a{color:var(--ink)}.price{margin:25px 0 0;font:2.2rem 'Bebas Neue',sans-serif}.description{max-width:610px;color:#5f584d;line-height:1.75;white-space:pre-line}.product-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:25px}.product-actions form{margin:0}.product-actions button,.product-actions a{display:inline-flex;min-height:48px;align-items:center;justify-content:center;padding:0 20px;border:1px solid var(--ink);font-weight:700;text-decoration:none;cursor:pointer}.product-actions .primary{background:var(--ink);color:white}.product-actions .primary:hover{background:var(--orange);border-color:var(--orange)}.product-actions .secondary{background:transparent;color:var(--ink)}.product-actions .secondary:hover{background:#ddcfb4}.product-info{display:grid;grid-template-columns:1.5fr .7fr;gap:70px;max-width:1240px;margin:75px auto}.product-info h2,.reviews h2{font-size:3.5rem}.product-info dl{display:grid;grid-template-columns:minmax(130px,.7fr) 1.3fr;margin-top:30px;border-top:1px solid var(--line)}.product-info dt,.product-info dd{margin:0;padding:15px 0;border-bottom:1px solid var(--line)}.product-info dt{color:#71695c}.product-info aside{padding:30px;border-left:3px solid var(--orange);background:rgba(255,255,255,.3)}.product-info aside a{color:var(--ink);font-weight:700}.reviews{max-width:1240px;margin:80px auto}.review-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:30px}.review-grid article,.empty-review{padding:28px;border:1px solid var(--line);background:var(--cream)}.stars{color:#b4842d;letter-spacing:.12em}.review-grid article p{line-height:1.65}.review-grid footer{display:flex;flex-direction:column;gap:4px}.review-grid footer span{color:#746c5f;font-size:.8rem}@media(max-width:800px){.product-page main{padding-top:90px}.product-hero,.product-info{grid-template-columns:1fr}.product-image-wrap{height:50vh}.product-info{gap:25px}.review-grid{grid-template-columns:1fr}.product-info aside{border-left:0;border-top:3px solid var(--orange)}.rating{align-items:flex-start;flex-direction:column}.product-actions>*{flex:1 1 100%}.product-actions button,.product-actions a{width:100%}}
+:root{--ink:#24211b;--paper:#eee4cf;--cream:#f8f3e8;--gold:#c9a45f;--orange:#ef7638;--line:rgba(36,33,27,.2)}
+*{box-sizing:border-box}
+body.product-page{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif}
+.product-page main{padding:110px clamp(20px,6vw,92px) 80px}
+.product-breadcrumb{display:flex;gap:10px;max-width:1240px;margin:0 auto 28px;font-size:.72rem;letter-spacing:.13em;text-transform:uppercase}
+.product-breadcrumb a{color:var(--ink)}
+.product-hero{display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,.9fr);max-width:1240px;margin:auto;border:1px solid var(--line);background:var(--cream)}
+.product-gallery{min-width:0;padding:clamp(24px,4vw,56px);background:#d9ccb1}
+.product-image-wrap{display:grid;height:min(66vh,650px);place-items:center}
+.product-image-wrap img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 18px 20px rgba(35,30,22,.22));opacity:1;transform:scale(1);transition:opacity .16s ease,transform .32s ease}
+.product-image-wrap img.changing{opacity:0;transform:scale(.985)}
+.gallery-tabs{display:flex;justify-content:center;gap:8px;margin-top:20px}
+.gallery-tabs button{padding:10px 22px;border:1px solid var(--ink);background:transparent;color:var(--ink);font:700 .7rem 'DM Sans';letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.gallery-tabs button.active,.gallery-tabs button:hover{background:var(--ink);color:#fff}
+.product-copy{display:flex;flex-direction:column;justify-content:center;padding:clamp(34px,6vw,78px)}
+.eyebrow{margin:0 0 12px;color:#a46838;font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
+.product-copy h1,.product-info h2,.reviews h2{margin:0;font:clamp(3.3rem,7vw,7rem)/.88 'Bebas Neue',sans-serif;text-transform:uppercase}
+.subtitle{margin:18px 0 0;color:#6d6558;font-size:1.1rem}
+.availability{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:24px;padding:12px 14px;border:1px solid var(--line);font-size:.82rem}
+.availability>span{width:9px;height:9px;border-radius:50%;background:#22865a}
+.availability small{width:100%;padding-left:17px;color:#70695d}
+.availability.is-unavailable{border-color:rgba(157,49,42,.35);background:rgba(157,49,42,.05)}
+.availability.is-unavailable>span{background:#a33b35}
+.rating{display:flex;gap:14px;margin:28px 0 0;color:#906b27;font-size:.86rem}
+.rating a{color:var(--ink)}
+.price{margin:25px 0 0;font:2.2rem 'Bebas Neue',sans-serif}
+.description{max-width:610px;color:#5f584d;line-height:1.75;white-space:pre-line}
+.product-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:25px}
+.product-actions form{margin:0}
+.product-actions button,.product-actions a{display:inline-flex;min-height:48px;align-items:center;justify-content:center;padding:0 20px;border:1px solid var(--ink);font-weight:700;text-decoration:none;cursor:pointer}
+.product-actions .primary{background:var(--ink);color:white}
+.product-actions .primary:hover{background:var(--orange);border-color:var(--orange)}
+.product-actions .secondary{background:transparent;color:var(--ink)}
+.product-actions .secondary:hover{background:#ddcfb4}
+.product-actions button:disabled{border-color:#9a9489;background:#9a9489;color:#f4efe5;cursor:not-allowed;opacity:.8}
+.product-info{display:grid;grid-template-columns:1.5fr .7fr;gap:70px;max-width:1240px;margin:75px auto}
+.product-info h2,.reviews h2{font-size:3.5rem}
+.product-info dl{display:grid;grid-template-columns:minmax(130px,.7fr) 1.3fr;margin-top:30px;border-top:1px solid var(--line)}
+.product-info dt,.product-info dd{margin:0;padding:15px 0;border-bottom:1px solid var(--line)}
+.product-info dt{color:#71695c}
+.product-info aside{padding:30px;border-left:3px solid var(--orange);background:rgba(255,255,255,.3)}
+.product-info aside a{color:var(--ink);font-weight:700}
+.reviews{max-width:1240px;margin:80px auto}
+.review-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:30px}
+.review-grid article,.empty-review{padding:28px;border:1px solid var(--line);background:var(--cream)}
+.stars{color:#b4842d;letter-spacing:.12em}
+.review-grid article p{line-height:1.65}
+.review-grid footer{display:flex;flex-direction:column;gap:4px}
+.review-grid footer span{color:#746c5f;font-size:.8rem}
+.related-products{max-width:1240px;margin:90px auto 20px}
+.related-heading{display:flex;align-items:end;justify-content:space-between;gap:25px;margin-bottom:28px}
+.related-heading h2{margin:0;font:3.5rem/.95 'Bebas Neue',sans-serif;text-transform:uppercase}
+.related-heading>a{color:var(--ink);font-weight:700}
+.related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.related-card{padding:18px;border:1px solid var(--line);background:var(--cream);color:var(--ink);text-decoration:none;transition:transform .2s ease,box-shadow .2s ease}
+.related-card:hover{transform:translateY(-5px);box-shadow:0 16px 30px rgba(35,30,22,.12)}
+.related-card>div{height:260px;margin-bottom:18px;background:#d9ccb1}
+.related-card img{width:100%;height:100%;object-fit:contain}
+.related-card small{color:#a46838;font-size:.66rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.related-card h3{margin:7px 0;font:2rem 'Bebas Neue',sans-serif}
+.related-card strong{font-size:.9rem}
+@media(max-width:800px){.product-page main{padding-top:90px}.product-hero,.product-info{grid-template-columns:1fr}.product-image-wrap{height:50vh}.product-info{gap:25px}.review-grid,.related-grid{grid-template-columns:1fr}.product-info aside{border-left:0;border-top:3px solid var(--orange)}.rating{align-items:flex-start;flex-direction:column}.product-actions>*{flex:1 1 100%}.product-actions button,.product-actions a{width:100%}.related-heading{align-items:flex-start;flex-direction:column}.related-heading h2{font-size:2.8rem}.related-card>div{height:220px}}

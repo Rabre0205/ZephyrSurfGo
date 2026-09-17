@@ -11,17 +11,20 @@ namespace WebApplication2.Controllers
         private readonly ClassLibrary.Servicios.IProductoServicio _productoServicio;
         private readonly ClassLibrary.Servicios.IDisenoShaperServicio _disenoServicio;
         private readonly ClassLibrary.Datos.IInteraccionesRepositorio _interacciones;
+        private readonly ClassLibrary.Datos.ICarritoRepositorio _carritoRepositorio;
 
         public ShaperController(
             ClassLibrary.Servicios.IUsuarioServicio usuarioServicio,
             ClassLibrary.Servicios.IProductoServicio productoServicio,
             ClassLibrary.Servicios.IDisenoShaperServicio disenoServicio,
-            ClassLibrary.Datos.IInteraccionesRepositorio interacciones)
+            ClassLibrary.Datos.IInteraccionesRepositorio interacciones,
+            ClassLibrary.Datos.ICarritoRepositorio carritoRepositorio)
         {
             _usuarioServicio = usuarioServicio;
             _productoServicio = productoServicio;
             _disenoServicio = disenoServicio;
             _interacciones = interacciones;
+            _carritoRepositorio = carritoRepositorio;
         }
 
         public IActionResult Detalle(int id, int? disenoGuardado = null)
@@ -93,11 +96,20 @@ namespace WebApplication2.Controllers
             if (shaper == null || !shaper.Activo) return NotFound();
             int clienteId = User.IsInRole("Cliente") && int.TryParse(
                 User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out int idCliente) ? idCliente : 0;
+            var disponibilidad = _carritoRepositorio.ObtenerDisponibilidad(id);
+            var relacionados = _productoServicio.BuscarPorShaper(producto.ShaperId)
+                .Where(item => item.Id != producto.Id)
+                .Take(3)
+                .ToList();
             return View("Producto", new ProductoDetalleViewModel
             {
                 Producto=producto, Shaper=shaper,
                 Resenas=_interacciones.ObtenerResenas(id),
-                EsFavorito=clienteId>0 && _interacciones.EsFavorito(clienteId,id)
+                EsFavorito=clienteId>0 && _interacciones.EsFavorito(clienteId,id),
+                Disponible=disponibilidad?.Disponible == true,
+                Stock=disponibilidad?.Stock,
+                EsPropietario=User.IsInRole("Shaper"),
+                Relacionados=relacionados
             });
         }
     }

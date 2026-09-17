@@ -669,19 +669,6 @@ body {
     overflow: hidden;
 }
 
-    #proceso::before {
-        content: 'CRAFT';
-        position: absolute;
-        right: -1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-family: 'Bebas Neue', sans-serif;
-        font-size: 22vw;
-        color: rgba(255,255,255,.03);
-        line-height: 1;
-        pointer-events: none;
-    }
-
     #proceso .section-label {
         color: var(--blue-light);
     }
@@ -780,19 +767,6 @@ body {
         position: absolute;
         inset: 0;
         background: radial-gradient(ellipse at 80% 50%, rgba(74,143,232,.12) 0%, transparent 65%);
-    }
-
-    .join-box::after {
-        content: 'JOIN';
-        position: absolute;
-        right: 4rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-family: 'Bebas Neue', sans-serif;
-        font-size: 9rem;
-        color: rgba(255,255,255,.03);
-        line-height: 1;
-        pointer-events: none;
     }
 
 .join-eyebrow {
@@ -1224,6 +1198,20 @@ footer {
 /* ─────────────────────────────────────
    RESPONSIVE
 ───────────────────────────────────── */
+/* Catálogo compacto, alineado con la estética editorial */
+.editorial-shapers .shapers-grid{grid-template-columns:repeat(auto-fit,minmax(430px,1fr));max-width:1180px;margin:0 auto}
+.editorial-shapers .shaper-card{display:grid;grid-template-columns:minmax(180px,38%) 1fr;min-height:300px;cursor:default}
+.editorial-shapers .shaper-portrait{height:100%;min-height:300px;aspect-ratio:auto}
+.editorial-shapers .shaper-info{min-width:0;padding:1.8rem;justify-content:center}
+.editorial-shapers .shaper-origin{margin:0 0 .45rem;color:#a15e35}
+.editorial-shapers .shaper-name{font-size:clamp(1.9rem,3vw,2.7rem);margin:0 0 .2rem;overflow-wrap:anywhere}
+.editorial-shapers .shaper-years{margin-bottom:.75rem}
+.editorial-shapers .shaper-bio{display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:3;flex:0 1 auto;margin-bottom:.2rem;line-height:1.55}
+.editorial-shapers .shaper-stats{margin-top:.8rem;padding-top:.8rem}
+.editorial-shapers .shaper-cta{margin-top:.8rem;padding-top:.8rem;opacity:1;transform:none}
+.editorial-shapers .shaper-portrait-name{opacity:1;transform:none}
+.editorial-shapers .cta-link{font-weight:700}
+
 @media(max-width: 1024px) {
     .steps-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -1258,6 +1246,10 @@ footer {
 }
 
 @media(max-width: 640px) {
+    .editorial-shapers .shapers-grid{grid-template-columns:1fr}
+    .editorial-shapers .shaper-card{grid-template-columns:1fr;min-height:0}
+    .editorial-shapers .shaper-portrait{height:210px;min-height:210px}
+    .editorial-shapers .shaper-info{padding:1.35rem}
     .shapers-grid {
         grid-template-columns: 1fr;
     }

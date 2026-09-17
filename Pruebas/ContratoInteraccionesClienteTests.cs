@@ -66,6 +66,44 @@ public class ContratoInteraccionesClienteTests
         Assert.Contains("@Html.AntiForgeryToken()", vista);
     }
 
+    [Fact]
+    public void DetalleDeProductoExponeDisponibilidadEdicionYRelacionados()
+    {
+        string vista = File.ReadAllText(Path.Combine(BuscarRaizProyecto(), "WebApplication2", "Views", "Shaper", "Producto.cshtml"));
+        Assert.Contains("Model.Disponible", vista);
+        Assert.Contains("disabled=\"@(!Model.Disponible)\"", vista);
+        Assert.Contains("asp-action=\"Editar\"", vista);
+        Assert.Contains("Model.Relacionados", vista);
+        Assert.Contains("Model.Stock", vista);
+        Assert.Contains("aria-pressed", vista);
+    }
+
+    [Fact]
+    public void MapaDeRetirosIncluyeFiltrosUbicacionYEstadosAccesibles()
+    {
+        string vista = File.ReadAllText(Path.Combine(BuscarRaizProyecto(), "WebApplication2", "Views", "Surf", "Dealers.cshtml"));
+        string script = File.ReadAllText(Path.Combine(BuscarRaizProyecto(), "WebApplication2", "wwwroot", "js", "Dealers.js"));
+        Assert.Contains("nearMeButton", vista);
+        Assert.Contains("clearFiltersButton", vista);
+        Assert.Contains("aria-live=\"polite\"", vista);
+        Assert.Contains("pickup.notes", script);
+        Assert.Contains("fitBounds", script);
+        Assert.Contains("navigator.geolocation", script);
+        Assert.Contains("tileerror", script);
+        string estilosMapa = File.ReadAllText(Path.Combine(BuscarRaizProyecto(), "WebApplication2", "wwwroot", "css", "estilosDealers.css"));
+        Assert.Contains(".editorial-map .search-wrap input", estilosMapa);
+        Assert.Contains("text-overflow:ellipsis", estilosMapa);
+    }
+
+    [Fact]
+    public void CatalogoDeShapersUsaTarjetasCompactasYResponsive()
+    {
+        string estilos = File.ReadAllText(Path.Combine(BuscarRaizProyecto(), "WebApplication2", "wwwroot", "css", "estilosShapers.css"));
+        Assert.Contains("grid-template-columns:minmax(180px,38%) 1fr", estilos);
+        Assert.Contains("-webkit-line-clamp:3", estilos);
+        Assert.Contains(".editorial-shapers .shaper-card{grid-template-columns:1fr", estilos);
+    }
+
     private static void AssertPostSeguro(Type controlador, string accion, int parametros)
     {
         var metodo = Assert.Single(controlador.GetMethods(), m => m.Name == accion && m.GetParameters().Length == parametros);
