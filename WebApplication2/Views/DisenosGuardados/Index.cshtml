@@ -1,45 +1,10 @@
 @model List<ClassLibrary.Interacciones.DisenoGuardado>
-@{ Layout = null; }
-<!doctype html>
-<html lang="es">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
-    <title>Mis diseños guardados</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="~/css/navbar.css">
-</head>
-<body>
-    <partial name="_Navbar" />
-    <main class="container py-5" style="margin-top:70px;max-width:900px">
-        <small class="text-primary text-uppercase fw-bold">Tus borradores</small>
-        <h1>Mis diseños guardados</h1>
-        <p class="text-secondary">Podés retomarlos y modificarlos. Guardar un diseño no crea una compra.</p>
-        @if (Model.Count == 0)
-        {
-            <section class="border rounded-4 p-5 text-center">Todavía no guardaste diseños.</section>
-        }
-        else
-        {
-            @foreach (var diseno in Model)
-            {
-                <article class="border rounded-4 p-4 mb-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <div>
-                        <h2 class="h5 mb-1">@diseno.Nombre</h2>
-                        <small class="text-secondary">Guardado el @diseno.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <a asp-controller="Shaper" asp-action="Detalle" asp-route-id="@diseno.ShaperId" asp-route-disenoGuardado="@diseno.Id" asp-fragment="customizador" class="btn btn-primary">Continuar diseño</a>
-                        <form asp-action="Eliminar" method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@diseno.Id">
-                            <button class="btn btn-outline-danger">Eliminar</button>
-                        </form>
-                    </div>
-                </article>
-            }
-        }
-    </main>
-    <script src="~/js/navbar.js"></script>
-</body>
-</html>
+@{ Layout=null; }
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mis diseños guardados</title><link rel="stylesheet" href="~/css/navbar.css"><link rel="stylesheet" href="~/css/bibliotecaCliente.css" asp-append-version="true"></head><body><partial name="_Navbar" />
+<main class="library-page"><header class="library-hero"><div><span>Tus borradores</span><h1>Diseños guardados</h1><p>Retomalos, creá variantes y continuá hasta enviar la solicitud al shaper.</p></div><div class="library-stats"><strong>@Model.Count</strong><span>diseño@(Model.Count==1?"":"s")</span></div></header>
+@if(TempData["Mensaje"] is string mensaje){<div class="library-alert success">@mensaje</div>}@if(TempData["Error"] is string error){<div class="library-alert error">@error</div>}
+@if(Model.Count==0){<section class="library-empty"><span>◇</span><h2>Todavía no guardaste diseños</h2><p>Entrá al perfil de un shaper, personalizá una tabla y guardala para después.</p><a asp-controller="Surf" asp-action="shapers" class="library-primary">Ver shapers</a></section>}
+else{<form asp-action="EliminarSeleccionados" method="post" id="designsBulkForm">@Html.AntiForgeryToken()<div class="library-toolbar"><label><input type="checkbox" data-select-all> Seleccionar todos</label><button class="library-danger" type="submit" data-bulk-submit disabled>Eliminar seleccionados</button></div><section class="design-list">@foreach(var d in Model){<article class="design-card"><label class="select-item" aria-label="Seleccionar @d.Nombre"><input type="checkbox" name="ids" value="@d.Id" data-item-check></label><div class="design-index">#@d.Id.ToString("D3")</div><div class="design-copy"><span>Diseño personalizado</span><h2>@d.Nombre</h2><small>@(d.FechaActualizacion.HasValue?"Actualizado":"Guardado") el @(d.FechaActualizacion??d.FechaCreacion).ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small></div><div class="design-actions"><a asp-controller="Shaper" asp-action="Detalle" asp-route-id="@d.ShaperId" asp-route-disenoGuardado="@d.Id" asp-fragment="customizador" class="library-primary">Continuar y comprar</a><button type="button" class="text-action" data-open-rename="@d.Id" data-current-name="@d.Nombre">Renombrar</button><button type="button" class="text-action" data-open-duplicate="@d.Id" data-current-name="@d.Nombre">Duplicar</button><button type="submit" formaction="@Url.Action("Eliminar")" name="id" value="@d.Id" class="text-action danger">Eliminar</button></div></article>}</section></form>}
+</main>
+<dialog id="designActionDialog" class="library-dialog"><form method="post" id="designActionForm">@Html.AntiForgeryToken()<button type="button" class="dialog-close" data-dialog-close aria-label="Cerrar">×</button><span id="dialogEyebrow">Editar diseño</span><h2 id="dialogTitle">Renombrar diseño</h2><input type="hidden" name="id" id="dialogDesignId"><label for="dialogDesignName">Nombre</label><input name="nombre" id="dialogDesignName" minlength="2" maxlength="100" required><div><button type="button" data-dialog-close>Cancelar</button><button class="library-primary" id="dialogSubmit">Guardar</button></div></form></dialog>
+<script>window.designActions={rename:'@Url.Action("Renombrar")',duplicate:'@Url.Action("Duplicar")'};</script><script src="~/js/bibliotecaCliente.js" asp-append-version="true"></script><script src="~/js/navbar.js"></script></body></html>

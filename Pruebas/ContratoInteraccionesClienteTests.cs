@@ -21,8 +21,12 @@ public class ContratoInteraccionesClienteTests
     {
         AssertPostSeguro(typeof(ResenasController), "Crear", 4);
         AssertPostSeguro(typeof(FavoritosController), "Alternar", 2);
+        AssertPostSeguro(typeof(FavoritosController), "EliminarSeleccionados", 1);
         AssertPostSeguro(typeof(DisenosGuardadosController), "Guardar", 3);
         AssertPostSeguro(typeof(DisenosGuardadosController), "Eliminar", 1);
+        AssertPostSeguro(typeof(DisenosGuardadosController), "EliminarSeleccionados", 1);
+        AssertPostSeguro(typeof(DisenosGuardadosController), "Renombrar", 2);
+        AssertPostSeguro(typeof(DisenosGuardadosController), "Duplicar", 2);
     }
 
     [Fact]
@@ -33,6 +37,8 @@ public class ContratoInteraccionesClienteTests
         Assert.Contains("UNIQUE (ClienteId, ProductoId)", sql);
         Assert.Contains("REFERENCES dbo.Pedidos(Id)", sql);
         Assert.Contains("CHECK (ISJSON(ConfiguracionJson)=1)", sql);
+        Assert.Contains("PrecioGuardado", sql);
+        Assert.Contains("FechaActualizacion", sql);
     }
 
     [Theory]
@@ -102,6 +108,20 @@ public class ContratoInteraccionesClienteTests
         Assert.Contains("grid-template-columns:minmax(180px,38%) 1fr", estilos);
         Assert.Contains("-webkit-line-clamp:3", estilos);
         Assert.Contains(".editorial-shapers .shaper-card{grid-template-columns:1fr", estilos);
+    }
+
+    [Fact]
+    public void FavoritosYDisenosOfrecenGestionCompleta()
+    {
+        string raiz=BuscarRaizProyecto();
+        string favoritos=File.ReadAllText(Path.Combine(raiz,"WebApplication2","Views","Favoritos","Index.cshtml"));
+        string disenos=File.ReadAllText(Path.Combine(raiz,"WebApplication2","Views","DisenosGuardados","Index.cshtml"));
+        Assert.Contains("CambioPrecio",favoritos);
+        Assert.Contains("No disponible",favoritos);
+        Assert.Contains("EliminarSeleccionados",favoritos);
+        Assert.Contains("Continuar y comprar",disenos);
+        Assert.Contains("data-open-rename",disenos);
+        Assert.Contains("data-open-duplicate",disenos);
     }
 
     private static void AssertPostSeguro(Type controlador, string accion, int parametros)

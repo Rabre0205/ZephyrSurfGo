@@ -24,6 +24,34 @@ public class DisenosGuardadosController(IInteraccionesRepositorio repositorio) :
 
     [HttpPost,ValidateAntiForgeryToken]
     public IActionResult Eliminar(int id){repositorio.EliminarDiseno(id,ClienteId());return RedirectToAction(nameof(Index));}
+
+    [HttpPost,ValidateAntiForgeryToken]
+    public IActionResult EliminarSeleccionados(List<int>? ids)
+    {
+        int eliminados=repositorio.EliminarDisenos(ClienteId(),ids??[]);
+        TempData[eliminados>0?"Mensaje":"Error"]=eliminados>0?$"Eliminaste {eliminados} diseño{(eliminados==1?"":"s")}.":"Seleccioná al menos un diseño.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost,ValidateAntiForgeryToken]
+    public IActionResult Renombrar(int id,string nombre)
+    {
+        nombre=(nombre??"").Trim();
+        if(nombre.Length is < 2 or > 100){TempData["Error"]="El nombre debe tener entre 2 y 100 caracteres.";return RedirectToAction(nameof(Index));}
+        bool actualizado=repositorio.RenombrarDiseno(id,ClienteId(),nombre);
+        TempData[actualizado?"Mensaje":"Error"]=actualizado?"Nombre del diseño actualizado.":"No se encontró el diseño.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost,ValidateAntiForgeryToken]
+    public IActionResult Duplicar(int id,string nombre)
+    {
+        nombre=(nombre??"").Trim();
+        if(nombre.Length is < 2 or > 100){TempData["Error"]="El nombre de la copia no es válido.";return RedirectToAction(nameof(Index));}
+        int? nuevoId=repositorio.DuplicarDiseno(id,ClienteId(),nombre);
+        TempData[nuevoId.HasValue?"Mensaje":"Error"]=nuevoId.HasValue?"Diseño duplicado. Podés editar la copia sin modificar el original.":"No se encontró el diseño.";
+        return RedirectToAction(nameof(Index));
+    }
     private static bool JsonValido(string valor){try{using var _=JsonDocument.Parse(valor);return true;}catch(JsonException){return false;}}
     private int ClienteId()=>int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier),out int id)?id:throw new UnauthorizedAccessException();
 }

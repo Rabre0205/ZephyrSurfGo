@@ -8,4 +8,5 @@ public class DisenoGuardado
     public string Nombre { get; set; } = "";
     public string ConfiguracionJson { get; set; } = "{}";
     public DateTime FechaCreacion { get; set; }
+    public DateTime? FechaActualizacion { get; set; }
 }

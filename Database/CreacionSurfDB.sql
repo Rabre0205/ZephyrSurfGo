@@ -786,6 +786,7 @@ GO
 CREATE TABLE FavoritosProductos (
     ClienteId INT NOT NULL REFERENCES Usuarios(Id),
     ProductoId INT NOT NULL REFERENCES Productos(Id),
+    PrecioGuardado DECIMAL(10,2) NOT NULL,
     FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
     CONSTRAINT PK_FavoritosProductos PRIMARY KEY (ClienteId, ProductoId)
 );
@@ -800,6 +801,7 @@ CREATE TABLE DisenosGuardados (
     Nombre NVARCHAR(100) NOT NULL,
     ConfiguracionJson NVARCHAR(MAX) NOT NULL,
     FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    FechaActualizacion DATETIME2 NULL,
     CONSTRAINT CK_DisenosGuardados_Json CHECK (ISJSON(ConfiguracionJson)=1)
 );
 GO

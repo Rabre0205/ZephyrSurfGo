@@ -72,3 +72,9 @@ Si no se dispone de `sqlcmd`, ejecutar desde SQL Server Management Studio, en es
 2. `Database/DatosPrueba.sql`
 
 El primer archivo se usa sobre una instalación nueva. El segundo puede ejecutarse nuevamente porque evita duplicar los datos ficticios.
+
+Si la base ya existía antes de las mejoras de favoritos y diseños guardados, ejecutar una sola vez:
+
+```text
+Database/MejorarFavoritosYDisenosGuardados.sql
+```

@@ -1,54 +1,8 @@
 @model List<ClassLibrary.Interacciones.FavoritoProducto>
-@{ Layout = null; }
-<!doctype html>
-<html lang="es">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mis favoritos</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="~/css/navbar.css">
-</head>
-<body>
-    <partial name="_Navbar" />
-    <main class="container py-5" style="margin-top:70px;max-width:1100px">
-        <small class="text-primary text-uppercase fw-bold">Tu lista</small>
-        <h1>Mis favoritos</h1>
-        <p class="text-secondary">Guardarlos no reserva el stock ni congela el precio.</p>
-        @if (Model.Count == 0)
-        {
-            <section class="border rounded-4 p-5 text-center">
-                <h2 class="h4">Todavía no guardaste productos</h2>
-                <a asp-controller="Surf" asp-action="shapers" class="btn btn-primary mt-2">Explorar shapers</a>
-            </section>
-        }
-        else
-        {
-            <div class="row g-4">
-                @foreach (var producto in Model)
-                {
-                    <div class="col-md-4">
-                        <article class="card h-100">
-                            <img src="@(string.IsNullOrWhiteSpace(producto.ImagenUrl) ? Url.Content("~/img/tabla.png") : producto.ImagenUrl)" class="card-img-top" style="height:260px;object-fit:contain;background:#0b1730" alt="@producto.Titulo">
-                            <div class="card-body">
-                                <small>@producto.TipoProducto · @producto.Subtitulo</small>
-                                <h2 class="h5">@producto.Titulo</h2>
-                                <strong>USD @producto.Precio.ToString("N2")</strong>
-                                <div class="d-flex gap-2 mt-3">
-                                    <a asp-controller="Shaper" asp-action="Producto" asp-route-id="@producto.ProductoId" class="btn btn-primary">Ver producto</a>
-                                    <form asp-action="Alternar" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="productoId" value="@producto.ProductoId">
-                                        <button type="submit" class="btn btn-outline-danger">Quitar</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-                }
-            </div>
-        }
-    </main>
-    <script src="~/js/navbar.js"></script>
-</body>
-</html>
+@{ Layout = null; int noDisponibles=Model.Count(x=>!x.Disponible); int cambios=Model.Count(x=>x.CambioPrecio); }
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mis favoritos</title><link rel="stylesheet" href="~/css/navbar.css"><link rel="stylesheet" href="~/css/bibliotecaCliente.css" asp-append-version="true"></head><body><partial name="_Navbar" />
+<main class="library-page"><header class="library-hero"><div><span>Tu selección</span><h1>Mis favoritos</h1><p>Guardarlos no reserva el stock ni congela el precio. Te avisamos cuando algo cambia.</p></div><div class="library-stats"><strong>@Model.Count</strong><span>guardados</span>@if(noDisponibles>0){<strong>@noDisponibles</strong><span>no disponibles</span>}@if(cambios>0){<strong>@cambios</strong><span>con precio nuevo</span>}</div></header>
+@if(TempData["Mensaje"] is string mensaje){<div class="library-alert success">@mensaje</div>}@if(TempData["Error"] is string error){<div class="library-alert error">@error</div>}
+@if(Model.Count==0){<section class="library-empty"><span>♡</span><h2>Todavía no guardaste productos</h2><p>Explorá los talleres y guardá las tablas o accesorios que quieras comparar más adelante.</p><a asp-controller="Surf" asp-action="shapers" class="library-primary">Explorar shapers</a></section>}
+else{<form asp-action="EliminarSeleccionados" method="post" id="favoritesBulkForm">@Html.AntiForgeryToken()<div class="library-toolbar"><label><input type="checkbox" data-select-all> Seleccionar todos</label><button class="library-danger" type="submit" data-bulk-submit disabled>Quitar seleccionados</button></div><section class="favorite-grid">@foreach(var p in Model){<article class="favorite-card @(!p.Disponible?"unavailable":"")"><label class="select-item" aria-label="Seleccionar @p.Titulo"><input type="checkbox" name="productoIds" value="@p.ProductoId" data-item-check></label><div class="favorite-image"><img src="@(string.IsNullOrWhiteSpace(p.ImagenUrl)?Url.Content("~/img/tabla.png"):p.ImagenUrl)" alt="@p.Titulo">@if(!p.Disponible){<span>No disponible</span>}else if(p.Stock.HasValue&&p.Stock<=3){<span>Últimas @p.Stock</span>}</div><div class="favorite-copy"><small>@p.TipoProducto · @p.Subtitulo</small><h2>@p.Titulo</h2><div class="favorite-price"><strong>USD @p.Precio.ToString("N2")</strong>@if(p.CambioPrecio){<span>Antes USD @p.PrecioGuardado.ToString("N2")</span>}</div>@if(p.CambioPrecio){<p class="change-note">El precio cambió desde que lo guardaste.</p>}<div class="favorite-actions">@if(p.Disponible){<a asp-controller="Shaper" asp-action="Producto" asp-route-id="@p.ProductoId" class="library-primary">Ver producto</a>}else{<span class="disabled-action">Esperando disponibilidad</span>}<button type="submit" formaction="@Url.Action("Alternar")" name="productoId" value="@p.ProductoId" class="text-action">Quitar</button></div></div></article>}</section></form>}
+</main><script src="~/js/bibliotecaCliente.js" asp-append-version="true"></script><script src="~/js/navbar.js"></script></body></html>

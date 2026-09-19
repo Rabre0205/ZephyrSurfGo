@@ -23,9 +23,18 @@ BEGIN
     CREATE TABLE dbo.FavoritosProductos (
         ClienteId INT NOT NULL REFERENCES dbo.Usuarios(Id),
         ProductoId INT NOT NULL REFERENCES dbo.Productos(Id),
+        PrecioGuardado DECIMAL(10,2) NOT NULL,
         FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT PK_FavoritosProductos PRIMARY KEY (ClienteId, ProductoId)
     );
+END;
+GO
+
+IF COL_LENGTH('dbo.FavoritosProductos','PrecioGuardado') IS NULL
+BEGIN
+    ALTER TABLE dbo.FavoritosProductos ADD PrecioGuardado DECIMAL(10,2) NULL;
+    UPDATE f SET PrecioGuardado=p.Precio FROM dbo.FavoritosProductos f INNER JOIN dbo.Productos p ON p.Id=f.ProductoId;
+    ALTER TABLE dbo.FavoritosProductos ALTER COLUMN PrecioGuardado DECIMAL(10,2) NOT NULL;
 END;
 GO
 
@@ -38,8 +47,13 @@ BEGIN
         Nombre NVARCHAR(100) NOT NULL,
         ConfiguracionJson NVARCHAR(MAX) NOT NULL,
         FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        FechaActualizacion DATETIME2 NULL,
         CONSTRAINT CK_DisenosGuardados_Json CHECK (ISJSON(ConfiguracionJson)=1)
     );
     CREATE INDEX IX_DisenosGuardados_ClienteFecha ON dbo.DisenosGuardados(ClienteId, FechaCreacion DESC);
 END;
+GO
+
+IF COL_LENGTH('dbo.DisenosGuardados','FechaActualizacion') IS NULL
+    ALTER TABLE dbo.DisenosGuardados ADD FechaActualizacion DATETIME2 NULL;
 GO
