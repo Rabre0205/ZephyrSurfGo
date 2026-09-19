@@ -37,6 +37,7 @@ namespace WebApplication2
             builder.Services.AddScoped<IDisenoShaperRepositorio, DisenoShaperRepositorio>();
             builder.Services.AddScoped<IDisenoShaperServicio, DisenoShaperServicio>();
             builder.Services.AddScoped<IInteraccionesRepositorio, InteraccionesRepositorio>();
+            builder.Services.AddScoped<ICursoRepositorio, CursoRepositorio>();
             builder.Services.AddScoped<WebApplication2.Servicios.ICorreoNotificacionServicio, WebApplication2.Servicios.CorreoNotificacionServicio>();
      
 

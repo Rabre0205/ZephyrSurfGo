@@ -12,19 +12,22 @@ namespace WebApplication2.Controllers
         private readonly ClassLibrary.Servicios.IDisenoShaperServicio _disenoServicio;
         private readonly ClassLibrary.Datos.IInteraccionesRepositorio _interacciones;
         private readonly ClassLibrary.Datos.ICarritoRepositorio _carritoRepositorio;
+        private readonly ClassLibrary.Datos.ICursoRepositorio _cursoRepositorio;
 
         public ShaperController(
             ClassLibrary.Servicios.IUsuarioServicio usuarioServicio,
             ClassLibrary.Servicios.IProductoServicio productoServicio,
             ClassLibrary.Servicios.IDisenoShaperServicio disenoServicio,
             ClassLibrary.Datos.IInteraccionesRepositorio interacciones,
-            ClassLibrary.Datos.ICarritoRepositorio carritoRepositorio)
+            ClassLibrary.Datos.ICarritoRepositorio carritoRepositorio,
+            ClassLibrary.Datos.ICursoRepositorio cursoRepositorio)
         {
             _usuarioServicio = usuarioServicio;
             _productoServicio = productoServicio;
             _disenoServicio = disenoServicio;
             _interacciones = interacciones;
             _carritoRepositorio = carritoRepositorio;
+            _cursoRepositorio = cursoRepositorio;
         }
 
         public IActionResult Detalle(int id, int? disenoGuardado = null)
@@ -74,7 +77,8 @@ namespace WebApplication2.Controllers
                         : new HashSet<int>(),
                     ConfiguracionGuardadaJson = clienteId > 0 && disenoGuardado.HasValue
                         ? _interacciones.ObtenerDiseno(disenoGuardado.Value, clienteId)?.ConfiguracionJson
-                        : null
+                        : null,
+                    Cursos = _cursoRepositorio.ObtenerPorShaper(id, true)
                 };
 
             return View(modelo);

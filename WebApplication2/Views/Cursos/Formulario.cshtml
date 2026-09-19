@@ -1,0 +1,19 @@
+@model WebApplication2.Models.Cursos.CursoFormModel
+@{bool editar=Model.Id>0;ViewData["Title"]=editar?"Editar curso":"Publicar curso";}
+<link rel="stylesheet" href="~/css/cursos.css" asp-append-version="true" /><partial name="_Navbar" />
+<main class="course-page course-form-page"><a asp-action="Index" class="course-back">← Volver a mis cursos</a><header class="course-heading"><div><span>Formación del shaper</span><h1>@(editar?"Editar curso":"Nuevo curso")</h1><p>Explicá con claridad qué aprenderá el alumno y qué incluye el valor.</p></div></header>
+<form method="post" class="course-form">@Html.AntiForgeryToken()<input asp-for="Id" type="hidden"><div asp-validation-summary="ModelOnly" class="course-errors"></div>
+ <label>Título<input asp-for="Titulo" placeholder="Ej.: Workshop de fabricación de tablas"><span asp-validation-for="Titulo"></span></label>
+ <label>Resumen<input asp-for="Resumen" placeholder="Una descripción breve para la tarjeta"><span asp-validation-for="Resumen"></span></label>
+ <label class="wide">Descripción y contenidos<textarea asp-for="Descripcion" rows="8" placeholder="Temario, materiales incluidos, requisitos y qué se lleva el alumno..."></textarea><span asp-validation-for="Descripcion"></span></label>
+ <label>Modalidad<select asp-for="Modalidad"><option>Presencial</option><option>Online</option><option>Híbrido</option></select></label>
+ <label>Ubicación o acceso<input asp-for="Ubicacion" placeholder="Taller, ciudad o información del acceso"><span asp-validation-for="Ubicacion"></span></label>
+ <label>Fecha y hora<input asp-for="FechaInicio" type="datetime-local"><span asp-validation-for="FechaInicio"></span></label>
+ <label>Duración (horas)<input asp-for="DuracionHoras" type="number" min="0.5" step="0.5"><span asp-validation-for="DuracionHoras"></span></label>
+ <label>Cupos<input asp-for="Cupos" type="number" min="1"><span asp-validation-for="Cupos"></span></label>
+ <label>Precio en USD<input asp-for="Precio" type="number" min="0.01" step="0.01"><span asp-validation-for="Precio"></span></label>
+ <label class="wide">URL de imagen (opcional)<input asp-for="ImagenUrl" placeholder="https://..."><span asp-validation-for="ImagenUrl"></span></label>
+ <label class="course-check wide"><input asp-for="Publicado"> Publicar y mostrar en mi página</label>
+ <aside class="course-commission wide"><strong>Misma comisión que el catálogo</strong><p>Zephyr aplica automáticamente la misma comisión configurada para la venta de tablas y accesorios. El shaper no puede modificarla desde esta publicación.</p></aside>
+ <div class="course-submit wide"><a asp-action="Index">Cancelar</a><button class="course-primary">@(editar?"Guardar cambios":"Publicar curso")</button></div>
+</form></main><partial name="_ValidationScriptsPartial" /><script src="~/js/navbar.js" asp-append-version="true"></script>

@@ -4,6 +4,7 @@ using ClassLibrary.Disenos;
 using ClassLibrary.Interacciones;
 using System.Collections.Generic;
 using System.Linq;
+using ClassLibrary.Cursos;
 
 namespace WebApplication2.Models
 {
@@ -16,6 +17,7 @@ namespace WebApplication2.Models
         public Dictionary<int, ResumenResenas> Resenas { get; set; } = new();
         public HashSet<int> Favoritos { get; set; } = new();
         public string? ConfiguracionGuardadaJson { get; set; }
+        public List<CursoShaper> Cursos { get; set; } = new();
 
         public List<Tabla> Tablas => Productos.OfType<Tabla>().ToList();
         public List<Quilla> Quillas => Productos.OfType<Quilla>().ToList();
