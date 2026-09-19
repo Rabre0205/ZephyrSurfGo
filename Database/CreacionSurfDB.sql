@@ -783,6 +783,32 @@ GO
 CREATE INDEX IX_ResenasProductos_ProductoFecha ON ResenasProductos(ProductoId, FechaCreacion DESC);
 GO
 
+ALTER TABLE ResenasProductos ADD RespuestaShaper NVARCHAR(1000) NULL, FechaRespuesta DATETIME2 NULL,
+    FechaEdicion DATETIME2 NULL, Moderada BIT NOT NULL CONSTRAINT DF_ResenasProductos_Moderada DEFAULT 0,
+    MotivoModeracion NVARCHAR(300) NULL;
+GO
+
+CREATE TABLE SolicitudesShapers (
+    Id INT IDENTITY PRIMARY KEY, Nombre NVARCHAR(100) NOT NULL, Email NVARCHAR(150) NOT NULL,
+    Marca NVARCHAR(150) NOT NULL, Ubicacion NVARCHAR(120) NOT NULL, Celular NVARCHAR(40) NOT NULL,
+    Instagram NVARCHAR(100) NOT NULL, AniosExperiencia INT NOT NULL, RealizaPersonalizadas BIT NOT NULL,
+    RealizaEnvios BIT NOT NULL, Presentacion NVARCHAR(1500) NOT NULL, Estado NVARCHAR(30) NOT NULL DEFAULT N'Pendiente',
+    NotasAdmin NVARCHAR(1000) NULL, FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(), FechaActualizacion DATETIME2 NULL,
+    CONSTRAINT CK_SolicitudesShapers_Estado CHECK(Estado IN(N'Pendiente',N'En revisión',N'Aprobada',N'Rechazada'))
+);
+GO
+CREATE INDEX IX_SolicitudesShapers_EstadoFecha ON SolicitudesShapers(Estado,FechaCreacion DESC);
+GO
+
+CREATE TABLE RecuperacionesContrasenia (
+    Id BIGINT IDENTITY PRIMARY KEY, UsuarioId INT NOT NULL REFERENCES Usuarios(Id), TokenHash CHAR(64) NOT NULL UNIQUE,
+    FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(), FechaExpiracion DATETIME2 NOT NULL, FechaUso DATETIME2 NULL,
+    SolicitadaDesde NVARCHAR(64) NULL
+);
+GO
+CREATE INDEX IX_Recuperaciones_UsuarioExpiracion ON RecuperacionesContrasenia(UsuarioId,FechaExpiracion DESC);
+GO
+
 CREATE TABLE FavoritosProductos (
     ClienteId INT NOT NULL REFERENCES Usuarios(Id),
     ProductoId INT NOT NULL REFERENCES Productos(Id),

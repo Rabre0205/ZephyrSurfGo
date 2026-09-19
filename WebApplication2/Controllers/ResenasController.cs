@@ -8,7 +8,7 @@ namespace WebApplication2.Controllers;
 [Authorize(Roles="Cliente")]
 public class ResenasController(IInteraccionesRepositorio repositorio) : Controller
 {
-    [HttpGet]
+    [HttpGet,Authorize(Roles="Cliente")]
     public IActionResult Crear(int pedidoId, int productoId)
     {
         if (!repositorio.PuedeResenar(ClienteId(), pedidoId, productoId)) return Forbid();
@@ -16,7 +16,7 @@ public class ResenasController(IInteraccionesRepositorio repositorio) : Controll
         return View();
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken,Authorize(Roles="Cliente")]
     public IActionResult Crear(int pedidoId, int productoId, byte estrellas, string comentario)
     {
         comentario=(comentario??"").Trim();
@@ -31,5 +31,7 @@ public class ResenasController(IInteraccionesRepositorio repositorio) : Controll
 
     [AllowAnonymous]
     public IActionResult Producto(int id) => View(repositorio.ObtenerResenas(id));
+    [HttpPost,ValidateAntiForgeryToken,Authorize(Roles="Cliente")]
+    public IActionResult Editar(int id,int productoId,byte estrellas,string comentario){comentario=(comentario??"").Trim();if(estrellas is <1 or >5||comentario.Length is <3 or >1000){TempData["Error"]="Revisá la puntuación y el comentario.";}else if(!repositorio.EditarResena(id,ClienteId(),estrellas,comentario))TempData["Error"]="No se pudo editar la reseña.";else TempData["Mensaje"]="Reseña actualizada.";return RedirectToAction(nameof(Producto),new{id=productoId});}
     private int ClienteId()=>int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier),out int id)?id:throw new UnauthorizedAccessException();
 }

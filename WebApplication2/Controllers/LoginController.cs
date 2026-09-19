@@ -11,11 +11,17 @@ using Microsoft.AspNetCore.Mvc;
 public class LoginController : Controller
 {
     private readonly IUsuarioServicio _usuarioServicio;
+    private readonly WebApplication2.Servicios.IRecuperacionContraseniaServicio? _recuperacion;
 
-    public LoginController(IUsuarioServicio usuarioServicio)
+    public LoginController(IUsuarioServicio usuarioServicio, WebApplication2.Servicios.IRecuperacionContraseniaServicio? recuperacion=null)
     {
         _usuarioServicio = usuarioServicio;
+        _recuperacion=recuperacion;
     }
+    [HttpGet] public IActionResult OlvideContrasenia()=>View();
+    [HttpPost,ValidateAntiForgeryToken] public async Task<IActionResult> OlvideContrasenia(string email){if(_recuperacion!=null&&!string.IsNullOrWhiteSpace(email)){string enlace=Url.Action(nameof(RestablecerContrasenia),"Login",null,Request.Scheme)??"";await _recuperacion.SolicitarAsync(email,enlace,HttpContext.Connection.RemoteIpAddress?.ToString()??"");}ViewBag.Enviado=true;return View();}
+    [HttpGet] public IActionResult RestablecerContrasenia(string token){if(_recuperacion?.TokenValido(token)!=true)return View("EnlaceRecuperacionInvalido");ViewBag.Token=token;return View();}
+    [HttpPost,ValidateAntiForgeryToken] public IActionResult RestablecerContrasenia(string token,string nuevaContrasenia,string confirmarContrasenia){string error="El servicio de recuperación no está disponible.";if(_recuperacion==null||!_recuperacion.Restablecer(token,nuevaContrasenia,confirmarContrasenia,out error)){ModelState.AddModelError("",error);ViewBag.Token=token;return View();}TempData["ContraseniaRestablecida"]="Contraseña actualizada. Ya podés iniciar sesión.";return RedirectToAction(nameof(Index));}
    
 
     [HttpGet("/Login")]

@@ -78,3 +78,11 @@ Si la base ya existía antes de las mejoras de favoritos y diseños guardados, e
 ```text
 Database/MejorarFavoritosYDisenosGuardados.sql
 ```
+
+Para una base existente, las mejoras de catálogo, reseñas, solicitudes de shapers y recuperación de contraseña se aplican automáticamente con `setup-dev.ps1`. Manualmente se puede ejecutar:
+
+```text
+Database/AgregarCatalogoResenasSolicitudesYRecuperacion.sql
+```
+
+La recuperación de contraseña y las notificaciones por correo requieren `Correo:SmtpUsuario` y `Correo:SmtpContrasena`. Los enlaces vencen a los 30 minutos y son de un solo uso.

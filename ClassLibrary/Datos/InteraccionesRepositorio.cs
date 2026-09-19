@@ -8,6 +8,11 @@ public interface IInteraccionesRepositorio
 {
     bool PuedeResenar(int clienteId, int pedidoId, int productoId);
     bool GuardarResena(int clienteId, int pedidoId, int productoId, byte estrellas, string comentario);
+    bool EditarResena(int resenaId, int clienteId, byte estrellas, string comentario);
+    bool ResponderResena(int resenaId, int shaperId, string respuesta);
+    bool ModerarResena(int resenaId, bool moderada, string motivo);
+    ResenaProducto? ObtenerResena(int resenaId);
+    List<ResenaProducto> ObtenerResenasAdministracion(string busqueda, string estado);
     List<ResenaProducto> ObtenerResenas(int productoId);
     Dictionary<int, ResumenResenas> ObtenerResumenes(IEnumerable<int> productoIds);
     bool AlternarFavorito(int clienteId, int productoId);
@@ -49,8 +54,8 @@ public class InteraccionesRepositorio : IInteraccionesRepositorio
 
     public List<ResenaProducto> ObtenerResenas(int productoId)
     {
-        const string sql = @"SELECT r.Id,r.ProductoId,r.ClienteId,u.Nombre ClienteNombre,r.Estrellas,r.Comentario,r.FechaCreacion
-            FROM ResenasProductos r INNER JOIN Usuarios u ON u.Id=r.ClienteId WHERE r.ProductoId=@ProductoId
+        const string sql = @"SELECT r.Id,r.ProductoId,r.ClienteId,u.Nombre ClienteNombre,r.Estrellas,r.Comentario,r.FechaCreacion,r.RespuestaShaper,r.FechaRespuesta,r.Moderada,r.MotivoModeracion,p.Titulo ProductoTitulo,COALESCE(NULLIF(s.NombreDeNegosio,''),s.Nombre) ShaperNombre
+            FROM ResenasProductos r INNER JOIN Usuarios u ON u.Id=r.ClienteId INNER JOIN Productos p ON p.Id=r.ProductoId INNER JOIN Usuarios s ON s.Id=p.ShaperId WHERE r.ProductoId=@ProductoId AND r.Moderada=0
             ORDER BY r.FechaCreacion DESC;";
         using var cn=Conexion.ObtenerConexion(); using var cmd=new SqlCommand(sql,cn);
         cmd.Parameters.Add("@ProductoId",SqlDbType.Int).Value=productoId; cn.Open(); using var rd=cmd.ExecuteReader();
@@ -61,7 +66,7 @@ public class InteraccionesRepositorio : IInteraccionesRepositorio
     {
         var ids=productoIds.Distinct().ToArray(); var resultado=new Dictionary<int,ResumenResenas>(); if(ids.Length==0)return resultado;
         var nombres=ids.Select((_,i)=>"@Id"+i).ToArray();
-        string sql=$"SELECT ProductoId,AVG(CAST(Estrellas AS FLOAT)) Promedio,COUNT(*) Cantidad FROM ResenasProductos WHERE ProductoId IN ({string.Join(",",nombres)}) GROUP BY ProductoId;";
+        string sql=$"SELECT ProductoId,AVG(CAST(Estrellas AS FLOAT)) Promedio,COUNT(*) Cantidad FROM ResenasProductos WHERE Moderada=0 AND ProductoId IN ({string.Join(",",nombres)}) GROUP BY ProductoId;";
         using var cn=Conexion.ObtenerConexion(); using var cmd=new SqlCommand(sql,cn);
         for(int i=0;i<ids.Length;i++)cmd.Parameters.Add(nombres[i],SqlDbType.Int).Value=ids[i]; cn.Open(); using var rd=cmd.ExecuteReader();
         while(rd.Read())resultado[Convert.ToInt32(rd["ProductoId"])]=new(Convert.ToDouble(rd["Promedio"]),Convert.ToInt32(rd["Cantidad"])); return resultado;
@@ -91,5 +96,10 @@ public class InteraccionesRepositorio : IInteraccionesRepositorio
     private static int EliminarVarios(string tabla,string columna,int clienteId,IEnumerable<int> valores){int[] ids=valores.Where(x=>x>0).Distinct().Take(200).ToArray();if(ids.Length==0)return 0;string[] nombres=ids.Select((_,i)=>"@Id"+i).ToArray();string sql=$"DELETE FROM {tabla} WHERE ClienteId=@ClienteId AND {columna} IN ({string.Join(',',nombres)})";using var cn=Conexion.ObtenerConexion();using var cmd=new SqlCommand(sql,cn);cmd.Parameters.Add("@ClienteId",SqlDbType.Int).Value=clienteId;for(int i=0;i<ids.Length;i++)cmd.Parameters.Add(nombres[i],SqlDbType.Int).Value=ids[i];cn.Open();return cmd.ExecuteNonQuery();}
     private static void AgregarClienteProducto(SqlCommand c,int clienteId,int productoId){c.Parameters.Add("@ClienteId",SqlDbType.Int).Value=clienteId;c.Parameters.Add("@ProductoId",SqlDbType.Int).Value=productoId;}
     private static void ParametrosCompra(SqlCommand c,int clienteId,int pedidoId,int productoId){AgregarClienteProducto(c,clienteId,productoId);c.Parameters.Add("@PedidoId",SqlDbType.Int).Value=pedidoId;}
-    private static ResenaProducto MapearResena(SqlDataReader r)=>new(){Id=Convert.ToInt32(r["Id"]),ProductoId=Convert.ToInt32(r["ProductoId"]),ClienteId=Convert.ToInt32(r["ClienteId"]),ClienteNombre=Convert.ToString(r["ClienteNombre"])??"",Estrellas=Convert.ToByte(r["Estrellas"]),Comentario=Convert.ToString(r["Comentario"])??"",FechaCreacion=Convert.ToDateTime(r["FechaCreacion"])};
+    public bool EditarResena(int id,int clienteId,byte estrellas,string comentario){const string sql="UPDATE ResenasProductos SET Estrellas=@Estrellas,Comentario=@Comentario,FechaEdicion=SYSUTCDATETIME() WHERE Id=@Id AND ClienteId=@ClienteId AND Moderada=0";using var cn=Conexion.ObtenerConexion();using var cmd=new SqlCommand(sql,cn);cmd.Parameters.Add("@Id",SqlDbType.Int).Value=id;cmd.Parameters.Add("@ClienteId",SqlDbType.Int).Value=clienteId;cmd.Parameters.Add("@Estrellas",SqlDbType.TinyInt).Value=estrellas;cmd.Parameters.Add("@Comentario",SqlDbType.NVarChar,1000).Value=comentario;cn.Open();return cmd.ExecuteNonQuery()==1;}
+    public bool ResponderResena(int id,int shaperId,string respuesta){const string sql=@"UPDATE r SET RespuestaShaper=@Respuesta,FechaRespuesta=SYSUTCDATETIME() FROM ResenasProductos r INNER JOIN Productos p ON p.Id=r.ProductoId WHERE r.Id=@Id AND p.ShaperId=@ShaperId";using var cn=Conexion.ObtenerConexion();using var cmd=new SqlCommand(sql,cn);cmd.Parameters.Add("@Id",SqlDbType.Int).Value=id;cmd.Parameters.Add("@ShaperId",SqlDbType.Int).Value=shaperId;cmd.Parameters.Add("@Respuesta",SqlDbType.NVarChar,1000).Value=respuesta;cn.Open();return cmd.ExecuteNonQuery()==1;}
+    public bool ModerarResena(int id,bool moderada,string motivo){const string sql="UPDATE ResenasProductos SET Moderada=@Moderada,MotivoModeracion=@Motivo WHERE Id=@Id";using var cn=Conexion.ObtenerConexion();using var cmd=new SqlCommand(sql,cn);cmd.Parameters.Add("@Id",SqlDbType.Int).Value=id;cmd.Parameters.Add("@Moderada",SqlDbType.Bit).Value=moderada;cmd.Parameters.Add("@Motivo",SqlDbType.NVarChar,300).Value=motivo??"";cn.Open();return cmd.ExecuteNonQuery()==1;}
+    public ResenaProducto? ObtenerResena(int id)=>ObtenerResenasAdministracion("","").FirstOrDefault(x=>x.Id==id);
+    public List<ResenaProducto> ObtenerResenasAdministracion(string busqueda,string estado){const string sql=@"SELECT r.Id,r.ProductoId,r.ClienteId,u.Nombre ClienteNombre,r.Estrellas,r.Comentario,r.FechaCreacion,r.RespuestaShaper,r.FechaRespuesta,r.Moderada,r.MotivoModeracion,p.Titulo ProductoTitulo,COALESCE(NULLIF(s.NombreDeNegosio,''),s.Nombre) ShaperNombre FROM ResenasProductos r INNER JOIN Usuarios u ON u.Id=r.ClienteId INNER JOIN Productos p ON p.Id=r.ProductoId INNER JOIN Usuarios s ON s.Id=p.ShaperId WHERE (@Busqueda='' OR u.Nombre LIKE '%'+@Busqueda+'%' OR p.Titulo LIKE '%'+@Busqueda+'%' OR r.Comentario LIKE '%'+@Busqueda+'%') AND (@Estado='' OR (@Estado='visibles' AND r.Moderada=0) OR (@Estado='ocultas' AND r.Moderada=1)) ORDER BY r.FechaCreacion DESC";using var cn=Conexion.ObtenerConexion();using var cmd=new SqlCommand(sql,cn);cmd.Parameters.Add("@Busqueda",SqlDbType.NVarChar,150).Value=busqueda??"";cmd.Parameters.Add("@Estado",SqlDbType.NVarChar,20).Value=estado??"";cn.Open();using var rd=cmd.ExecuteReader();var l=new List<ResenaProducto>();while(rd.Read())l.Add(MapearResena(rd));return l;}
+    private static ResenaProducto MapearResena(SqlDataReader r)=>new(){Id=Convert.ToInt32(r["Id"]),ProductoId=Convert.ToInt32(r["ProductoId"]),ClienteId=Convert.ToInt32(r["ClienteId"]),ClienteNombre=Convert.ToString(r["ClienteNombre"])??"",Estrellas=Convert.ToByte(r["Estrellas"]),Comentario=Convert.ToString(r["Comentario"])??"",FechaCreacion=Convert.ToDateTime(r["FechaCreacion"]),RespuestaShaper=Convert.ToString(r["RespuestaShaper"])??"",FechaRespuesta=r["FechaRespuesta"]==DBNull.Value?null:Convert.ToDateTime(r["FechaRespuesta"]),Moderada=Convert.ToBoolean(r["Moderada"]),MotivoModeracion=Convert.ToString(r["MotivoModeracion"])??"",ProductoTitulo=Convert.ToString(r["ProductoTitulo"])??"",ShaperNombre=Convert.ToString(r["ShaperNombre"])??""};
 }

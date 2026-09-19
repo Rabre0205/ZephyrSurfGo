@@ -95,6 +95,10 @@
                                 @TempData["ErrorGoogle"]
                             </div>
                         }
+                        @if (TempData["ContraseniaRestablecida"] != null)
+                        {
+                            <div class="auth-alert" style="display:block;background:#e6f4ec;color:#145b40;">@TempData["ContraseniaRestablecida"]</div>
+                        }
 
                         <div class="field-group">
                             <div class="field" id="f-login-email">
@@ -177,6 +181,7 @@
                                 </span>
                             </div>
                         </div>
+                        <p style="text-align:right;margin-top:10px"><a asp-action="OlvideContrasenia">¿Olvidaste tu contraseña?</a></p>
 
                         <div class="field-extras">
                             <a href="#"

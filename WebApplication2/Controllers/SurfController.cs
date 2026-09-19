@@ -8,17 +8,19 @@ namespace WebApplication2.Controllers
         private readonly ClassLibrary.Servicios.IProductoServicio _productoServicio;
         private readonly ClassLibrary.Servicios.IPuntoRetiroServicio _puntoRetiroServicio;
         private readonly WebApplication2.Servicios.ICorreoNotificacionServicio _correo;
+        private readonly ClassLibrary.Datos.ISolicitudShaperRepositorio? _solicitudesShapers;
 
         public SurfController(
             ClassLibrary.Servicios.IUsuarioServicio usuarioServicio,
             ClassLibrary.Servicios.IProductoServicio productoServicio,
             ClassLibrary.Servicios.IPuntoRetiroServicio puntoRetiroServicio,
-            WebApplication2.Servicios.ICorreoNotificacionServicio correo)
+            WebApplication2.Servicios.ICorreoNotificacionServicio correo, ClassLibrary.Datos.ISolicitudShaperRepositorio? solicitudesShapers=null)
         {
             _usuarioServicio = usuarioServicio;
             _productoServicio = productoServicio;
             _puntoRetiroServicio = puntoRetiroServicio;
             _correo = correo;
+            _solicitudesShapers=solicitudesShapers;
         }
 
         public IActionResult carrito() { return RedirectToAction("Index", "Carrito"); }
@@ -67,14 +69,11 @@ namespace WebApplication2.Controllers
                 return View("shapers", modelo);
             }
 
-            if (!await _correo.EnviarSolicitudShaperAsync(solicitud))
-            {
-                ModelState.AddModelError(string.Empty, "No pudimos enviar tu solicitud en este momento. Intentá nuevamente.");
-                ViewBag.AbrirSolicitudShaper = true;
-                return View("shapers", modelo);
-            }
+            if(_solicitudesShapers==null){ModelState.AddModelError(string.Empty,"No pudimos registrar tu solicitud.");ViewBag.AbrirSolicitudShaper=true;return View("shapers",modelo);}
+            _solicitudesShapers.Crear(new ClassLibrary.Solicitudes.SolicitudShaper{Nombre=solicitud.Nombre.Trim(),Email=solicitud.Email.Trim(),Marca=solicitud.Marca.Trim(),Ubicacion=solicitud.Ubicacion.Trim(),Celular=solicitud.Celular.Trim(),Instagram=solicitud.Instagram.Trim(),AniosExperiencia=solicitud.AniosExperiencia,RealizaPersonalizadas=solicitud.RealizaPersonalizadas,RealizaEnvios=solicitud.RealizaEnvios,Presentacion=solicitud.Presentacion.Trim()});
+            bool correoEnviado=await _correo.EnviarSolicitudShaperAsync(solicitud);
 
-            TempData["SolicitudShaperEnviada"] = "Recibimos tu solicitud. El equipo de Zephyr Surf Go se comunicará contigo.";
+            TempData["SolicitudShaperEnviada"] = correoEnviado?"Recibimos tu solicitud. El equipo de Zephyr Surf Go se comunicará contigo.":"Recibimos y guardamos tu solicitud. La notificación por correo quedó pendiente.";
             return RedirectToAction(nameof(shapers), new { enviado = true });
         }
 

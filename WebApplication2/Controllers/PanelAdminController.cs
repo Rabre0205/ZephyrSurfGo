@@ -14,15 +14,19 @@ namespace WebApplication2.Controllers
         private readonly IProductoServicio _productoServicio;
 
         private readonly IPedidoServicio _pedidoServicio;
+        private readonly ClassLibrary.Datos.IInteraccionesRepositorio? _interacciones;
+        private readonly ClassLibrary.Datos.ISolicitudShaperRepositorio? _solicitudesShapers;
 
         public PanelAdminController(
     IUsuarioServicio usuarioServicio,
     IProductoServicio productoServicio,
-    IPedidoServicio pedidoServicio)
+    IPedidoServicio pedidoServicio, ClassLibrary.Datos.IInteraccionesRepositorio? interacciones = null, ClassLibrary.Datos.ISolicitudShaperRepositorio? solicitudesShapers=null)
         {
             _usuarioServicio = usuarioServicio;
             _productoServicio = productoServicio;
             _pedidoServicio = pedidoServicio;
+            _interacciones = interacciones;
+            _solicitudesShapers=solicitudesShapers;
         }
 
         public IActionResult Index()
@@ -199,6 +203,18 @@ namespace WebApplication2.Controllers
             }
 
             return RedirectToAction(nameof(Shapers));
+        }
+        public IActionResult SolicitudesShapers(string busqueda="",string estado="")=>View(_solicitudesShapers?.Buscar((busqueda??"").Trim(),(estado??"").Trim())??[]);
+        [HttpPost,ValidateAntiForgeryToken]public IActionResult ActualizarSolicitudShaper(int id,string estado,string notas=""){bool ok=_solicitudesShapers?.CambiarEstado(id,estado,(notas??"").Trim())??false;TempData[ok?"Mensaje":"Error"]=ok?"Solicitud actualizada.":"No se pudo actualizar la solicitud.";return RedirectToAction(nameof(SolicitudesShapers));}
+
+        public IActionResult Resenas(string busqueda="",string estado="") => View(_interacciones?.ObtenerResenasAdministracion((busqueda??"").Trim(),(estado??"").Trim().ToLowerInvariant()) ?? []);
+
+        [HttpPost,ValidateAntiForgeryToken]
+        public IActionResult ModerarResena(int id,bool ocultar,string motivo="")
+        {
+            bool actualizado=_interacciones?.ModerarResena(id,ocultar,(motivo??"").Trim())??false;
+            TempData[actualizado?"Mensaje":"Error"] = actualizado?(ocultar?"La reseña fue ocultada.":"La reseña volvió a publicarse."):"No se pudo actualizar la reseña.";
+            return RedirectToAction(nameof(Resenas));
         }
 
         [HttpPost]
