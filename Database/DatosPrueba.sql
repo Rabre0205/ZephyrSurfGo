@@ -1,6 +1,18 @@
 USE SurfDB;
 GO
 
+/* Opciones requeridas por SQL Server para modificar tablas que tienen
+   índices filtrados o índices sobre expresiones. sqlcmd no siempre las
+   habilita con los mismos valores que SSMS. */
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_PADDING ON;
+SET ANSI_WARNINGS ON;
+SET CONCAT_NULL_YIELDS_NULL ON;
+SET ARITHABORT ON;
+SET NUMERIC_ROUNDABORT OFF;
+GO
+
 /* Datos ficticios e idempotentes para desarrollo local.
    Cuentas:
    admin@zephyrsurfgo.com / Admin123
