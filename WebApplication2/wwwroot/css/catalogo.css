@@ -4,7 +4,8 @@ body{margin:0;background:var(--catalog-paper);color:var(--catalog-ink)}
 .catalogo-page{max-width:1280px;margin:auto;padding:138px 32px 72px}
 .catalogo-page>header{max-width:800px;border-left:4px solid var(--catalog-rust);padding-left:22px}
 .catalogo-page>header>span,.producto-card small{display:block;color:var(--catalog-rust);font-family:'Inter',Arial,sans-serif;text-transform:uppercase;letter-spacing:.18em;font-size:.7rem;font-weight:700}
-.catalogo-page h1{font-family:'Anton',Impact,sans-serif!important;font-size:clamp(4.8rem,9vw,8.4rem);font-weight:400;line-height:.9;letter-spacing:.005em;margin:.08em 0 .13em;text-transform:uppercase}
+.catalogo-page>header>span{margin-bottom:14px;line-height:1.4}
+.catalogo-page h1{font-family:'Anton',Impact,sans-serif!important;font-size:clamp(4.8rem,9vw,8.4rem);font-weight:400;line-height:.82;letter-spacing:.012em;margin:0 0 .2em;text-transform:uppercase}
 .catalogo-page>header p{max-width:650px;margin:0;color:#625b4e!important;font-family:'Roboto Slab',Georgia,serif;font-size:1.04rem;line-height:1.65}
 .catalogo-filtros{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:18px 14px;align-items:end;background:rgba(245,239,227,.88);border:1px solid var(--catalog-line);padding:26px;margin:42px 0 14px;box-shadow:0 16px 38px rgba(36,34,29,.06)}
 .catalogo-filtros label{color:#413d35;font-size:.68rem;text-transform:uppercase;letter-spacing:.14em;font-weight:700}
