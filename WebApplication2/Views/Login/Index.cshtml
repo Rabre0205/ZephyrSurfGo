@@ -1,6 +1,12 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuracion
 @{
     Layout = null;
     ViewData["Title"] = "login";
+    string? googleId = Configuracion["Authentication:Google:ClientId"];
+    string? googleSecreto = Configuracion["Authentication:Google:ClientSecret"];
+    bool googleDisponible = !string.IsNullOrWhiteSpace(googleId) && !string.IsNullOrWhiteSpace(googleSecreto)
+        && !googleId.StartsWith("DESARROLLO_LOCAL_", StringComparison.OrdinalIgnoreCase)
+        && !googleSecreto.StartsWith("DESARROLLO_LOCAL_", StringComparison.OrdinalIgnoreCase);
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -210,8 +216,9 @@
 
                     </form>
 
+                    @if (googleDisponible)
+                    {
                     <div class="auth-divider"><span>o continuá con</span></div>
-
                     <form asp-controller="Login" asp-action="IniciarConGoogle" method="post">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn-google">
@@ -224,6 +231,7 @@
                             Continuar con Google
                         </button>
                     </form>
+                    }
 
                 </div>
 

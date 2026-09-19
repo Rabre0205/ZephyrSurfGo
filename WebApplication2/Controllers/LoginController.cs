@@ -12,11 +12,13 @@ public class LoginController : Controller
 {
     private readonly IUsuarioServicio _usuarioServicio;
     private readonly WebApplication2.Servicios.IRecuperacionContraseniaServicio? _recuperacion;
+    private readonly IConfiguration? _configuracion;
 
-    public LoginController(IUsuarioServicio usuarioServicio, WebApplication2.Servicios.IRecuperacionContraseniaServicio? recuperacion=null)
+    public LoginController(IUsuarioServicio usuarioServicio, WebApplication2.Servicios.IRecuperacionContraseniaServicio? recuperacion=null, IConfiguration? configuracion=null)
     {
         _usuarioServicio = usuarioServicio;
         _recuperacion=recuperacion;
+        _configuracion=configuracion;
     }
     [HttpGet] public IActionResult OlvideContrasenia()=>View();
     [HttpPost,ValidateAntiForgeryToken] public async Task<IActionResult> OlvideContrasenia(string email){if(_recuperacion!=null&&!string.IsNullOrWhiteSpace(email)){string enlace=Url.Action(nameof(RestablecerContrasenia),"Login",null,Request.Scheme)??"";await _recuperacion.SolicitarAsync(email,enlace,HttpContext.Connection.RemoteIpAddress?.ToString()??"");}ViewBag.Enviado=true;return View();}
@@ -40,12 +42,26 @@ public class LoginController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult IniciarConGoogle()
     {
+        if (!GoogleConfigurado())
+        {
+            TempData["ErrorGoogle"] = "El acceso con Google no está configurado en este entorno. Usá correo y contraseña.";
+            return RedirectToAction(nameof(Index));
+        }
         var propiedades = new AuthenticationProperties
         {
             RedirectUri = Url.Action(nameof(GoogleCallback))
         };
 
         return Challenge(propiedades, GoogleDefaults.AuthenticationScheme);
+    }
+
+    private bool GoogleConfigurado()
+    {
+        string? id=_configuracion?["Authentication:Google:ClientId"];
+        string? secreto=_configuracion?["Authentication:Google:ClientSecret"];
+        return !string.IsNullOrWhiteSpace(id)&&!string.IsNullOrWhiteSpace(secreto)
+            && !id.StartsWith("DESARROLLO_LOCAL_",StringComparison.OrdinalIgnoreCase)
+            && !secreto.StartsWith("DESARROLLO_LOCAL_",StringComparison.OrdinalIgnoreCase);
     }
 
     [HttpGet]

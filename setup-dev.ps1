@@ -58,10 +58,6 @@ if (-not (Test-Path $envFile)) {
     Write-Host "El archivo .env existente se conservó sin cambios."
 }
 
-$webProject = Join-Path $projectRoot "WebApplication2\WebApplication2.csproj"
-dotnet user-secrets set "Authentication:Google:ClientId" "DESARROLLO_LOCAL_SIN_GOOGLE" --project $webProject | Out-Null
-dotnet user-secrets set "Authentication:Google:ClientSecret" "DESARROLLO_LOCAL_SIN_GOOGLE" --project $webProject | Out-Null
-
 Write-Host ""
 Write-Host "Configuración terminada. Ejecutá:"
 Write-Host "dotnet run --project .\WebApplication2\WebApplication2.csproj --launch-profile https"

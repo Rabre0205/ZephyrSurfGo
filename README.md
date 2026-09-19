@@ -52,7 +52,7 @@ Estas cuentas son solamente para desarrollo local. No deben utilizarse en produc
 
 El proyecto funciona localmente con login manual sin configurar servicios externos. Para probar funciones reales hay que reemplazar los valores de ejemplo:
 
-- Google: `Authentication:Google:ClientId` y `Authentication:Google:ClientSecret` mediante `dotnet user-secrets`.
+- Google: `Authentication:Google:ClientId` y `Authentication:Google:ClientSecret` mediante `dotnet user-secrets`. Si no están configurados, el botón de Google se oculta y el acceso manual continúa disponible.
 - Gmail SMTP: `Correo:SmtpUsuario` y `Correo:SmtpContrasena` mediante `dotnet user-secrets`.
 - Cloudinary y Mercado Pago: completar `WebApplication2/.env` tomando como referencia `WebApplication2/.env.example`.
 

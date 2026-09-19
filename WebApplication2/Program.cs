@@ -54,7 +54,7 @@ namespace WebApplication2
             });
 
             //cosas de authentication, echo por claude ni idea que es
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            var autenticacion = builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>
             {
                 options.LoginPath = "/Login";
@@ -67,14 +67,22 @@ namespace WebApplication2
             {
                 options.Cookie.Name = "Zephyr.Google.Temporal";
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
-            })
-            .AddGoogle(options =>
+            });
+
+            string? googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+            string? googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+            bool googleConfigurado = !string.IsNullOrWhiteSpace(googleClientId)
+                && !string.IsNullOrWhiteSpace(googleClientSecret)
+                && !googleClientId.StartsWith("DESARROLLO_LOCAL_", StringComparison.OrdinalIgnoreCase)
+                && !googleClientSecret.StartsWith("DESARROLLO_LOCAL_", StringComparison.OrdinalIgnoreCase);
+
+            if (googleConfigurado)
             {
+                autenticacion.AddGoogle(options =>
+                {
                 options.SignInScheme = "GoogleTemporal";
-                options.ClientId = builder.Configuration["Authentication:Google:ClientId"]
-                    ?? throw new InvalidOperationException("Falta configurar Authentication:Google:ClientId.");
-                options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
-                    ?? throw new InvalidOperationException("Falta configurar Authentication:Google:ClientSecret.");
+                options.ClientId = googleClientId!;
+                options.ClientSecret = googleClientSecret!;
                 options.Events.OnCreatingTicket = context =>
                 {
                     if (context.User.TryGetProperty("verified_email", out var verificado) ||
@@ -96,7 +104,8 @@ namespace WebApplication2
 
                     return Task.CompletedTask;
                 };
-            });
+                });
+            }
 
             // If you have Razor Pages:
             builder.Services.AddRazorPages();
