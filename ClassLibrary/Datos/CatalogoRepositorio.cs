@@ -23,7 +23,7 @@ public class CatalogoRepositorio : ICatalogoRepositorio
         LEFT JOIN Tablas t ON t.ProductoId=p.Id
         LEFT JOIN Trajes tr ON tr.ProductoId=p.Id
         OUTER APPLY (SELECT AVG(CAST(r.Estrellas AS FLOAT)) Promedio, COUNT(*) Cantidad
-                     FROM ResenasProductos r WHERE r.ProductoId=p.Id AND ISNULL(r.Moderada,0)=0) rv
+                     FROM ResenasProductos r WHERE r.ProductoId=p.Id) rv
         WHERE p.DELETED=0 AND u.Activo=1
           AND (@Busqueda='' OR p.Titulo LIKE '%'+@Busqueda+'%' OR p.Subtitulo LIKE '%'+@Busqueda+'%'
                OR u.Nombre LIKE '%'+@Busqueda+'%' OR u.NombreDeNegosio LIKE '%'+@Busqueda+'%')
