@@ -8,6 +8,7 @@ $envFile = Join-Path $projectRoot "WebApplication2\.env"
 $schemaFile = Join-Path $projectRoot "Database\CreacionSurfDB.sql"
 $seedFile = Join-Path $projectRoot "Database\DatosPrueba.sql"
 $improvementsFile = Join-Path $projectRoot "Database\AgregarCatalogoResenasSolicitudesYRecuperacion.sql"
+$coursesFile = Join-Path $projectRoot "Database\AgregarCursosShaper.sql"
 
 if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
     throw "No se encontró .NET. Instalá el SDK 10 antes de continuar."
@@ -33,6 +34,10 @@ if (($databaseExists | Out-String).Trim() -eq "0") {
 Write-Host "Aplicando mejoras de catálogo, reseñas, solicitudes y recuperación..."
 sqlcmd -S $SqlServer -E -C -b -d SurfDB -i $improvementsFile
 if ($LASTEXITCODE -ne 0) { throw "No se pudieron aplicar las mejoras recientes de la base." }
+
+Write-Host "Aplicando el módulo de cursos para shapers..."
+sqlcmd -S $SqlServer -E -C -b -d SurfDB -i $coursesFile
+if ($LASTEXITCODE -ne 0) { throw "No se pudo aplicar el módulo de cursos." }
 
 Write-Host "Agregando datos ficticios..."
 sqlcmd -S $SqlServer -E -C -b -i $seedFile

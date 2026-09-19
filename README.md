@@ -86,3 +86,5 @@ Database/AgregarCatalogoResenasSolicitudesYRecuperacion.sql
 ```
 
 La recuperación de contraseña y las notificaciones por correo requieren `Correo:SmtpUsuario` y `Correo:SmtpContrasena`. Los enlaces vencen a los 30 minutos y son de un solo uso.
+
+El esquema principal ya incluye también el marketplace de cursos. En una base existente, `setup-dev.ps1` ejecuta automáticamente `Database/AgregarCursosShaper.sql` junto con el resto de las migraciones.

@@ -809,6 +809,34 @@ GO
 CREATE INDEX IX_Recuperaciones_UsuarioExpiracion ON RecuperacionesContrasenia(UsuarioId,FechaExpiracion DESC);
 GO
 
+-- Cursos, workshops e inscripciones vendidos por los shapers.
+CREATE TABLE CursosShaper (
+    Id INT IDENTITY PRIMARY KEY, ShaperId INT NOT NULL REFERENCES Usuarios(Id),
+    Titulo NVARCHAR(140) NOT NULL, Resumen NVARCHAR(280) NOT NULL, Descripcion NVARCHAR(MAX) NOT NULL,
+    Modalidad NVARCHAR(30) NOT NULL, Ubicacion NVARCHAR(180) NOT NULL, FechaInicio DATETIME2 NOT NULL,
+    DuracionHoras DECIMAL(6,1) NOT NULL, Cupos INT NOT NULL, Precio DECIMAL(10,2) NOT NULL,
+    ImagenUrl NVARCHAR(600) NULL, Publicado BIT NOT NULL DEFAULT 1,
+    FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(), FechaActualizacion DATETIME2 NULL,
+    CONSTRAINT CK_CursosShaper_Cupos CHECK(Cupos > 0), CONSTRAINT CK_CursosShaper_Precio CHECK(Precio > 0),
+    CONSTRAINT CK_CursosShaper_Modalidad CHECK(Modalidad IN(N'Presencial',N'Online',N'Híbrido'))
+);
+GO
+CREATE INDEX IX_CursosShaper_Perfil ON CursosShaper(ShaperId, Publicado, FechaInicio);
+GO
+CREATE TABLE InscripcionesCursos (
+    Id INT IDENTITY PRIMARY KEY, CursoId INT NOT NULL REFERENCES CursosShaper(Id), ClienteId INT NOT NULL REFERENCES Usuarios(Id),
+    PrecioSnapshot DECIMAL(10,2) NOT NULL, PorcentajeComision DECIMAL(5,2) NOT NULL,
+    ComisionPlataforma DECIMAL(10,2) NOT NULL, NetoShaper DECIMAL(10,2) NOT NULL,
+    Estado TINYINT NOT NULL DEFAULT 0, MercadoPagoPreferenceId NVARCHAR(150) NULL, MercadoPagoPaymentId NVARCHAR(150) NULL,
+    FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(), FechaPago DATETIME2 NULL,
+    CONSTRAINT UQ_InscripcionesCursos_ClienteCurso UNIQUE(CursoId, ClienteId),
+    CONSTRAINT CK_InscripcionesCursos_Estado CHECK(Estado IN(0,1,2,3))
+);
+GO
+CREATE INDEX IX_InscripcionesCursos_CursoEstado ON InscripcionesCursos(CursoId, Estado);
+CREATE INDEX IX_InscripcionesCursos_Cliente ON InscripcionesCursos(ClienteId, FechaCreacion DESC);
+GO
+
 CREATE TABLE FavoritosProductos (
     ClienteId INT NOT NULL REFERENCES Usuarios(Id),
     ProductoId INT NOT NULL REFERENCES Productos(Id),
