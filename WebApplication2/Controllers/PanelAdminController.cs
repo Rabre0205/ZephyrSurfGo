@@ -16,17 +16,19 @@ namespace WebApplication2.Controllers
         private readonly IPedidoServicio _pedidoServicio;
         private readonly ClassLibrary.Datos.IInteraccionesRepositorio? _interacciones;
         private readonly ClassLibrary.Datos.ISolicitudShaperRepositorio? _solicitudesShapers;
+        private readonly WebApplication2.Servicios.ICorreoNotificacionServicio? _correo;
 
         public PanelAdminController(
     IUsuarioServicio usuarioServicio,
     IProductoServicio productoServicio,
-    IPedidoServicio pedidoServicio, ClassLibrary.Datos.IInteraccionesRepositorio? interacciones = null, ClassLibrary.Datos.ISolicitudShaperRepositorio? solicitudesShapers=null)
+    IPedidoServicio pedidoServicio, ClassLibrary.Datos.IInteraccionesRepositorio? interacciones = null, ClassLibrary.Datos.ISolicitudShaperRepositorio? solicitudesShapers=null, WebApplication2.Servicios.ICorreoNotificacionServicio? correo=null)
         {
             _usuarioServicio = usuarioServicio;
             _productoServicio = productoServicio;
             _pedidoServicio = pedidoServicio;
             _interacciones = interacciones;
             _solicitudesShapers=solicitudesShapers;
+            _correo=correo;
         }
 
         public IActionResult Index()
@@ -205,14 +207,16 @@ namespace WebApplication2.Controllers
             return RedirectToAction(nameof(Shapers));
         }
         public IActionResult SolicitudesShapers(string busqueda="",string estado="")=>View(_solicitudesShapers?.Buscar((busqueda??"").Trim(),(estado??"").Trim())??[]);
-        [HttpPost,ValidateAntiForgeryToken]public IActionResult ActualizarSolicitudShaper(int id,string estado,string notas=""){bool ok=_solicitudesShapers?.CambiarEstado(id,estado,(notas??"").Trim())??false;TempData[ok?"Mensaje":"Error"]=ok?"Solicitud actualizada.":"No se pudo actualizar la solicitud.";return RedirectToAction(nameof(SolicitudesShapers));}
+        [HttpPost,ValidateAntiForgeryToken]public async Task<IActionResult> ActualizarSolicitudShaper(int id,string estado,string notas=""){var solicitud=_solicitudesShapers?.Buscar("","").FirstOrDefault(x=>x.Id==id);bool ok=_solicitudesShapers?.CambiarEstado(id,estado,(notas??"").Trim())??false;if(ok&&solicitud!=null&&_correo!=null)await _correo.EnviarAEmailAsync(solicitud.Email,$"Estado de tu solicitud de shaper: {estado}","Actualizamos tu solicitud",string.IsNullOrWhiteSpace(notas)?$"Tu solicitud para {solicitud.Marca} ahora está: {estado}.":$"Tu solicitud para {solicitud.Marca} ahora está: {estado}.\n\nComentario del equipo: {notas.Trim()}");TempData[ok?"Mensaje":"Error"]=ok?"Solicitud actualizada.":"No se pudo actualizar la solicitud.";return RedirectToAction(nameof(SolicitudesShapers));}
 
         public IActionResult Resenas(string busqueda="",string estado="") => View(_interacciones?.ObtenerResenasAdministracion((busqueda??"").Trim(),(estado??"").Trim().ToLowerInvariant()) ?? []);
 
         [HttpPost,ValidateAntiForgeryToken]
         public IActionResult ModerarResena(int id,bool ocultar,string motivo="")
         {
+            var resena=_interacciones?.ObtenerResena(id);
             bool actualizado=_interacciones?.ModerarResena(id,ocultar,(motivo??"").Trim())??false;
+            if(actualizado&&resena!=null&&_correo!=null) _correo.EnviarAUsuarioAsync(resena.ClienteId,"Actualización sobre tu reseña",ocultar?"Tu reseña fue moderada":"Tu reseña volvió a publicarse",string.IsNullOrWhiteSpace(motivo)?$"Producto: {resena.ProductoTitulo}.":motivo.Trim()).GetAwaiter().GetResult();
             TempData[actualizado?"Mensaje":"Error"] = actualizado?(ocultar?"La reseña fue ocultada.":"La reseña volvió a publicarse."):"No se pudo actualizar la reseña.";
             return RedirectToAction(nameof(Resenas));
         }

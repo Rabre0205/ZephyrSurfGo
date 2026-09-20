@@ -13,12 +13,14 @@ public class LoginController : Controller
     private readonly IUsuarioServicio _usuarioServicio;
     private readonly WebApplication2.Servicios.IRecuperacionContraseniaServicio? _recuperacion;
     private readonly IConfiguration? _configuracion;
+    private readonly WebApplication2.Servicios.ICorreoNotificacionServicio? _correo;
 
-    public LoginController(IUsuarioServicio usuarioServicio, WebApplication2.Servicios.IRecuperacionContraseniaServicio? recuperacion=null, IConfiguration? configuracion=null)
+    public LoginController(IUsuarioServicio usuarioServicio, WebApplication2.Servicios.IRecuperacionContraseniaServicio? recuperacion=null, IConfiguration? configuracion=null, WebApplication2.Servicios.ICorreoNotificacionServicio? correo=null)
     {
         _usuarioServicio = usuarioServicio;
         _recuperacion=recuperacion;
         _configuracion=configuracion;
+        _correo=correo;
     }
     [HttpGet] public IActionResult OlvideContrasenia()=>View();
     [HttpPost,ValidateAntiForgeryToken] public async Task<IActionResult> OlvideContrasenia(string email){if(_recuperacion!=null&&!string.IsNullOrWhiteSpace(email)){string enlace=Url.Action(nameof(RestablecerContrasenia),"Login",null,Request.Scheme)??"";await _recuperacion.SolicitarAsync(email,enlace,HttpContext.Connection.RemoteIpAddress?.ToString()??"");}ViewBag.Enviado=true;return View();}
@@ -173,6 +175,7 @@ public class LoginController : Controller
         HttpContext.Session.Remove("GoogleRegistroEmail");
         HttpContext.Session.Remove("GoogleRegistroNombre");
         await GuardarUsuarioEnSesion(usuario, "Google");
+        if(_correo!=null) await _correo.EnviarAUsuarioAsync(usuario.Id,"Cuenta creada con Google","Bienvenido a Zephyr Surf Go","Tu cuenta fue creada correctamente mediante Google.");
         return RedirectToAction("Home", "Surf");
     }
 
@@ -306,6 +309,7 @@ public class LoginController : Controller
             }
 
             await GuardarUsuarioEnSesion(usuario);
+            if(_correo!=null) await _correo.EnviarAUsuarioAsync(usuario.Id,"Bienvenido a Zephyr Surf Go","Tu cuenta está lista","Ya podés explorar shapers, guardar diseños y realizar pedidos.");
 
             return RedirectToAction("Home", "Surf");
         }

@@ -15,12 +15,14 @@ namespace WebApplication2.Controllers
         private readonly ICarritoRepositorio _carritoRepositorio;
         private readonly IPedidoServicio _pedidoServicio;
         private readonly IPuntoRetiroServicio? _puntoRetiroServicio;
+        private readonly WebApplication2.Servicios.ICorreoNotificacionServicio? _correo;
 
-        public CarritoController(ICarritoRepositorio carritoRepositorio, IPedidoServicio pedidoServicio, IPuntoRetiroServicio puntoRetiroServicio)
+        public CarritoController(ICarritoRepositorio carritoRepositorio, IPedidoServicio pedidoServicio, IPuntoRetiroServicio puntoRetiroServicio, WebApplication2.Servicios.ICorreoNotificacionServicio? correo=null)
         {
             _carritoRepositorio = carritoRepositorio;
             _pedidoServicio = pedidoServicio;
             _puntoRetiroServicio = puntoRetiroServicio;
+            _correo=correo;
         }
         public IActionResult Index()
         {
@@ -177,6 +179,13 @@ namespace WebApplication2.Controllers
             {
                 TempData["Error"] = ex.Message;
                 return RedirectToAction("Index", "Carrito");
+            }
+
+            if (_correo != null)
+            {
+                foreach (var (pedido, _) in pedidos)
+                    await _correo.EnviarAUsuarioAsync(pedido.ShaperId, $"Nuevo pedido #{pedido.Id}", "Recibiste una nueva compra", $"El cliente inició una compra por un total de {pedido.Total:N2}. Revisá el pedido desde tu panel.");
+                await _correo.EnviarAUsuarioAsync(clienteId, "Creamos tu pedido", "Tu compra fue registrada", $"Se generaron {pedidos.Count} pedido(s). Continuá con el pago para confirmarlos.");
             }
 
             if (pedidos.Count == 1)

@@ -6,7 +6,7 @@ using System.Security.Claims;
 namespace WebApplication2.Controllers;
 
 [Authorize(Roles="Cliente")]
-public class ResenasController(IInteraccionesRepositorio repositorio) : Controller
+public class ResenasController(IInteraccionesRepositorio repositorio, IProductoRepositorio? productos=null, WebApplication2.Servicios.ICorreoNotificacionServicio? correo=null) : Controller
 {
     [HttpGet,Authorize(Roles="Cliente")]
     public IActionResult Crear(int pedidoId, int productoId)
@@ -25,7 +25,7 @@ public class ResenasController(IInteraccionesRepositorio repositorio) : Controll
         if(!ModelState.IsValid){ViewBag.PedidoId=pedidoId;ViewBag.ProductoId=productoId;return View();}
         if(!repositorio.GuardarResena(ClienteId(),pedidoId,productoId,estrellas,comentario)){
             TempData["Error"]="Solo podés reseñar una vez un producto de una compra completada.";
-        } else TempData["Mensaje"]="Gracias. Tu reseña fue publicada.";
+        } else { TempData["Mensaje"]="Gracias. Tu reseña fue publicada."; var producto=productos?.ObtenerPorId(productoId); if(producto!=null&&correo!=null) correo.EnviarAUsuarioAsync(producto.ShaperId,$"Nueva reseña para {producto.Titulo}","Tu producto recibió una reseña",$"Puntuación: {estrellas}/5. Ingresá para leerla y responder.").GetAwaiter().GetResult(); }
         return RedirectToAction("Detalle","MisPedidos",new{id=pedidoId});
     }
 

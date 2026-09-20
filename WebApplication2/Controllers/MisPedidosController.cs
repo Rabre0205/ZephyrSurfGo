@@ -11,13 +11,15 @@ public class MisPedidosController : Controller
 {
     private readonly IPedidoRepositorio _pedidos;
     private readonly ISolicitudPersonalizadaServicio _personalizados;
+    private readonly WebApplication2.Servicios.ICorreoNotificacionServicio? _correo;
 
     public MisPedidosController(
         IPedidoRepositorio pedidos,
-        ISolicitudPersonalizadaServicio personalizados)
+        ISolicitudPersonalizadaServicio personalizados, WebApplication2.Servicios.ICorreoNotificacionServicio? correo=null)
     {
         _pedidos = pedidos;
         _personalizados = personalizados;
+        _correo=correo;
     }
 
     public IActionResult Index()
@@ -46,10 +48,12 @@ public class MisPedidosController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult ResponderCotizacion(int id, bool aceptar)
+    public async Task<IActionResult> ResponderCotizacion(int id, bool aceptar)
     {
         var resultado = _personalizados.ResponderCotizacion(
             id, ObtenerClienteId(), aceptar);
+        var detalle=resultado.Exito?_personalizados.ObtenerDetalleParaCliente(id,ObtenerClienteId()):null;
+        if(detalle!=null&&_correo!=null) await _correo.EnviarAUsuarioAsync(detalle.ShaperId,$"Respuesta a la cotización #{id}",aceptar?"El cliente aceptó tu cotización":"El cliente rechazó tu cotización",$"Solicitud para {detalle.Modelo}. Revisá el detalle desde Pedidos recibidos.");
         TempData[resultado.Exito ? "Mensaje" : "Error"] = resultado.Exito
             ? (aceptar
                 ? "Aceptaste la cotización. El pedido queda preparado para continuar con el pago."

@@ -13,11 +13,13 @@ namespace WebApplication2.Controllers
     {
         private readonly IUsuarioServicio _usuarioServicio;
         private readonly IWebHostEnvironment _entorno;
+        private readonly WebApplication2.Servicios.ICorreoNotificacionServicio? _correo;
 
-        public ConfiguracionController(IUsuarioServicio usuarioServicio, IWebHostEnvironment entorno)
+        public ConfiguracionController(IUsuarioServicio usuarioServicio, IWebHostEnvironment entorno, WebApplication2.Servicios.ICorreoNotificacionServicio? correo=null)
         {
             _usuarioServicio = usuarioServicio;
             _entorno = entorno;
+            _correo=correo;
         }
 
         [HttpGet]
@@ -104,6 +106,7 @@ namespace WebApplication2.Controllers
                 return View("Index", new ConfiguracionViewModel { Cuenta = modelo });
 
             int usuarioId = ObtenerUsuarioId();
+            var cuentaAnterior=_usuarioServicio.BuscarPorId(usuarioId);
             var resultado = _usuarioServicio.ActualizarCuenta(
                 usuarioId, modelo.Email, modelo.Nombre, modelo.Pais);
 
@@ -114,13 +117,19 @@ namespace WebApplication2.Controllers
             }
 
             await RenovarSesion(usuarioId);
+            if(_correo!=null)
+            {
+                await _correo.EnviarAUsuarioAsync(usuarioId,"Datos de cuenta actualizados","Actualizaste tu cuenta","Tus datos personales fueron modificados correctamente.");
+                if(cuentaAnterior!=null&&!string.Equals(cuentaAnterior.Email,modelo.Email,StringComparison.OrdinalIgnoreCase))
+                    await _correo.EnviarAEmailAsync(cuentaAnterior.Email,"El correo de tu cuenta fue modificado","Cambio de correo",$"El correo de tu cuenta ahora es {modelo.Email}. Si no realizaste este cambio, contactá al equipo.");
+            }
             TempData["MensajeCuenta"] = "La información de tu cuenta se actualizó correctamente.";
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CambiarContrasenia(
+        public async Task<IActionResult> CambiarContrasenia(
             [Bind(Prefix = "Seguridad")] CambiarContraseniaViewModel modelo)
         {
             ModelState.Clear();
@@ -138,6 +147,7 @@ namespace WebApplication2.Controllers
             }
 
             TempData["MensajeSeguridad"] = "Tu contraseña se cambió correctamente.";
+            if(_correo!=null) await _correo.EnviarAUsuarioAsync(ObtenerUsuarioId(),"Tu contraseña fue modificada","Cambio de contraseña","La contraseña de tu cuenta se actualizó correctamente. Si no fuiste vos, iniciá una recuperación de contraseña y contactá al equipo.");
             return RedirectToAction(nameof(Index));
         }
 
