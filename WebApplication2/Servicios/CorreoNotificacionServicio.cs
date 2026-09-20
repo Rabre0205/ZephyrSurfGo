@@ -16,7 +16,7 @@ public interface ICorreoNotificacionServicio
 }
 
 public class CorreoNotificacionServicio(IConfiguration configuracion, ILogger<CorreoNotificacionServicio> logger,
-    ClassLibrary.Datos.IUsuarioRepositorio usuarios)
+    ClassLibrary.Datos.IUsuarioRepositorio usuarios, ClassLibrary.Datos.INotificacionRepositorio notificaciones)
     : ICorreoNotificacionServicio
 {
     public async Task<bool> EnviarSolicitudShaperAsync(UnirseShaperViewModel solicitud)
@@ -129,9 +129,10 @@ public class CorreoNotificacionServicio(IConfiguration configuracion, ILogger<Co
     public Task<bool> EnviarAUsuarioAsync(int usuarioId, string asunto, string titulo, string mensaje)
     {
         var usuario = usuarios.ObtenerPorId(usuarioId);
-        return usuario == null || !usuario.Activo
-            ? Task.FromResult(false)
-            : EnviarAEmailAsync(usuario.Email, asunto, titulo, mensaje);
+        if(usuario == null || !usuario.Activo) return Task.FromResult(false);
+        try { notificaciones.Crear(usuarioId, titulo, mensaje); }
+        catch(Exception ex) { logger.LogError(ex,"No se pudo guardar la notificación interna de {UsuarioId}.",usuarioId); }
+        return EnviarAEmailAsync(usuario.Email, asunto, titulo, mensaje);
     }
 
     public async Task<bool> EnviarAEmailAsync(string email, string asunto, string titulo, string mensaje)

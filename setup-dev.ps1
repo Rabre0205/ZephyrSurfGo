@@ -9,6 +9,7 @@ $schemaFile = Join-Path $projectRoot "Database\CreacionSurfDB.sql"
 $seedFile = Join-Path $projectRoot "Database\DatosPrueba.sql"
 $improvementsFile = Join-Path $projectRoot "Database\AgregarCatalogoResenasSolicitudesYRecuperacion.sql"
 $coursesFile = Join-Path $projectRoot "Database\AgregarCursosShaper.sql"
+$notificationsFile = Join-Path $projectRoot "Database\AgregarNotificacionesUsuarios.sql"
 
 if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
     throw "No se encontró .NET. Instalá el SDK 10 antes de continuar."
@@ -38,6 +39,10 @@ if ($LASTEXITCODE -ne 0) { throw "No se pudieron aplicar las mejoras recientes d
 Write-Host "Aplicando el módulo de cursos para shapers..."
 sqlcmd -S $SqlServer -E -C -b -d SurfDB -i $coursesFile
 if ($LASTEXITCODE -ne 0) { throw "No se pudo aplicar el módulo de cursos." }
+
+Write-Host "Aplicando notificaciones internas..."
+sqlcmd -S $SqlServer -E -C -b -d SurfDB -i $notificationsFile
+if ($LASTEXITCODE -ne 0) { throw "No se pudo aplicar el módulo de notificaciones." }
 
 Write-Host "Agregando datos ficticios..."
 sqlcmd -S $SqlServer -E -C -b -i $seedFile

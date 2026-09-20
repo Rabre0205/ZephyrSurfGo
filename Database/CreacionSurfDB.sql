@@ -1011,3 +1011,15 @@ GO
    5. Las solicitudes públicas para que una marca se una como shaper
       se envían por correo y no se almacenan en SurfDB.
    ============================================================ */
+IF OBJECT_ID(N'dbo.NotificacionesUsuarios',N'U') IS NULL
+BEGIN
+ CREATE TABLE dbo.NotificacionesUsuarios(
+  Id BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY, UsuarioId INT NOT NULL,
+  Titulo NVARCHAR(160) NOT NULL, Mensaje NVARCHAR(1000) NOT NULL, Url NVARCHAR(500) NULL,
+  Tipo NVARCHAR(40) NOT NULL DEFAULT N'General', Leida BIT NOT NULL DEFAULT 0,
+  FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(), FechaLectura DATETIME2 NULL,
+  CONSTRAINT FK_NotificacionesUsuarios_Usuarios FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuarios(Id) ON DELETE CASCADE
+ );
+ CREATE INDEX IX_NotificacionesUsuarios_Bandeja ON dbo.NotificacionesUsuarios(UsuarioId,Leida,FechaCreacion DESC);
+END
+GO

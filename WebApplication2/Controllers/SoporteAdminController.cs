@@ -19,7 +19,7 @@ public class SoporteAdminController : Controller
         if(actualizado&&_correo!=null)
         {
             var consulta=_servicio.ObtenerPorId(id);
-            if(consulta!=null) await _correo.EnviarAEmailAsync(consulta.ShaperEmail,$"Respuesta a tu consulta #{id}","El equipo respondió tu consulta",respuesta);
+            if(consulta!=null) await _correo.EnviarAUsuarioAsync(consulta.ShaperId,$"Respuesta a tu consulta #{id}","El equipo respondió tu consulta",respuesta);
         }
         TempData[actualizado?"Mensaje":"Error"]=actualizado?"La respuesta fue guardada.":"Escribí una respuesta antes de guardar.";
         return RedirectToAction(nameof(Detalle),new{id});

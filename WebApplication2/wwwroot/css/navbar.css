@@ -351,6 +351,7 @@ nav#navbar {
     .nav-links a { font-size: .66rem; }
 }
 .profile-brand-logo{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.notification-button{position:relative;display:grid;place-items:center;width:40px;height:40px;color:inherit;text-decoration:none;border:0;background:transparent}.notification-button:hover{color:#9e5527}.notification-button>span{position:absolute;top:0;right:-2px;display:grid;place-items:center;min-width:18px;height:18px;padding:0 4px;border-radius:10px;background:#b53d31;color:#fff;font:700 10px Inter,Arial,sans-serif}
 
 .logout-form {
     margin: 0;

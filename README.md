@@ -89,4 +89,6 @@ La recuperación de contraseña y las notificaciones por correo requieren `Corre
 
 Con SMTP configurado también se notifican altas y cambios de seguridad, compras, solicitudes y seguimiento de tablas personalizadas, respuestas de soporte, estados de solicitudes de shapers y actividad de reseñas. Los avisos de pagos se enviarán cuando se complete el webhook de Mercado Pago; no se considera confirmado un cobro solamente por volver desde la página de pago.
 
+Los usuarios registrados reciben esos mismos eventos en la bandeja interna de notificaciones, aunque SMTP no esté disponible. En una base existente se debe aplicar `Database/AgregarNotificacionesUsuarios.sql`; `setup-dev.ps1` lo ejecuta automáticamente.
+
 El esquema principal ya incluye también el marketplace de cursos. En una base existente, `setup-dev.ps1` ejecuta automáticamente `Database/AgregarCursosShaper.sql` junto con el resto de las migraciones.
