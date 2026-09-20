@@ -406,6 +406,14 @@ body {
     transform: translateY(-1px);
 }
 
+.google-config-status {
+    margin: .75rem 0 0;
+    color: #6d6252;
+    font-size: .76rem;
+    line-height: 1.45;
+    text-align: center;
+}
+
 .google-completar-page {
     display: grid;
     min-height: 100vh;
