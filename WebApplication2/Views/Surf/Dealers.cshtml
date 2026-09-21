@@ -1,0 +1,29 @@
+@model List<ClassLibrary.PuntosRetiro.PuntoRetiro>
+@using ClassLibrary.Enums
+@using System.Text.Json
+@{ Layout = null; ViewData["Title"] = "Mapa de shapers"; }
+<!doctype html>
+<html lang="es"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mapa de shapers — Zephyr Surf Go</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="~/css/estilosDealers.css" asp-append-version="true"/><link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true"/>
+</head><body class="editorial-map"><partial name="_Navbar"/>
+<section class="map-hero"><div><span>Red Zephyr Surf Go</span><h1>Puntos de retiro</h1><p>Encontrá lugares habilitados para retirar tus compras en Uruguay, Argentina y Brasil.</p></div></section>
+<main class="locator-page"><div class="locator-note"><strong>Solo puntos habilitados</strong><span>El mapa muestra lugares de retiro cargados por los shapers. Los talleres o domicilios privados no se publican.</span></div>
+<div class="filter-bar"><span class="filter-label">Filtrar:</span><button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">Todos</button><button type="button" class="filter-btn" data-filter="ar" aria-pressed="false">🇦🇷 Argentina</button><button type="button" class="filter-btn" data-filter="br" aria-pressed="false">🇧🇷 Brasil</button><button type="button" class="filter-btn" data-filter="uy" aria-pressed="false">🇺🇾 Uruguay</button><div class="search-wrap"><span aria-hidden="true">⌕</span><label class="visually-hidden" for="searchInput">Buscar punto de retiro</label><input type="search" id="searchInput" placeholder="Buscar punto, shaper, ciudad o país…"/></div><button type="button" id="nearMeButton" class="locator-action">⌖ Cerca mío</button><button type="button" id="clearFiltersButton" class="locator-action" hidden>Limpiar</button></div>
+<div class="results-summary"><span id="resultCount" aria-live="polite">@Model.Count puntos</span><small id="locatorStatus">Seleccioná un punto para ver sus datos.</small></div>
+<div class="dealers-layout"><div class="dealers-list" id="dealersList" aria-label="Puntos de retiro disponibles"></div><div class="map-panel"><div id="map" role="region" aria-label="Mapa de puntos de retiro"></div><p id="mapHelp">Cada marcador indica la ubicación exacta informada por el shaper para ese punto de retiro.</p><div id="mapError" class="map-error" role="status" hidden>No pudimos cargar el mapa. Podés consultar las direcciones y horarios desde la lista.</div></div></div>
+</main>
+<script>
+window.zephyrPickups = @Html.Raw(JsonSerializer.Serialize(Model.Select(item => new {
+    id = item.Id, shaperId = item.ShaperId, name = item.Nombre, shaper = item.ShaperNombre,
+    address = item.Direccion, city = item.Ciudad, schedule = item.Horario, notes = item.Indicaciones,
+    lat = item.Latitud, lng = item.Longitud, logo = item.LogoUrl,
+    country = item.Pais == Pais.Argentina ? "ar" : item.Pais == Pais.Brasil ? "br" : "uy",
+    countryName = item.Pais.ToString(), pageUrl = Url.Action("Detalle", "Shaper", new { id = item.ShaperId })
+})));
+</script>
+<script src="~/js/Dealers.js" asp-append-version="true"></script><script src="~/js/navbar.js" asp-append-version="true"></script></body></html>

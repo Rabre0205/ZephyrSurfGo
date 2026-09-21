@@ -1,0 +1,70 @@
+@model ClassLibrary.Solicitudes.SolicitudPersonalizada
+@using System.Text.Json
+@{ Layout = null; bool esShaper = User.IsInRole("Shaper"); JsonElement[] accesorios; try { accesorios = JsonSerializer.Deserialize<JsonElement[]>(Model.AccesoriosJson) ?? []; } catch { accesorios = []; } }
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width"/>
+<title>Pedido personalizado @Model.Id — Zephyr Surf Go</title><link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true"/><link rel="stylesheet" href="~/css/solicitudesPersonalizadas.css" asp-append-version="true"/></head>
+<body><partial name="_Navbar"/><main class="requests-page"><a class="back" asp-controller="@(esShaper ? "Dashboard" : "MisPedidos")" asp-action="@(esShaper ? "Pedidos" : "Index")">← Volver a pedidos</a>
+@if(TempData["Mensaje"] is string mensaje){<div class="alert alert-success">@mensaje</div>}
+@if(TempData["Error"] is string error){<div class="alert alert-danger">@error</div>}
+<header class="detail-header"><div><span>Pedido personalizado #@Model.Id</span><h1>@Model.Modelo</h1><p>@(esShaper ? $"Cliente: {Model.ClienteNombre} · {Model.ClienteEmail}" : $"Shaper: {Model.ShaperNombre}")</p></div><span class="status status-@Model.Estado">@Model.EstadoNombre</span></header>
+<section class="order-progress" aria-label="Progreso del pedido">
+@* El progreso depende del estado, nunca del tiempo transcurrido. *@
+@foreach(var etapa in new[]{(1,"Cotización"),(2,"Precio definido"),(3,"Aceptación"),(4,"Pago"),(5,"Pagado"),(6,"Preparación"),(7,"Entrega"),(8,"Completado")}){<div class="progress-step @(Model.PasoVisible >= etapa.Item1 ? "is-complete" : "") @(Model.PasoVisible == etapa.Item1 ? "is-current" : "")"><span>@etapa.Item1</span><small>@etapa.Item2</small></div>}
+</section>
+<section class="detail-card tracking-summary" aria-label="Seguimiento y entrega">
+    <h2>Así va tu tabla</h2>
+    <p><strong>@Model.EstadoNombre</strong></p>
+    <p>Entrega estimada: <strong>@(Model.EntregaEstimada?.ToString("dd/MM/yyyy") ?? "El shaper todavía no indicó una fecha")</strong></p>
+    @if(Model.Estado < 6){<small>Fecha orientativa, sujeta a la confirmación del pago. Aceptar una cotización no inicia la fabricación.</small>}
+    @if(Model.EntregaEstimada.HasValue && Model.EntregaEstimada.Value.Date < DateTime.Today && Model.Estado is not (2 or 4 or 9)){<p class="flow-warning">La fecha estimada ya pasó. El shaper debe actualizar el plazo.</p>}
+    @if(Model.EntregaOriginal.HasValue && Model.EntregaOriginal != Model.EntregaEstimada){<p>Estimación original: @Model.EntregaOriginal.Value.ToString("dd/MM/yyyy").</p>}
+    <p class="tracking-message">@(string.IsNullOrWhiteSpace(Model.AvanceShaper)?"Las novedades del shaper aparecerán aquí.":Model.AvanceShaper)</p>
+    @if(Model.FechaSeguimiento.HasValue){<small>Última actualización: @Model.FechaSeguimiento.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>}
+</section>
+@if(esShaper && Model.Estado is 0 or 1 or 3 or 5 or 6 or 7 or 8){
+<section class="detail-card tracking-editor">
+<h2>Actualizar seguimiento</h2><p>Estos datos serán visibles para el cliente. Publicá una novedad clara sobre el trabajo.</p>
+<form asp-controller="SolicitudPersonalizada" asp-action="ActualizarSeguimiento" method="post">
+@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id"/>
+<label for="tracking-state">Etapa del pedido</label>
+<select id="tracking-state" name="estado">
+<option value="@Model.Estado">@Model.EstadoNombre (mantener)</option>
+@if(Model.Estado==6){<option value="7">Comenzar preparación</option>}
+@if(Model.Estado==7){<option value="8">Enviado o listo para retirar</option>}
+@if(Model.Estado==8){<option value="9">Confirmar entrega al cliente</option>}
+</select>
+<label for="tracking-date">Fecha estimada de entrega</label>
+<input id="tracking-date" type="date" name="entrega" required min="@DateTime.Today.ToString("yyyy-MM-dd")" value="@(Model.EntregaEstimada?.ToString("yyyy-MM-dd"))"/>
+<label for="tracking-message">Novedad para el cliente</label>
+<textarea id="tracking-message" name="mensaje" required maxlength="1000" rows="3" placeholder="Ej.: Terminamos el laminado. El próximo paso es el acabado.">@Model.AvanceShaper</textarea>
+@if(Model.Estado==3){<p>Si cambiás la fecha, el cliente deberá aceptar nuevamente la cotización.</p>}
+<button type="submit">Publicar actualización</button>
+</form></section>}
+@if(Model.Estado == 2 || Model.Estado == 4){<p class="flow-warning">Este pedido salió del flujo normal: @Model.EstadoNombre.ToLowerInvariant().</p>}
+<details class="configuration-details"><summary>Ver medidas, diseño y respuestas del cuestionario</summary><div class="detail-grid"><section class="detail-card"><h2>Medidas y construcción</h2><dl><dt>Largo</dt><dd>@Model.Largo</dd><dt>Ancho</dt><dd>@Model.Ancho</dd><dt>Grosor</dt><dd>@Model.Grosor</dd><dt>Volumen</dt><dd>@Model.Volumen</dd><dt>Construcción</dt><dd>@Model.Construccion</dd><dt>Cola (tail)</dt><dd>@Model.Tail</dd><dt>Quillas</dt><dd>@Model.SistemaQuillas · @Model.ConfiguracionQuillas</dd><dt>Laminado</dt><dd>@Model.Laminado</dd></dl></section>
+<section class="detail-card"><h2>Diseño y extras</h2><dl><dt>Diseño</dt><dd>@Model.Diseno</dd><dt>Colores</dt><dd><i class="swatch" style="background:@Model.ColorPrimario"></i><i class="swatch" style="background:@Model.ColorSecundario"></i> @Model.ColorPrimario · @Model.ColorSecundario</dd><dt>Carbono</dt><dd>@Model.ParcheCarbono</dd><dt>Detalles</dt><dd>@(string.IsNullOrEmpty(Model.DetallesAdicionales) ? "Sin detalles adicionales" : Model.DetallesAdicionales)</dd><dt>Accesorios</dt><dd>@(accesorios.Length == 0 ? "Sin accesorios" : string.Join(", ", accesorios.Select(a => a.TryGetProperty("name", out var n) ? n.GetString() : "Accesorio")))</dd><dt>Cuestionario y aclaraciones</dt><dd>@(string.IsNullOrEmpty(Model.Notas) ? "Sin notas" : Model.Notas)</dd></dl></section></div></details>
+<section class="price-card"><div><small>Precio del pedido</small><strong>@(Model.PrecioEstimado > 0 ? $"USD {Model.PrecioEstimado:N2}" : "A confirmar por el shaper")</strong><p>La cotización corresponde a esta configuración. Revisá el precio y el plazo antes de aceptarla.</p></div>
+@if(esShaper){<div><form asp-action="DefinirPrecio" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id"/><label for="precio"><strong>Definir precio final en USD</strong></label><input id="precio" name="precio" type="number" min="1" max="100000" step="0.01" value="@(Model.PrecioEstimado > 0 ? Model.PrecioEstimado.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) : "")" required placeholder="Ej.: 750.00"/><button type="submit">Guardar precio</button></form><form id="unavailableForm" asp-action="CambiarEstado" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id"/><input type="hidden" name="estado" value="2"/><button type="button" class="secondary" id="openUnavailableDialog">Marcar como no disponible</button></form></div>}</section>
+@if(!esShaper && Model.Estado == 1 && Model.PrecioEstimado > 0){<section class="price-card"><div><small>Tu decisión</small><strong>¿Aceptás esta cotización?</strong><p>Al aceptar confirmás el precio propuesto. El pedido avanzará a “Aceptado” y quedará listo para habilitar el pago.</p></div><form asp-controller="MisPedidos" asp-action="ResponderCotizacion" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id"/><button type="submit" name="aceptar" value="true">Aceptar cotización</button><button type="submit" class="secondary" name="aceptar" value="false">Rechazar</button></form></section>}
+@if(!esShaper && Model.Estado == 3){<section class="price-card"><div><small>Siguiente paso</small><strong>Pedido aceptado</strong><p>La integración de pago todavía no está habilitada. Cuando se conecte Mercado Pago, desde acá podrás continuar y el estado pasará a “Esperando pago”.</p></div><button type="button" disabled>Pago aún no disponible</button></section>}
+@if(!esShaper && Model.FechaRespuestaCliente.HasValue){<p class="request-response-date">Respuesta registrada el @Model.FechaRespuestaCliente.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm").</p>}
+</main>
+@if(esShaper){<dialog class="request-confirm-dialog" id="unavailableDialog" aria-labelledby="unavailableDialogTitle"><div class="request-confirm-icon" aria-hidden="true">!</div><p class="request-confirm-eyebrow">Confirmar decisión</p><h2 id="unavailableDialogTitle">¿No podés fabricar esta tabla?</h2><p>El pedido quedará como <strong>No disponible</strong> y el cliente verá el cambio. Esta solicitud saldrá del flujo normal de cotización.</p><div class="request-confirm-actions"><button type="button" class="request-confirm-cancel" id="cancelUnavailableDialog">Volver al pedido</button><button type="button" class="request-confirm-danger" id="confirmUnavailableDialog">Sí, marcar como no disponible</button></div></dialog>}
+<script src="~/js/navbar.js" asp-append-version="true"></script>
+<script>
+    (() => {
+        const dialog = document.getElementById('unavailableDialog');
+        const form = document.getElementById('unavailableForm');
+        const openButton = document.getElementById('openUnavailableDialog');
+        const cancelButton = document.getElementById('cancelUnavailableDialog');
+        const confirmButton = document.getElementById('confirmUnavailableDialog');
+        if (!dialog || !form || !openButton || !cancelButton || !confirmButton) return;
+        openButton.addEventListener('click', () => dialog.showModal());
+        cancelButton.addEventListener('click', () => dialog.close());
+        confirmButton.addEventListener('click', () => { confirmButton.disabled = true; form.submit(); });
+        dialog.addEventListener('click', event => {
+            const bounds = dialog.getBoundingClientRect();
+            if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) dialog.close();
+        });
+    })();
+</script></body></html>

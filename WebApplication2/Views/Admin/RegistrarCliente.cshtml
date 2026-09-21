@@ -1,0 +1,35 @@
+@using ClassLibrary.Enums
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewBag.Title = "Registrar cliente";
+
+    var paisesSelect = new List<SelectListItem>();
+
+    foreach (Pais p in Enum.GetValues(typeof(Pais)))
+    {
+        paisesSelect.Add(new SelectListItem
+        {
+            Text = p.ToString(),
+            Value = Convert.ToInt32(p).ToString()
+        });
+    }
+}
+
+<h2>Registrar cliente</h2>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert-error">
+        @ViewBag.Error
+    </div>
+}
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert-success">
+        @TempData["Mensaje"]
+    </div>
+}
+
+<!-- mal echo tengo que arreglarlo -->

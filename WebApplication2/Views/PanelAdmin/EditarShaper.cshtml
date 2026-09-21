@@ -1,0 +1,208 @@
+﻿@model WebApplication2.Models.PanelAdmin.EditarShaperViewModel
+@using ClassLibrary.Enums
+
+@{
+    ViewData["Title"] = "Editar shaper";
+}
+
+<section class="edit-shaper-page">
+    <div class="edit-shaper-card">
+
+        <span class="edit-shaper-eyebrow">
+            Administración
+        </span>
+
+        <h1>Editar shaper</h1>
+
+        <p>Modificá los datos generales del fabricante.</p>
+
+        <form asp-controller="PanelAdmin"
+              asp-action="EditarShaper"
+              method="post">
+
+            <input asp-for="Id" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="edit-shaper-errors">
+            </div>
+
+            <div class="edit-shaper-grid">
+
+                <div class="edit-shaper-field">
+                    <label asp-for="Nombre"></label>
+                    <input asp-for="Nombre" />
+                    <span asp-validation-for="Nombre"></span>
+                </div>
+
+                <div class="edit-shaper-field">
+                    <label asp-for="Email"></label>
+                    <input asp-for="Email" type="email" />
+                    <span asp-validation-for="Email"></span>
+                </div>
+
+                <div class="edit-shaper-field">
+                    <label asp-for="Pais"></label>
+
+                    <select asp-for="Pais"
+                            asp-items="Html.GetEnumSelectList<Pais>()">
+                    </select>
+
+                    <span asp-validation-for="Pais"></span>
+                </div>
+
+                <div class="edit-shaper-field">
+                    <label asp-for="NombreDeNegosio"></label>
+                    <input asp-for="NombreDeNegosio" />
+                    <span asp-validation-for="NombreDeNegosio"></span>
+                </div>
+
+                <div class="edit-shaper-field full">
+                    <label asp-for="Contacto"></label>
+                    <input asp-for="Contacto" />
+                    <span asp-validation-for="Contacto"></span>
+                </div>
+
+            </div>
+
+            <div class="edit-shaper-actions">
+
+                <a asp-controller="PanelAdmin"
+                   asp-action="Shapers">
+                    Cancelar
+                </a>
+
+                <button type="submit">
+                    Guardar cambios
+                </button>
+
+            </div>
+
+        </form>
+    </div>
+</section>
+
+<style>
+    .edit-shaper-page {
+        display: flex;
+        min-height: calc(100vh - 170px);
+        padding: 55px 20px;
+        align-items: center;
+        justify-content: center;
+        background: #f4f7f5;
+    }
+
+    .edit-shaper-card {
+        width: min(100%, 820px);
+        padding: 44px;
+        border: 1px solid #dce4e0;
+        border-radius: 22px;
+        background: #ffffff;
+        box-shadow: 0 18px 55px rgba(26, 57, 46, 0.09);
+    }
+
+    .edit-shaper-eyebrow {
+        color: #688076;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .edit-shaper-card h1 {
+        margin: 8px 0;
+        color: #17231f;
+        font-size: 45px;
+    }
+
+    .edit-shaper-card > p {
+        margin: 0 0 30px;
+        color: #69756f;
+    }
+
+    .edit-shaper-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .edit-shaper-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+        .edit-shaper-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .edit-shaper-field label {
+            color: #27332e;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .edit-shaper-field input,
+        .edit-shaper-field select {
+            min-height: 48px;
+            padding: 0 14px;
+            border: 1px solid #ccd8d2;
+            border-radius: 10px;
+            outline: none;
+        }
+
+            .edit-shaper-field input:focus,
+            .edit-shaper-field select:focus {
+                border-color: #1d654b;
+                box-shadow: 0 0 0 3px rgba(29, 101, 75, 0.10);
+            }
+
+        .edit-shaper-field span,
+        .edit-shaper-errors {
+            color: #b53a3a;
+            font-size: 13px;
+        }
+
+    .edit-shaper-actions {
+        display: flex;
+        margin-top: 30px;
+        gap: 14px;
+        justify-content: flex-end;
+    }
+
+        .edit-shaper-actions a,
+        .edit-shaper-actions button {
+            display: inline-flex;
+            min-height: 46px;
+            padding: 0 22px;
+            align-items: center;
+            border-radius: 10px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .edit-shaper-actions a {
+            border: 1px solid #d4ddd8;
+            color: #34423c;
+        }
+
+        .edit-shaper-actions button {
+            border: 0;
+            background: #1d654b;
+            color: white;
+            cursor: pointer;
+        }
+
+    @@media (max-width: 650px) {
+        .edit-shaper-card {
+            padding: 30px 22px;
+        }
+
+        .edit-shaper-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .edit-shaper-field.full {
+            grid-column: auto;
+        }
+    }
+</style>

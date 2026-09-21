@@ -1,0 +1,204 @@
+@model WebApplication2.Models.ShapersCatalogoViewModel
+@using ClassLibrary.Enums
+@{
+    Layout = null;
+    ViewData["Title"] = "Shapers";
+    int cantidadPaises = Model.Shapers.Select(x => x.Shaper.Pais).Distinct().Count();
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shapers — Zephyr Surf Go</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/estilosShapers.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
+</head>
+<body class="editorial-shapers">
+    <partial name="_Navbar" />
+
+    <section id="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="hero-eyebrow">Los artesanos detrás de cada ola</span>
+            <h1 class="hero-title">CONOCÉ A LOS <em>SHAPERS</em></h1>
+            <p class="hero-sub">Elegí un shaper para conocer su negocio, ver sus productos y personalizar una tabla desde una única página.</p>
+            <div class="hero-stats">
+                <div><div class="hstat-num">@Model.Shapers.Count</div><div class="hstat-label">Shapers activos</div></div>
+                <div><div class="hstat-num">@cantidadPaises</div><div class="hstat-label">Países</div></div>
+                <div><div class="hstat-num">@Model.Shapers.Sum(x => x.CantidadProductos)</div><div class="hstat-label">Productos</div></div>
+                <div><div class="hstat-num">100%</div><div class="hstat-label">Artesanal</div></div>
+            </div>
+        </div>
+        <div class="scroll-hint"><div class="scroll-line"></div><span>Scroll</span></div>
+    </section>
+
+    <div class="filter-bar">
+        <span class="filter-label">Filtrar por</span>
+        <div class="filter-chips">
+            <button class="chip active" type="button" data-filter="all">Todos</button>
+            <button class="chip" type="button" data-filter="Argentina">🇦🇷 Argentina</button>
+            <button class="chip" type="button" data-filter="Brasil">🇧🇷 Brasil</button>
+            <button class="chip" type="button" data-filter="Uruguay">🇺🇾 Uruguay</button>
+        </div>
+        <div class="filter-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            <input type="text" id="searchInput" placeholder="Buscar shaper o negocio…" />
+        </div>
+    </div>
+
+    <section id="shapers">
+        <p class="section-label reveal">Nuestros artesanos</p>
+        <h2 class="section-title reveal">Los shapers de la región</h2>
+        <p class="section-sub reveal">La información y el catálogo se cargan desde las cuentas reales registradas en Zephyr Surf Go.</p>
+
+        @if (Model.Shapers.Count == 0)
+        {
+            <div class="empty-state" style="padding:4rem 1rem;text-align:center;">
+                <h3>Todavía no hay shapers activos</h3>
+                <p>Los perfiles aparecerán acá cuando sus cuentas estén habilitadas.</p>
+            </div>
+        }
+        else
+        {
+            <div class="shapers-grid" id="shapersGrid">
+                @foreach (var item in Model.Shapers)
+                {
+                    var shaper = item.Shaper;
+                    string pais = shaper.Pais.ToString();
+                    string bandera = shaper.Pais == Pais.Argentina ? "🇦🇷" : shaper.Pais == Pais.Brasil ? "🇧🇷" : "🇺🇾";
+                    string nombreBusqueda = $"{shaper.Nombre} {shaper.NombreDeNegosio}".ToLowerInvariant();
+
+                    <article class="shaper-card reveal" data-country="@pais" data-name="@nombreBusqueda">
+                        <div class="shaper-portrait">
+                            <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <rect width="300" height="400" fill="#0d2d45" />
+                                <ellipse cx="150" cy="150" rx="65" ry="72" fill="#1a5066" />
+                                <rect x="82" y="210" width="136" height="190" rx="12" fill="#1a5066" />
+                                <ellipse cx="255" cy="190" rx="24" ry="110" fill="rgba(67,148,224,.10)" transform="rotate(-12 255 190)" />
+                                <path d="M0 350 Q75 330 150 350 Q225 370 300 350" stroke="rgba(255,255,255,.08)" stroke-width="1.5" fill="none" />
+                            </svg>
+                            @if (!string.IsNullOrWhiteSpace(shaper.LogoUrl))
+                            {
+                                <img src="@shaper.LogoUrl" alt="Logo de @shaper.NombreDeNegosio" class="shaper-logo" onerror="this.style.display='none'" />
+                            }
+                            <span class="shaper-flag">@bandera @pais</span>
+                            <span class="shaper-specialty">Shaper</span>
+                            <span class="shaper-portrait-name">@shaper.NombreDeNegosio</span>
+                        </div>
+                        <div class="shaper-info">
+                            <p class="shaper-origin">@bandera @pais</p>
+                            <p class="shaper-name">@shaper.NombreDeNegosio</p>
+                            <p class="shaper-years">Por @shaper.Nombre</p>
+                            <p class="shaper-bio">Explorá sus tablas y productos publicados, recibí una recomendación y configurá tu pedido personalizado.</p>
+                            <div class="shaper-stats">
+                                <div class="sstat"><div class="sstat-num">@item.CantidadProductos</div><div class="sstat-label">Productos</div></div>
+                                <div class="sstat"><div class="sstat-num">✓</div><div class="sstat-label">Activo</div></div>
+                            </div>
+                            <div class="shaper-cta">
+                                <a asp-controller="Shaper" asp-action="Detalle" asp-route-id="@shaper.Id" class="cta-link">
+                                    Ver perfil y catálogo
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                                </a>
+                                <span class="cta-boards">@item.CantidadProductos disponibles</span>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+            <p id="noResults" style="display:none;text-align:center;padding:3rem 1rem;">No encontramos shapers con esos filtros.</p>
+        }
+    </section>
+
+    <section class="join-shaper" id="unirse">
+        @if (TempData["SolicitudShaperEnviada"] is string mensaje)
+        {
+            <div class="join-success" role="status">✓ @mensaje</div>
+        }
+        <span class="section-label">Para quienes fabrican</span>
+        <h2>¿SOS SHAPER?</h2>
+        <p>Sumá tu marca y empezá a recibir pedidos completos y organizados. Primero revisaremos tu información y nos comunicaremos contigo.</p>
+        <button type="button" class="join-button" id="openShaperApplication">SUMAR MI MARCA →</button>
+    </section>
+
+    <dialog class="join-dialog" id="shaperApplicationDialog" aria-labelledby="joinDialogTitle">
+        <button type="button" class="join-close" id="closeShaperApplication" aria-label="Cerrar">×</button>
+        <span class="section-label">Comunidad de shapers</span>
+        <h2 id="joinDialogTitle">SUMÁ TU MARCA</h2>
+        <p>Estos datos se enviarán únicamente al equipo de Zephyr Surf Go. Completar el formulario no crea una cuenta automáticamente.</p>
+        <form asp-controller="Surf" asp-action="SolicitarIngresoShaper" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="join-errors" role="alert"></div>
+            <div class="join-form-grid">
+                <label>Nombre y apellido<input asp-for="Solicitud.Nombre" autocomplete="name" /><span asp-validation-for="Solicitud.Nombre"></span></label>
+                <label>Correo electrónico<input asp-for="Solicitud.Email" autocomplete="email" /><span asp-validation-for="Solicitud.Email"></span></label>
+                <label>Marca o taller<input asp-for="Solicitud.Marca" /><span asp-validation-for="Solicitud.Marca"></span></label>
+                <label>País y ciudad<input asp-for="Solicitud.Ubicacion" placeholder="Ej.: Montevideo, Uruguay" /><span asp-validation-for="Solicitud.Ubicacion"></span></label>
+                <label>Celular o WhatsApp<input asp-for="Solicitud.Celular" autocomplete="tel" placeholder="Incluí el código de país" /><span asp-validation-for="Solicitud.Celular"></span></label>
+                <label>Instagram de la marca<input asp-for="Solicitud.Instagram" placeholder="Ej.: @@mi_taller" /><span asp-validation-for="Solicitud.Instagram"></span></label>
+                <label>Años de experiencia<input asp-for="Solicitud.AniosExperiencia" min="0" max="80" /><span asp-validation-for="Solicitud.AniosExperiencia"></span></label>
+                <div class="join-options join-wide">
+                    <label class="join-check"><input asp-for="Solicitud.RealizaPersonalizadas" /> Fabrico tablas completamente personalizadas</label>
+                    <label class="join-check"><input asp-for="Solicitud.RealizaEnvios" /> Puedo realizar envíos</label>
+                </div>
+                <label class="join-wide">Sobre tu trabajo<textarea asp-for="Solicitud.Presentacion" placeholder="Tipos de tablas que fabricás y qué distingue a tu marca..."></textarea><span asp-validation-for="Solicitud.Presentacion"></span></label>
+                <label class="join-check join-wide"><input asp-for="Solicitud.AceptaContacto" /> Acepto que Zephyr Surf Go use estos datos para evaluar la solicitud y contactarme.<span asp-validation-for="Solicitud.AceptaContacto"></span></label>
+            </div>
+            <button type="submit" class="join-submit">ENVIAR SOLICITUD</button>
+        </form>
+    </dialog>
+
+    <script>
+        (() => {
+            const cards = [...document.querySelectorAll('.shaper-card')];
+            const chips = [...document.querySelectorAll('.chip')];
+            const search = document.getElementById('searchInput');
+            const noResults = document.getElementById('noResults');
+            let country = 'all';
+
+            function applyFilters() {
+                const term = (search?.value || '').trim().toLowerCase();
+                let visible = 0;
+                cards.forEach(card => {
+                    const matchesCountry = country === 'all' || card.dataset.country === country;
+                    const matchesTerm = !term || card.dataset.name.includes(term);
+                    const show = matchesCountry && matchesTerm;
+                    card.style.display = show ? '' : 'none';
+                    if (show) visible++;
+                });
+                if (noResults) noResults.style.display = visible === 0 ? '' : 'none';
+            }
+
+            chips.forEach(chip => chip.addEventListener('click', () => {
+                chips.forEach(x => x.classList.remove('active'));
+                chip.classList.add('active');
+                country = chip.dataset.filter;
+                applyFilters();
+            }));
+            search?.addEventListener('input', applyFilters);
+
+            const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            }), { threshold: .08 });
+            document.querySelectorAll('.reveal').forEach(element => observer.observe(element));
+
+            const applicationDialog = document.getElementById('shaperApplicationDialog');
+            document.getElementById('openShaperApplication')?.addEventListener('click', () => applicationDialog?.showModal());
+            document.getElementById('closeShaperApplication')?.addEventListener('click', () => applicationDialog?.close());
+            applicationDialog?.addEventListener('click', event => {
+                if (event.target === applicationDialog) applicationDialog.close();
+            });
+            @if (ViewBag.AbrirSolicitudShaper == true)
+            {
+                <text>applicationDialog?.showModal();</text>
+            }
+        })();
+    </script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/navbar.js" asp-append-version="true"></script>
+</body>
+</html>

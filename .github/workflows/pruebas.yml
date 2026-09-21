@@ -1,0 +1,33 @@
+name: Pruebas automáticas
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  probar:
+    name: Compilar y ejecutar pruebas
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v6
+
+      - name: Instalar .NET 10
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restaurar dependencias
+        run: dotnet restore Surf.slnx
+
+      - name: Compilar
+        run: dotnet build Surf.slnx --configuration Release --no-restore
+
+      - name: Ejecutar pruebas
+        run: dotnet test Pruebas/Pruebas.csproj --configuration Release --no-build --verbosity normal

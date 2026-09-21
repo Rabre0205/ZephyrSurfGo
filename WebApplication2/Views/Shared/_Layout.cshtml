@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - WebApplication2</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/WebApplication2.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/editorialSite.css" asp-append-version="true" />
+</head>
+<body>
+    @if (User.IsInRole("Administrador"))
+    {
+    <header class="admin-site-header">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Surf" asp-action="Home">Zephyr Surf Go</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="PanelAdmin" asp-action="Index">Panel</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="PanelAdmin" asp-action="Shapers">Shapers</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="PanelAdmin" asp-action="Productos">Productos</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="PanelAdmin" asp-action="Clientes">Clientes</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="PanelAdmin" asp-action="Resenas">Reseñas</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="PanelAdmin" asp-action="SolicitudesShapers">Solicitudes</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="PanelAdmin" asp-action="Pedidos">Pedidos</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="PanelAdmin" asp-action="Estadisticas">Estadísticas</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="SoporteAdmin" asp-action="Index">Ayuda</a></li>
+                        </ul>
+                        <div class="dropdown admin-profile-dropdown">
+                            <button type="button"
+                                    class="admin-profile-button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    aria-label="Abrir menú de administrador">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M20 21a8 8 0 0 0-16 0"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end admin-profile-menu">
+                                <span class="admin-profile-label">Administrador</span>
+                                <a class="dropdown-item" asp-controller="PanelAdmin" asp-action="Index">Ir al panel</a>
+                                <div class="dropdown-divider"></div>
+                                <form asp-controller="Login" asp-action="Logout" method="post" class="mb-0">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="dropdown-item admin-logout-link">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                             stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                            <path d="m16 17 5-5-5-5"></path>
+                                            <path d="M21 12H9"></path>
+                                        </svg>
+                                        <span>Cerrar sesión</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    }
+    else
+    {
+        <partial name="_Navbar" />
+    }
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - WebApplication2 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/navbar.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

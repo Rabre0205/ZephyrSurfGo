@@ -1,0 +1,26 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<main class="container py-5" style="max-width: 760px;">
+    <p class="text-uppercase text-muted mb-2">Zephyr Surf Go</p>
+    <h1>@Model.StatusCode — @Model.Titulo</h1>
+    <p class="lead">@Model.Mensaje</p>
+
+    <div class="d-flex gap-2 mt-4">
+        <a class="btn btn-primary" asp-controller="Surf" asp-action="Home">
+            Volver al inicio
+        </a>
+        <button class="btn btn-outline-secondary" type="button" onclick="history.back()">
+            Volver atrás
+        </button>
+    </div>
+
+    @if (Model.ShowRequestId)
+    {
+        <p class="text-muted small mt-4">
+            Código de referencia: <code>@Model.RequestId</code>
+        </p>
+    }
+</main>

@@ -1,0 +1,616 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuracion
+@{
+    Layout = null;
+    ViewData["Title"] = "login";
+    string? googleId = Configuracion["Authentication:Google:ClientId"];
+    string? googleSecreto = Configuracion["Authentication:Google:ClientSecret"];
+    bool googleDisponible = !string.IsNullOrWhiteSpace(googleId) && !string.IsNullOrWhiteSpace(googleSecreto)
+        && !googleId.StartsWith("DESARROLLO_LOCAL_", StringComparison.OrdinalIgnoreCase)
+        && !googleSecreto.StartsWith("DESARROLLO_LOCAL_", StringComparison.OrdinalIgnoreCase);
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acceder — MASTER Surf</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300";0,400;0,500;1,300&display="swap" rel="stylesheet" />
+     <link rel="stylesheet" href="~/css/estilosLogin.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/editorialSite.css" asp-append-version="true" />
+</head>
+<body class="login-page">
+
+    <div class="page-bg"></div>
+
+    <!-- ── NAVBAR ── -->
+    <nav id="navbar">
+
+        <a asp-controller="Surf" asp-action="Home" class="nav-logo">
+            ZEPHYR <span>SURF</span> GO
+        </a>
+
+
+        <a asp-controller="Surf" asp-action="Home" class="nav-back" id="nav-back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 5l-7 7 7 7" />
+            </svg>
+
+            <span data-i18n="navBack">Volver al inicio</span>
+        </a>
+
+    </nav>
+
+    <!-- ── MAIN ── -->
+    <div class="auth-wrapper">
+
+        <!-- Visual left -->
+        <div class="auth-visual">
+            <div class="auth-visual-img"></div>
+            <div class="auth-visual-overlay"></div>
+            <div class="auth-visual-content">
+                <p class="auth-visual-eyebrow">Bienvenido a Master Surf</p>
+                <h2 class="auth-visual-title">
+                    Tu tabla.<br>
+                    <em>Tu ola.</em>
+                </h2>
+                <p class="auth-visual-sub">
+                    Conectamos surfers con los mejores shapers de Latinoamérica. Accedé para descubrir, personalizar y comprar tu próxima tabla de autor.
+                </p>
+                <div class="auth-visual-badges">
+                    <span class="auth-badge">🇦🇷 Argentina</span>
+                    <span class="auth-badge">🇧🇷 Brasil</span>
+                    <span class="auth-badge">🇺🇾 Uruguay</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form right -->
+        <div class="auth-form-panel">
+            <div class="auth-card">
+
+                <!-- Alert global -->
+                <div class="auth-alert" id="authAlert"></div>
+
+                <!-- ══ PANEL LOGIN ══ -->
+                <div class="auth-panel @(ViewBag.MostrarRegistro == true ? "hidden" : "")"
+                     id="panelLogin">
+
+                    <form asp-controller="Login"
+                          asp-action="IniciarSesion"
+                          method="post">
+
+                        <div class="form-heading">
+                            <h2 data-i18n="loginTitle">Bienvenido de nuevo</h2>
+                            <p data-i18n="loginSub">
+                                Ingresá con tu cuenta para acceder al catálogo completo y realizar compras.
+                            </p>
+                        </div>
+
+                        @if (ViewBag.Error != null)
+                        {
+                            <div class="auth-alert" style="display:block;">
+                                @ViewBag.Error
+                            </div>
+                        }
+
+                        @if (TempData["ErrorGoogle"] != null)
+                        {
+                            <div class="auth-alert" style="display:block;">
+                                @TempData["ErrorGoogle"]
+                            </div>
+                        }
+                        @if (TempData["ContraseniaRestablecida"] != null)
+                        {
+                            <div class="auth-alert" style="display:block;background:#e6f4ec;color:#145b40;">@TempData["ContraseniaRestablecida"]</div>
+                        }
+
+                        <div class="field-group">
+                            <div class="field" id="f-login-email">
+                                <label for="loginEmail" data-i18n="fieldEmail">
+                                    Correo electrónico
+                                </label>
+
+                                <div class="field-input-wrap">
+                                    <svg width="16"
+                                         height="16"
+                                         viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                        <polyline points="22,6 12,12 2,6" />
+                                    </svg>
+
+                                    <input type="email"
+                                           id="loginEmail"
+                                           name="email"
+                                           data-i18n-ph="phEmail"
+                                           placeholder="tu@email.com"
+                                           autocomplete="email"
+                                           required />
+
+                                    <div class="field-focus-bar"></div>
+                                </div>
+
+                                <span class="field-error">
+                                    Ingresá un email válido.
+                                </span>
+                            </div>
+
+                            <div class="field" id="f-login-pwd">
+                                <label for="loginPwd" data-i18n="fieldPwd">
+                                    Contraseña
+                                </label>
+
+                                <div class="field-input-wrap">
+                                    <svg width="16"
+                                         height="16"
+                                         viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                        <path d="M7 11V7a5 5 0 0110 0v4" />
+                                    </svg>
+
+                                    <input type="password"
+                                           id="loginPwd"
+                                           name="password"
+                                           data-i18n-ph="phPwd"
+                                           placeholder="Tu contraseña"
+                                           autocomplete="current-password"
+                                           required />
+
+                                    <div class="field-focus-bar"></div>
+
+                                    <button class="pwd-toggle"
+                                            type="button"
+                                            onclick="togglePwd('loginPwd', this)"
+                                            title="Ver contraseña">
+                                        <svg id="eye-login"
+                                             width="17"
+                                             height="17"
+                                             viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                            <circle cx="12" cy="12" r="3" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <span class="field-error">
+                                    Ingresá tu contraseña.
+                                </span>
+                            </div>
+                        </div>
+                        <div class="field-extras">
+                            <a asp-controller="Login"
+                               asp-action="OlvideContrasenia"
+                               class="link-muted"
+                               data-i18n="forgotPwd">
+                                ¿Olvidaste tu contraseña?
+                            </a>
+                        </div>
+
+                        <button class="btn-auth" type="submit">
+                            <span data-i18n="btnLogin">
+                                Iniciar sesión
+                            </span>
+                        </button>
+
+                        <p class="auth-switch">
+                            <span data-i18n="noAccount">
+                                ¿No tenés cuenta?
+                            </span>
+
+                            <a href="#"
+                               onclick="switchTab('register'); return false;"
+                               data-i18n="registerLink">
+                                Crear una cuenta gratis
+                            </a>
+                        </p>
+
+                    </form>
+
+                    <div class="auth-divider"><span>o continuá con</span></div>
+                    <form asp-controller="Login" asp-action="IniciarConGoogle" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn-google" aria-describedby="googleEstado">
+                            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                                <path fill="#4285F4" d="M17.64 9.205c0-.638-.057-1.252-.164-1.841H9v3.482h4.844a4.14 4.14 0 01-1.797 2.715v2.258h2.909c1.702-1.567 2.684-3.875 2.684-6.614z"/>
+                                <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.181l-2.909-2.258c-.806.54-1.835.859-3.047.859-2.344 0-4.328-1.585-5.037-3.714H.956v2.333A8.998 8.998 0 009 18z"/>
+                                <path fill="#FBBC05" d="M3.963 10.706A5.41 5.41 0 013.682 9c0-.592.102-1.167.281-1.706V4.961H.956A9 9 0 000 9c0 1.452.347 2.827.956 4.039l3.007-2.333z"/>
+                                <path fill="#EA4335" d="M9 3.58c1.321 0 2.507.454 3.44 1.346l2.581-2.581C13.463.892 11.426 0 9 0A8.998 8.998 0 00.956 4.961l3.007 2.333C4.672 5.165 6.656 3.58 9 3.58z"/>
+                            </svg>
+                            Continuar con Google
+                        </button>
+                    </form>
+                    @if (!googleDisponible)
+                    {
+                        <p class="google-config-status" id="googleEstado">
+                            El acceso con Google requiere configurar las credenciales de la aplicación.
+                        </p>
+                    }
+
+                </div>
+
+                <!-- ══ PANEL REGISTRO ══ -->
+                <!-- ══ PANEL REGISTRO ══ -->
+                <div class="auth-panel @(ViewBag.MostrarRegistro == true ? "" : "hidden")"
+                     id="panelRegister">
+
+    <form asp-controller="Login"
+          asp-action="Registrarse"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div class="form-heading">
+            <h2 data-i18n="regTitle">Creá tu cuenta</h2>
+
+            <p data-i18n="regSub">
+                Unite a la comunidad de surfers de Latinoamérica.
+                Registro gratuito, sin compromiso.
+            </p>
+        </div>
+
+        @if (ViewBag.ErrorRegistro != null)
+        {
+            <div class="auth-alert" style="display:block;">
+                @ViewBag.ErrorRegistro
+            </div>
+        }
+
+        <div class="field-group">
+
+            <div class="fields-row">
+
+                <div class="field" id="f-reg-nombre">
+                    <label for="regNombre"
+                           data-i18n="fieldNombre">
+                        Nombre
+                    </label>
+
+                    <div class="field-input-wrap">
+                        <svg width="16"
+                             height="16"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+
+                        <input type="text"
+                               id="regNombre"
+                               name="nombre"
+                               data-i18n-ph="phNombre"
+                               placeholder="Nombre"
+                               autocomplete="given-name"
+                               required />
+
+                        <div class="field-focus-bar"></div>
+                    </div>
+
+                    <span class="field-error">
+                        Ingresá tu nombre.
+                    </span>
+                </div>
+
+                <div class="field" id="f-reg-apellido">
+                    <label for="regApellido"
+                           data-i18n="fieldApellido">
+                        Apellido
+                    </label>
+
+                    <div class="field-input-wrap">
+                        <svg width="16"
+                             height="16"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+
+                        <input type="text"
+                               id="regApellido"
+                               name="apellido"
+                               data-i18n-ph="phApellido"
+                               placeholder="Apellido"
+                               autocomplete="family-name"
+                               required />
+
+                        <div class="field-focus-bar"></div>
+                    </div>
+
+                    <span class="field-error">
+                        Ingresá tu apellido.
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="field" id="f-reg-email">
+                <label for="regEmail"
+                       data-i18n="fieldEmail">
+                    Correo electrónico
+                </label>
+
+                <div class="field-input-wrap">
+                    <svg width="16"
+                         height="16"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                        <polyline points="22,6 12,12 2,6" />
+                    </svg>
+
+                    <input type="email"
+                           id="regEmail"
+                           name="email"
+                           placeholder="tu@email.com"
+                           autocomplete="email"
+                           required />
+
+                    <div class="field-focus-bar"></div>
+                </div>
+
+                <span class="field-error">
+                    Ingresá un email válido.
+                </span>
+            </div>
+
+            <div class="field" id="f-reg-pais">
+                <label for="regPais"
+                       data-i18n="fieldPais">
+                    País
+                </label>
+
+                <div class="field-input-wrap">
+                    <svg width="16"
+                         height="16"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+                    </svg>
+
+                    <select id="regPais"
+                            name="pais"
+                            required
+                            style="padding-left:2.8rem">
+
+                        <option value="">
+                            Seleccioná tu país
+                        </option>
+
+                        <option value="Argentina">
+                            Argentina
+                        </option>
+
+                        <option value="Brasil">
+                            Brasil
+                        </option>
+
+                        <option value="Uruguay">
+                            Uruguay
+                        </option>
+
+                    </select>
+
+                    <div class="field-focus-bar"></div>
+                </div>
+            </div>
+
+            <div class="field" id="f-reg-pwd">
+                <label for="regPwd"
+                       data-i18n="fieldPwd">
+                    Contraseña
+                </label>
+
+                <div class="field-input-wrap">
+                    <svg width="16"
+                         height="16"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2">
+                        <rect x="3"
+                              y="11"
+                              width="18"
+                              height="11"
+                              rx="2"
+                              ry="2" />
+                        <path d="M7 11V7a5 5 0 0110 0v4" />
+                    </svg>
+
+                    <input type="password"
+                           id="regPwd"
+                           name="password"
+                           data-i18n-ph="phPwdMin"
+                           placeholder="Mínimo 8 caracteres"
+                           autocomplete="new-password"
+                           minlength="8"
+                           oninput="checkStrength(this.value)"
+                           required />
+
+                    <div class="field-focus-bar"></div>
+
+                    <button class="pwd-toggle"
+                            type="button"
+                            onclick="togglePwd('regPwd', this)"
+                            title="Ver contraseña">
+
+                        <svg width="17"
+                             height="17"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+
+                    </button>
+                </div>
+
+                <span class="field-error">
+                    La contraseña debe tener al menos 8 caracteres.
+                </span>
+
+                <div id="strengthWrap"
+                     style="margin-top:.4rem;display:none">
+
+                    <div style="height:3px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden">
+
+                        <div id="strengthBar"
+                             style="height:100%;width:0;transition:width .3s,background .3s;border-radius:99px">
+                        </div>
+
+                    </div>
+
+                    <span id="strengthLabel"
+                          style="font-size:.65rem;color:rgba(255,255,255,.3);margin-top:.25rem;display:block">
+                    </span>
+
+                </div>
+            </div>
+
+            <div class="field" id="f-reg-pwd2">
+                <label for="regPwd2"
+                       data-i18n="fieldPwd2">
+                    Confirmá la contraseña
+                </label>
+
+                <div class="field-input-wrap">
+                    <svg width="16"
+                         height="16"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2">
+                        <rect x="3"
+                              y="11"
+                              width="18"
+                              height="11"
+                              rx="2"
+                              ry="2" />
+                        <path d="M7 11V7a5 5 0 0110 0v4" />
+                    </svg>
+
+                    <input type="password"
+                           id="regPwd2"
+                           name="confirmarPassword"
+                           data-i18n-ph="phPwd2"
+                           placeholder="Repetí tu contraseña"
+                           autocomplete="new-password"
+                           minlength="8"
+                           required />
+
+                    <div class="field-focus-bar"></div>
+
+                    <button class="pwd-toggle"
+                            type="button"
+                            onclick="togglePwd('regPwd2', this)"
+                            title="Ver contraseña">
+
+                        <svg width="17"
+                             height="17"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+
+                    </button>
+                </div>
+
+                <span class="field-error">
+                    Las contraseñas no coinciden.
+                </span>
+            </div>
+
+            <label class="check-field">
+
+                <input type="checkbox"
+                       id="regTerms"
+                       name="aceptaTerminos"
+                       value="true"
+                       required />
+
+                <span>
+                    <span data-i18n="termsText">
+                        Acepto los
+                    </span>
+
+                    <a href="#"
+                       data-i18n="termsLink">
+                        Términos y Condiciones
+                    </a>
+
+                    <span data-i18n="termsAnd">
+                        y la
+                    </span>
+
+                    <a href="#"
+                       data-i18n="privacyLink">
+                        Política de Privacidad
+                    </a>
+
+                    <span data-i18n="termsBrand">
+                        de Master Surf.
+                    </span>
+                </span>
+
+            </label>
+
+        </div>
+
+        <button class="btn-auth"
+                type="submit">
+            <span data-i18n="btnRegister">
+                Crear cuenta gratis
+            </span>
+        </button>
+
+        <p class="auth-switch"
+           style="margin-top:1.5rem">
+
+            <span data-i18n="hasAccount">
+                ¿Ya tenés cuenta?
+            </span>
+
+            <a href="#"
+               onclick="switchTab('login'); return false;"
+               data-i18n="loginLink">
+                Iniciá sesión
+            </a>
+
+        </p>
+
+    </form>
+
+</div>
+                </div>
+               
+            </div>
+        </div>
+    
+    <script src="~/js/Login.js" asp-append-version="true"></script>
+
+</body>
+</html>

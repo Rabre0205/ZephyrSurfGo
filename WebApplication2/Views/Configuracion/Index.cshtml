@@ -1,0 +1,174 @@
+@model WebApplication2.Models.Configuracion.ConfiguracionViewModel
+@using ClassLibrary.Enums
+@{
+    Layout = null;
+    ViewData["Title"] = "Configuración";
+    bool ingresoConGoogle = string.Equals(
+        User.FindFirst("metodo_autenticacion")?.Value,
+        "Google",
+        StringComparison.OrdinalIgnoreCase);
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Configuración — Zephyr Surf Go</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/configuracion.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/identidadMarca.css" asp-append-version="true" />
+</head>
+<body class="shaper-settings-page">
+    <partial name="_Navbar" />
+
+    <main class="settings-page">
+        <header class="settings-header">
+            <p class="settings-eyebrow">Tu cuenta</p>
+            <h1>Configuración</h1>
+            <p>Actualizá tu información personal y protegé el acceso a tu cuenta.</p>
+        </header>
+
+        @if (Model.EsShaper)
+        {
+            <section class="settings-card settings-brand-card">
+                <div class="settings-card-heading"><span>⌖</span><div><h2>Puntos de retiro</h2><p>Administrá los lugares públicos que verán tus clientes en el mapa. Tu taller privado no se publica.</p></div></div>
+                <a class="settings-button" style="display:inline-block;text-decoration:none;width:auto" asp-controller="PuntosRetiro" asp-action="Index">Administrar puntos de retiro</a>
+            </section>
+            <section class="settings-card settings-brand-card">
+                <div class="settings-card-heading">
+                    <span>★</span>
+                    <div><h2>Identidad de la marca</h2><p>Este logo identifica tu marca en el catálogo, tu página pública y tus puntos de retiro.</p></div>
+                </div>
+                @if (TempData["MensajeLogo"] != null) { <div class="settings-alert success">@TempData["MensajeLogo"]</div> }
+                @if (TempData["ErrorLogo"] != null) { <div class="settings-alert error">@TempData["ErrorLogo"]</div> }
+                <form asp-controller="Configuracion" asp-action="ActualizarLogo" method="post" enctype="multipart/form-data" class="brand-logo-form">
+                    @Html.AntiForgeryToken()
+                    <div class="brand-logo-preview" id="brandLogoPreview">
+                        @if (!string.IsNullOrWhiteSpace(Model.LogoUrl)) { <img src="@Model.LogoUrl" alt="Logo actual de la marca" /> }
+                        else { <span>@(string.IsNullOrWhiteSpace(Model.Cuenta.Nombre) ? "Z" : Model.Cuenta.Nombre[..1].ToUpperInvariant())</span> }
+                    </div>
+                    <div class="brand-logo-content">
+                        <strong>Logo de tu taller</strong>
+                        <p>Usá una imagen cuadrada JPG, PNG o WebP de hasta 2 MB.</p>
+                        <input type="file" name="logo" id="brandLogoInput" accept="image/jpeg,image/png,image/webp" />
+                        <div class="brand-logo-actions"><button type="submit" class="settings-button">Guardar logo</button>
+                        @if (!string.IsNullOrWhiteSpace(Model.LogoUrl)) { <button type="submit" name="eliminarLogo" value="true" class="settings-button danger">Eliminar logo</button> }</div>
+                    </div>
+                </form>
+            </section>
+        }
+
+        <div class="settings-grid">
+            <section class="settings-card">
+                <div class="settings-card-heading">
+                    <span>01</span>
+                    <div><h2>Información personal</h2><p>Actualizá tus datos y presioná Guardar información. El cambio de contraseña se guarda por separado.</p></div>
+                </div>
+
+                @if (TempData["MensajeCuenta"] != null)
+                {
+                    <div class="settings-alert success">@TempData["MensajeCuenta"]</div>
+                }
+                @if (ViewData["ErrorCuenta"] != null)
+                {
+                    <div class="settings-alert error">@ViewData["ErrorCuenta"]</div>
+                }
+
+                <form asp-controller="Configuracion" asp-action="ActualizarCuenta" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="settings-alert error"></div>
+
+                    <div class="settings-field">
+                        <label asp-for="Cuenta.Nombre">Nombre</label>
+                        <input asp-for="Cuenta.Nombre" autocomplete="name" />
+                        <span asp-validation-for="Cuenta.Nombre"></span>
+                    </div>
+                    <div class="settings-field">
+                        <label asp-for="Cuenta.Email">Correo electrónico</label>
+                        <input asp-for="Cuenta.Email" autocomplete="email" />
+                        <span asp-validation-for="Cuenta.Email"></span>
+                    </div>
+                    <div class="settings-field">
+                        <label asp-for="Cuenta.Pais">País</label>
+                        <select asp-for="Cuenta.Pais" asp-items="Html.GetEnumSelectList<Pais>()"></select>
+                        <span asp-validation-for="Cuenta.Pais"></span>
+                    </div>
+                    <button type="submit" class="settings-button">Guardar información</button>
+                </form>
+            </section>
+
+            <section class="settings-card">
+                <div class="settings-card-heading">
+                    <span>02</span>
+                    <div>
+                        <h2>Seguridad</h2>
+                        <p>@(ingresoConGoogle
+                            ? "El acceso a esta sesión está protegido por Google."
+                            : "Cambiá tu contraseña confirmando primero la actual.")</p>
+                    </div>
+                </div>
+
+                @if (ingresoConGoogle)
+                {
+                    <div class="settings-google-access">
+                        <div class="settings-google-icon">G</div>
+                        <div>
+                            <strong>Ingresaste con Google</strong>
+                            <p>No necesitás una contraseña de Zephyr para acceder. La seguridad y recuperación de esta sesión se administran desde tu cuenta de Google.</p>
+                        </div>
+                    </div>
+                    <p class="settings-google-help">Si tu cuenta ya tenía una contraseña de Zephyr, todavía podés utilizarla al iniciar sesión manualmente.</p>
+                }
+                else
+                {
+
+                @if (TempData["MensajeSeguridad"] != null)
+                {
+                    <div class="settings-alert success">@TempData["MensajeSeguridad"]</div>
+                }
+                @if (ViewData["ErrorSeguridad"] != null)
+                {
+                    <div class="settings-alert error">@ViewData["ErrorSeguridad"]</div>
+                }
+
+                <form asp-controller="Configuracion" asp-action="CambiarContrasenia" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="settings-alert error"></div>
+
+                    <div class="settings-field">
+                        <label asp-for="Seguridad.ContraseniaActual">Contraseña actual</label>
+                        <input asp-for="Seguridad.ContraseniaActual" autocomplete="current-password" />
+                        <span asp-validation-for="Seguridad.ContraseniaActual"></span>
+                    </div>
+                    <div class="settings-field">
+                        <label asp-for="Seguridad.NuevaContrasenia">Nueva contraseña</label>
+                        <input asp-for="Seguridad.NuevaContrasenia" autocomplete="new-password" />
+                        <span asp-validation-for="Seguridad.NuevaContrasenia"></span>
+                        <small>Usá al menos 8 caracteres.</small>
+                    </div>
+                    <div class="settings-field">
+                        <label asp-for="Seguridad.ConfirmarContrasenia">Confirmar contraseña</label>
+                        <input asp-for="Seguridad.ConfirmarContrasenia" autocomplete="new-password" />
+                        <span asp-validation-for="Seguridad.ConfirmarContrasenia"></span>
+                    </div>
+                    <button type="submit" class="settings-button secondary">Cambiar contraseña</button>
+                </form>
+                }
+            </section>
+        </div>
+    </main>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/navbar.js" asp-append-version="true"></script>
+    <script>
+        document.getElementById('brandLogoInput')?.addEventListener('change', function () {
+            const file = this.files?.[0]; if (!file) return;
+            const preview = document.getElementById('brandLogoPreview');
+            const url = URL.createObjectURL(file); preview.innerHTML = `<img src="${url}" alt="Vista previa del nuevo logo">`;
+        });
+    </script>
+</body>
+</html>

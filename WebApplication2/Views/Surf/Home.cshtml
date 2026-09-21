@@ -1,0 +1,55 @@
+@{ Layout = null; ViewData["Title"] = "Home"; }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Zephyr Surf Go</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600;700&family=Roboto+Slab:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/homeEditorial.css" asp-append-version="true" /><link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
+</head>
+<body class="editorial-home">
+<partial name="_Navbar" />
+<main>
+    <section class="eh-hero">
+        <div class="eh-hero-copy eh-rise"><span class="eh-kicker">Shapers de Latinoamérica · en un solo lugar</span><h1>Un shaper,<br />una tabla,<br /><em>tu ola.</em></h1><span class="eh-rule"></span><p>El surf y la artesanía, en un mismo lugar por primera vez.</p><div class="eh-actions"><a asp-controller="Surf" asp-action="master" asp-fragment="recomendador" class="eh-btn eh-btn-dark">Encontrar mi tabla <span>→</span></a><a asp-controller="Surf" asp-action="shapers" class="eh-btn eh-btn-line">Ver shapers</a></div></div>
+        <div class="eh-hero-photo" role="img" aria-label="Surfista sobre una ola"><span class="eh-photo-caption">Atlántico Sur · 34°54′S</span></div>
+    </section>
+
+    <section class="eh-section eh-boards" id="tablas">
+        <header class="eh-section-head"><div><span class="eh-kicker">Selección del taller</span><h2>Tablas con historia</h2></div><a asp-controller="Surf" asp-action="master" class="eh-text-link">Ver todas las tablas <span>→</span></a></header>
+        <div class="eh-board-grid">
+            <a asp-controller="Surf" asp-action="master" class="eh-board-card"><div class="eh-board-image"><img src="~/img/editorial/board-clean.png" alt="Tabla shortboard artesanal" /><span>01</span></div><div class="eh-board-meta"><span>Performance · 28.5 L</span><h3>El Gaucho</h3><p>Respuesta rápida para olas con fuerza.</p></div></a>
+            <a asp-controller="Surf" asp-action="master" class="eh-board-card"><div class="eh-board-image eh-board-sand"><img src="~/img/editorial/board-clean.png" alt="Tabla mid-length artesanal" /><span>02</span></div><div class="eh-board-meta"><span>Mid-length · 42 L</span><h3>El Pampeano</h3><p>Versatilidad, remada y líneas fluidas.</p></div></a>
+            <a asp-controller="Surf" asp-action="master" class="eh-board-card"><div class="eh-board-image eh-board-rust"><img src="~/img/editorial/board-clean.png" alt="Tabla fish artesanal" /><span>03</span></div><div class="eh-board-meta"><span>Fish · 35 L</span><h3>El Playero</h3><p>Velocidad y diversión en olas pequeñas.</p></div></a>
+        </div>
+    </section>
+
+    <section class="eh-finder" id="como-funciona">
+        <div class="eh-finder-copy"><span class="eh-kicker">Recomendación personalizada</span><h2>Encontrá la tabla<br />hecha para vos.</h2><p>Tu nivel, tu cuerpo y las olas que surfeás cuentan una historia. El cuestionario la convierte en una recomendación para revisar junto al shaper.</p><a asp-controller="Surf" asp-action="master" asp-fragment="recomendador" class="eh-btn eh-btn-paper">Descubrir mi tabla <span>→</span></a></div>
+        <div class="eh-finder-visual"><span class="eh-scan-label">Análisis de perfil</span><div class="eh-board-outline"><img src="~/img/editorial/board-clean.png" alt="Silueta de tabla personalizada" /><span class="eh-scan-line"></span></div><dl><div><dt>01</dt><dd>Nivel</dd></div><div><dt>02</dt><dd>Olas</dd></div><div><dt>03</dt><dd>Medidas</dd></div><div><dt>04</dt><dd>Objetivos</dd></div></dl></div>
+    </section>
+
+    <section class="eh-section eh-atlas" id="shapers">
+        <header class="eh-section-head"><div><span class="eh-kicker">Personas, oficio y territorio</span><h2>Atlas de shapers</h2></div><a asp-controller="Surf" asp-action="shapers" class="eh-text-link">Explorar el atlas <span>→</span></a></header>
+        <div class="eh-atlas-layout"><div class="eh-atlas-map"><span class="eh-map-label">Río de la Plata</span><div class="eh-map-line"></div><i class="eh-pin eh-pin-one"></i><i class="eh-pin eh-pin-two"></i><i class="eh-pin eh-pin-three"></i><strong>UY</strong><small>AR</small><em>BR</em></div>
+            <div class="eh-shaper-list">
+                <a asp-controller="Surf" asp-action="shapers" class="eh-shaper-row"><img src="~/img/editorial/card1.jpg" alt="Shaper trabajando" /><span class="eh-index">01</span><div><small>Montevideo · Uruguay</small><h3>Oficio y precisión</h3><p>Tablas creadas una por una, para cada surfista.</p></div><b>→</b></a>
+                <a asp-controller="Surf" asp-action="shapers" class="eh-shaper-row"><img src="~/img/editorial/card2.jpg" alt="Taller artesanal" /><span class="eh-index">02</span><div><small>Buenos Aires · Argentina</small><h3>Diseño con identidad</h3><p>Experiencia local y mirada contemporánea.</p></div><b>→</b></a>
+                <a asp-controller="Surf" asp-action="shapers" class="eh-shaper-row"><img src="~/img/editorial/card3.jpg" alt="Detalle del proceso" /><span class="eh-index">03</span><div><small>Florianópolis · Brasil</small><h3>Forma y movimiento</h3><p>Diseños nacidos cerca del mar.</p></div><b>→</b></a>
+            </div>
+        </div>
+    </section>
+
+    <section class="eh-process"><div class="eh-process-intro"><span class="eh-kicker">Cómo funciona</span><h2>De tu idea<br />hasta el mar.</h2><p>Un proceso claro, acompañado y visible desde el primer paso.</p></div><ol>
+        <li><span>01</span><div><h3>Contanos cómo surfeás</h3><p>Respondé ocho preguntas sobre tu experiencia y objetivos.</p></div></li><li><span>02</span><div><h3>Definí tu tabla</h3><p>Revisá la forma, las medidas, la construcción y el diseño.</p></div></li><li><span>03</span><div><h3>Elegí al shaper</h3><p>Conocé su trabajo y enviá la propuesta completa.</p></div></li><li><span>04</span><div><h3>Seguí el pedido</h3><p>El shaper cotiza y actualiza cada etapa hasta la entrega.</p></div></li>
+    </ol></section>
+
+    <section class="eh-craft"><div class="eh-craft-copy"><span class="eh-kicker">Hecho a mano</span><h2>Desde el foam<br />hasta el mar.</h2><p>No vendemos solamente tablas. Conectamos personas con el oficio que existe detrás de cada curva.</p></div><div class="eh-gallery">@for (var image = 1; image <= 6; image++){<figure><img src="~/img/editorial/gallery-@(image).jpg" alt="Proceso artesanal de una tabla de surf" loading="lazy" /></figure>}</div></section>
+
+    <section class="eh-pickup"><div><span class="eh-kicker">Red de entrega</span><h2>Retirá tu tabla<br />cerca del mar.</h2><p>Encontrá en el mapa únicamente los puntos de retiro habilitados por cada shaper.</p></div><a asp-controller="Surf" asp-action="Dealers" class="eh-btn eh-btn-paper">Ver puntos de retiro <span>→</span></a></section>
+    <section class="eh-final"><span class="eh-kicker">Tu próxima tabla</span><h2>Empieza acá.</h2><div class="eh-actions"><a asp-controller="Surf" asp-action="master" asp-fragment="recomendador" class="eh-btn eh-btn-dark">Hacer el cuestionario <span>→</span></a><a asp-controller="Surf" asp-action="shapers" class="eh-btn eh-btn-line">Conocer shapers</a></div></section>
+</main>
+<footer class="eh-footer"><div class="eh-footer-brand"><strong>ZEPHYR <span>SURF</span> GO</strong><p>El encuentro entre surfistas y artesanos.</p></div><nav><a asp-controller="Surf" asp-action="master">Tablas</a><a asp-controller="Surf" asp-action="shapers">Shapers</a><a asp-controller="Surf" asp-action="Dealers">Pick Up</a></nav><p>© @DateTime.Now.Year Zephyr Surf Go</p></footer>
+<script src="~/js/navbar.js" asp-append-version="true"></script><script>const items=document.querySelectorAll('.eh-section,.eh-process,.eh-craft,.eh-pickup');if('IntersectionObserver'in window){const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('eh-visible');o.unobserve(e.target)}}),{threshold:.08});items.forEach(i=>o.observe(i))}else items.forEach(i=>i.classList.add('eh-visible'));</script>
+</body></html>

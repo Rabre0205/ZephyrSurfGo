@@ -1,0 +1,174 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Dashboard";
+}
+
+@model WebApplication2.Models.Dashboard.DashboardShaperViewModel
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Dashboard - Zephyr Surf Go</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+          rel="stylesheet" />
+
+    <link rel="stylesheet"
+          href="~/css/navbar.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/estilosDashboard.css"
+          asp-append-version="true" />
+</head>
+
+<body class="dashboard-page">
+
+    <partial name="_Navbar" />
+
+    <section class="dashboard">
+
+        <header class="shaper-bienvenida">
+            <div>
+                <span class="shaper-etiqueta">Panel de trabajo</span>
+                <h1>Hola, @User.Identity?.Name</h1>
+                <p>Desde acá podés publicar tus tablas, revisar pedidos y consultar tus ventas.</p>
+                <div class="acciones-bienvenida">
+                    <a asp-controller="Productos" asp-action="Crear" class="accion-principal-grande">
+                        <span aria-hidden="true">＋</span> Publicar una tabla
+                    </a>
+                    <div class="acciones-secundarias">
+                        <a asp-controller="Shaper" asp-action="Detalle"
+                           asp-route-id="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value">
+                            Ver mi página pública
+                        </a>
+                        <a asp-controller="Configuracion" asp-action="Index">
+                            Configurar mi cuenta
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-resumen">
+
+            <article class="resumen-card">
+                <span class="resumen-label">
+                    Facturación total
+                </span>
+
+                <strong>USD @Model.VentasConfirmadas.ToString("N2")</strong>
+
+                <span class="resumen-detalle">
+                    Comisión: USD @Model.Comisiones.ToString("N2") · Neto: USD @Model.IngresoNeto.ToString("N2")
+                </span>
+            </article>
+
+            <article class="resumen-card">
+                <span class="resumen-label">
+                    Pedidos pendientes
+                </span>
+
+                <strong>@Model.PedidosPendientes</strong>
+
+                <span class="resumen-detalle">
+                    @Model.TotalPedidos pedidos registrados
+                </span>
+            </article>
+
+            <article class="resumen-card">
+                <span class="resumen-label">
+                    Productos publicados
+                </span>
+
+                <strong>@Model.ProductosPublicados</strong>
+
+                <span class="resumen-detalle">
+                    Publicaciones visibles para tus clientes
+                </span>
+            </article>
+
+        </div>
+
+        <div class="dashboard-contenido">
+
+            <section class="dashboard-panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Pedidos recientes</h2>
+
+                        <p>
+                            Últimos pedidos recibidos por tus clientes.
+                        </p>
+                    </div>
+                </div>
+
+                @if (!Model.PedidosRecientes.Any())
+                {
+                    <div class="panel-vacio">
+                        <span>📦</span>
+                        <h3>Todavía no tenés pedidos</h3>
+                        <p>Cuando un cliente compre una tabla, el pedido aparecerá en esta sección.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="dashboard-lista">
+                        @foreach (var pedido in Model.PedidosRecientes)
+                        {
+                            <a asp-action="DetallePedido" asp-route-id="@pedido.Id" class="dashboard-lista-item">
+                                <span>
+                                    <strong>Pedido #@pedido.Id</strong>
+                                    <small>@pedido.ClienteNombre · @pedido.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                                </span>
+                                <span class="dashboard-lista-total">USD @pedido.Total.ToString("N2")<small>@pedido.EstadoNombre</small></span>
+                            </a>
+                        }
+                        <a asp-action="Pedidos" class="dashboard-panel-link">Ver todos los pedidos →</a>
+                    </div>
+                }
+
+            </section>
+
+            <section class="dashboard-panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Facturación</h2>
+
+                        <p>
+                            Resumen de ingresos generados por tus ventas.
+                        </p>
+                    </div>
+                </div>
+
+                @if (Model.VentasConfirmadas == 0)
+                {
+                    <div class="panel-vacio">
+                        <span>💳</span>
+                        <h3>Sin movimientos</h3>
+                        <p>La facturación aparecerá cuando tengas ventas confirmadas.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="facturacion-resumen-panel">
+                        <div><span>Ventas confirmadas</span><strong>USD @Model.VentasConfirmadas.ToString("N2")</strong></div>
+                        <div><span>Comisión de plataforma</span><strong>USD @Model.Comisiones.ToString("N2")</strong></div>
+                        <div class="facturacion-neto"><span>Ingreso neto</span><strong>USD @Model.IngresoNeto.ToString("N2")</strong></div>
+                        <a asp-action="Facturacion" class="dashboard-panel-link">Ver detalle de facturación →</a>
+                    </div>
+                }
+
+            </section>
+
+        </div>
+
+    </section>
+    <script src="~/js/navbar.js" asp-append-version="true"></script>
+</body>
+</html>
