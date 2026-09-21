@@ -91,4 +91,8 @@ Con SMTP configurado también se notifican altas y cambios de seguridad, compras
 
 Los usuarios registrados reciben esos mismos eventos en la bandeja interna de notificaciones, aunque SMTP no esté disponible. En una base existente se debe aplicar `Database/AgregarNotificacionesUsuarios.sql`; `setup-dev.ps1` lo ejecuta automáticamente.
 
-El esquema principal ya incluye también el marketplace de cursos. En una base existente, `setup-dev.ps1` ejecuta automáticamente `Database/AgregarCursosShaper.sql` junto con el resto de las migraciones.
+El esquema principal ya incluye también el marketplace de cursos y workshops. `setup-dev.ps1` aplica automáticamente `Database/AgregarCursosShaper.sql` junto con el resto de las migraciones. Si preferís hacerlo manualmente sobre una base existente, ejecutá:
+
+```text
+Database/AgregarCursosShaper.sql
+```

@@ -42,6 +42,7 @@ namespace WebApplication2
             builder.Services.AddScoped<IRecuperacionContraseniaRepositorio, RecuperacionContraseniaRepositorio>();
             builder.Services.AddScoped<INotificacionRepositorio, NotificacionRepositorio>();
             builder.Services.AddScoped<WebApplication2.Servicios.IRecuperacionContraseniaServicio, WebApplication2.Servicios.RecuperacionContraseniaServicio>();
+            builder.Services.AddScoped<ICursoRepositorio, CursoRepositorio>();
             builder.Services.AddScoped<WebApplication2.Servicios.ICorreoNotificacionServicio, WebApplication2.Servicios.CorreoNotificacionServicio>();
      
 

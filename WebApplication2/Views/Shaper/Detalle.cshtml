@@ -1614,6 +1614,24 @@
     <div class="section-divider"></div>
 
     <!-- ── CTA CARRITO ── -->
+    @if (Model.Cursos.Count > 0)
+    {
+        <link rel="stylesheet" href="~/css/cursos.css" asp-append-version="true" />
+        <section class="shaper-courses" id="cursos">
+            <div class="shaper-courses-inner">
+                <header class="shaper-courses-header"><div><span class="course-kicker">Aprendé con el shaper</span><h2>Cursos y workshops</h2><p>Encuentros publicados y dictados por @Model.Shaper.NombreDeNegosio.</p></div></header>
+                <div class="shaper-course-list">
+                    @foreach (var curso in Model.Cursos)
+                    {
+                        <a class="shaper-course-card" asp-controller="Cursos" asp-action="Detalle" asp-route-id="@curso.Id">
+                            <small>@curso.Modalidad · @curso.FechaInicio.ToLocalTime().ToString("dd/MM/yyyy")</small><h3>@curso.Titulo</h3><p>@curso.Resumen</p><span>@curso.CuposDisponibles lugares disponibles</span><strong>USD @curso.Precio.ToString("N2") →</strong>
+                        </a>
+                    }
+                </div>
+            </div>
+        </section>
+    }
+
     <section id="compra" style="padding:5rem 3rem;text-align:center;background:var(--master-mid);position:relative;">
         <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.25),transparent);"></div>
         <div class="reveal" style="max-width:560px;margin:0 auto;">

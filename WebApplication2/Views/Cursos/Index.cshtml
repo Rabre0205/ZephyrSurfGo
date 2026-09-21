@@ -1,0 +1,12 @@
+@model List<ClassLibrary.Cursos.CursoShaper>
+@{ViewData["Title"]="Mis cursos";}
+<link rel="stylesheet" href="~/css/cursos.css" asp-append-version="true" />
+<partial name="_Navbar" />
+<main class="course-page course-manage">
+ <header class="course-heading"><div><span>Formación del shaper</span><h1>Mis cursos</h1><p>Publicá workshops, administrá cupos y consultá la comisión antes de vender.</p></div><a asp-action="Crear" class="course-primary">+ Publicar curso</a></header>
+ @if(TempData["Mensaje"] is string mensaje){<div class="course-alert">@mensaje</div>}
+ <div class="course-toolbar"><strong>@Model.Count curso@(Model.Count==1?"":"s")</strong><a asp-action="Inscripciones">Ver inscripciones →</a></div>
+ @if(Model.Count==0){<section class="course-empty"><h2>Todavía no publicaste cursos</h2><p>Podés ofrecer clases, workshops presenciales o encuentros online.</p><a asp-action="Crear" class="course-primary">Crear el primero</a></section>}
+ else{<section class="course-grid">@foreach(var c in Model){<article class="course-card"><div class="course-image" style="background-image:url('@(c.ImagenUrl??Url.Content("~/img/editorial/hero-workshop.jpg"))')"><span>@(c.Publicado?"Publicado":"Pausado")</span></div><div class="course-card-body"><small>@c.Modalidad · @c.FechaInicio.ToLocalTime().ToString("dd/MM/yyyy")</small><h2>@c.Titulo</h2><p>@c.Resumen</p><dl><div><dt>Cupos</dt><dd>@c.CuposOcupados/@c.Cupos</dd></div><div><dt>Precio</dt><dd>USD @c.Precio.ToString("N2")</dd></div><div><dt>Comisión</dt><dd>La misma del catálogo</dd></div></dl><div class="course-actions"><a asp-action="Editar" asp-route-id="@c.Id">Editar</a><a asp-action="Detalle" asp-route-id="@c.Id">Vista pública</a><form asp-action="CambiarPublicacion" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@c.Id"><input type="hidden" name="publicado" value="@((!c.Publicado).ToString().ToLowerInvariant())"><button>@(c.Publicado?"Pausar":"Publicar")</button></form></div></div></article>}</section>}
+</main>
+<script src="~/js/navbar.js" asp-append-version="true"></script>

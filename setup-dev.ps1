@@ -36,14 +36,13 @@ Write-Host "Aplicando mejoras de catálogo, reseñas, solicitudes y recuperació
 sqlcmd -S $SqlServer -E -C -b -d SurfDB -i $improvementsFile
 if ($LASTEXITCODE -ne 0) { throw "No se pudieron aplicar las mejoras recientes de la base." }
 
-Write-Host "Aplicando el módulo de cursos para shapers..."
+Write-Host "Aplicando el módulo actualizado de cursos y workshops..."
 sqlcmd -S $SqlServer -E -C -b -d SurfDB -i $coursesFile
 if ($LASTEXITCODE -ne 0) { throw "No se pudo aplicar el módulo de cursos." }
 
 Write-Host "Aplicando notificaciones internas..."
 sqlcmd -S $SqlServer -E -C -b -d SurfDB -i $notificationsFile
 if ($LASTEXITCODE -ne 0) { throw "No se pudo aplicar el módulo de notificaciones." }
-
 Write-Host "Agregando datos ficticios..."
 sqlcmd -S $SqlServer -E -C -b -i $seedFile
 if ($LASTEXITCODE -ne 0) { throw "No se pudieron agregar los datos ficticios." }
