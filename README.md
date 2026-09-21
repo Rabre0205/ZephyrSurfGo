@@ -73,7 +73,7 @@ Si no se dispone de `sqlcmd`, ejecutar desde SQL Server Management Studio, en es
 
 El primer archivo se usa sobre una instalación nueva. El segundo puede ejecutarse nuevamente porque evita duplicar los datos ficticios.
 
-Para agregar el módulo de cursos a una base que ya existía, ejecutar una sola vez:
+`setup-dev.ps1` aplica automáticamente el módulo de cursos y sus actualizaciones. Si preferís hacerlo manualmente sobre una base existente, ejecutá:
 
 ```text
 Database/AgregarCursosShaper.sql

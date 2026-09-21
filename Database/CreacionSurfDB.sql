@@ -940,21 +940,48 @@ CREATE TABLE CursosShaper (
     Cupos INT NOT NULL,
     Precio DECIMAL(10,2) NOT NULL,
     ImagenUrl NVARCHAR(600) NULL,
+    InstructorNombre NVARCHAR(140) NOT NULL DEFAULT N'',
+    InstructorBio NVARCHAR(1800) NOT NULL DEFAULT N'',
+    PublicoObjetivo NVARCHAR(2500) NOT NULL DEFAULT N'',
+    Incluye NVARCHAR(3000) NOT NULL DEFAULT N'',
+    Requisitos NVARCHAR(1800) NOT NULL DEFAULT N'',
+    CronogramaUrl NVARCHAR(600) NULL,
+    Contacto NVARCHAR(500) NULL,
+    CuotasMaximas TINYINT NOT NULL DEFAULT 1,
+    DescuentoAcompanantePorcentaje DECIMAL(5,2) NOT NULL DEFAULT 0,
+    HospedajeDisponible BIT NOT NULL DEFAULT 0,
     Publicado BIT NOT NULL DEFAULT 1,
     FechaCreacion DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
     FechaActualizacion DATETIME2 NULL,
     CONSTRAINT CK_CursosShaper_Cupos CHECK(Cupos > 0),
     CONSTRAINT CK_CursosShaper_Precio CHECK(Precio > 0),
-    CONSTRAINT CK_CursosShaper_Modalidad CHECK(Modalidad IN(N'Presencial',N'Online',N'Híbrido'))
+    CONSTRAINT CK_CursosShaper_Modalidad CHECK(Modalidad IN(N'Presencial',N'Online',N'Híbrido')),
+    CONSTRAINT CK_CursosShaper_Cuotas CHECK(CuotasMaximas BETWEEN 1 AND 24),
+    CONSTRAINT CK_CursosShaper_Descuento CHECK(DescuentoAcompanantePorcentaje BETWEEN 0 AND 100)
 );
 GO
 CREATE INDEX IX_CursosShaper_Perfil ON CursosShaper(ShaperId, Publicado, FechaInicio);
+GO
+
+CREATE TABLE CursoModulos (
+    Id INT IDENTITY PRIMARY KEY, CursoId INT NOT NULL REFERENCES CursosShaper(Id),
+    Nombre NVARCHAR(120) NOT NULL, Descripcion NVARCHAR(1000) NOT NULL,
+    Encuentros INT NOT NULL, DuracionHoras DECIMAL(6,1) NOT NULL, Precio DECIMAL(10,2) NULL,
+    PermiteCompraIndividual BIT NOT NULL DEFAULT 0, Orden INT NOT NULL DEFAULT 0,
+    CONSTRAINT CK_CursoModulos_Encuentros CHECK(Encuentros > 0),
+    CONSTRAINT CK_CursoModulos_Precio CHECK(Precio IS NULL OR Precio > 0)
+);
+CREATE TABLE CursoImagenes (
+    Id INT IDENTITY PRIMARY KEY, CursoId INT NOT NULL REFERENCES CursosShaper(Id),
+    ImagenUrl NVARCHAR(600) NOT NULL, Orden INT NOT NULL DEFAULT 0
+);
 GO
 
 CREATE TABLE InscripcionesCursos (
     Id INT IDENTITY PRIMARY KEY,
     CursoId INT NOT NULL REFERENCES CursosShaper(Id),
     ClienteId INT NOT NULL REFERENCES Usuarios(Id),
+    ModuloId INT NULL REFERENCES CursoModulos(Id),
     PrecioSnapshot DECIMAL(10,2) NOT NULL,
     PorcentajeComision DECIMAL(5,2) NOT NULL,
     ComisionPlataforma DECIMAL(10,2) NOT NULL,

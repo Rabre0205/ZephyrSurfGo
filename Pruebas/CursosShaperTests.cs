@@ -50,5 +50,20 @@ public class CursosShaperTests
         Assert.Contains("Cursos y workshops",vista);
     }
 
+    [Fact]
+    public void WorkshopAdmiteModulosGaleriaYCondicionesComerciales()
+    {
+        string raiz=BuscarRaiz();
+        string sql=File.ReadAllText(Path.Combine(raiz,"Database","AgregarCursosShaper.sql"));
+        string detalle=File.ReadAllText(Path.Combine(raiz,"WebApplication2","Views","Cursos","Detalle.cshtml"));
+        Assert.Contains("CursoModulos",sql);
+        Assert.Contains("CursoImagenes",sql);
+        Assert.Contains("ModuloId",sql);
+        Assert.Contains("CuotasMaximas",sql);
+        Assert.Contains("DescuentoAcompanantePorcentaje",sql);
+        Assert.Contains("Programa del workshop",detalle);
+        Assert.Contains("Elegí una opción",detalle);
+    }
+
     private static string BuscarRaiz(){var d=new DirectoryInfo(AppContext.BaseDirectory);while(d!=null&&!Directory.Exists(Path.Combine(d.FullName,"WebApplication2")))d=d.Parent;return d?.FullName??throw new DirectoryNotFoundException();}
 }

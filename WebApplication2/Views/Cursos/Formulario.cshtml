@@ -1,19 +1,48 @@
 @model WebApplication2.Models.Cursos.CursoFormModel
-@{bool editar=Model.Id>0;ViewData["Title"]=editar?"Editar curso":"Publicar curso";}
-<link rel="stylesheet" href="~/css/cursos.css" asp-append-version="true" /><partial name="_Navbar" />
-<main class="course-page course-form-page"><a asp-action="Index" class="course-back">← Volver a mis cursos</a><header class="course-heading"><div><span>Formación del shaper</span><h1>@(editar?"Editar curso":"Nuevo curso")</h1><p>Explicá con claridad qué aprenderá el alumno y qué incluye el valor.</p></div></header>
-<form method="post" class="course-form">@Html.AntiForgeryToken()<input asp-for="Id" type="hidden"><div asp-validation-summary="ModelOnly" class="course-errors"></div>
+@{bool editar=Model.Id>0;ViewData["Title"]=editar?"Editar workshop":"Publicar workshop";}
+<link rel="stylesheet" href="~/css/cursos.css" asp-append-version="true" /><link rel="stylesheet" href="~/css/cursos-workshop.css" asp-append-version="true" /><partial name="_Navbar" />
+<main class="course-page course-form-page"><a asp-action="Index" class="course-back">← Volver a mis cursos</a>
+<header class="course-heading"><div><span>Formación del shaper</span><h1>@(editar?"Editar workshop":"Nuevo workshop")</h1><p>Presentá la experiencia completa: contenidos, módulos, instructor, condiciones y formas de inscripción.</p></div></header>
+<form method="post" class="course-form" id="course-form">@Html.AntiForgeryToken()<input asp-for="Id" type="hidden"><div asp-validation-summary="ModelOnly" class="course-errors wide"></div>
+ <h2 class="course-form-title wide">Información principal</h2>
  <label>Título<input asp-for="Titulo" placeholder="Ej.: Workshop de fabricación de tablas"><span asp-validation-for="Titulo"></span></label>
  <label>Resumen<input asp-for="Resumen" placeholder="Una descripción breve para la tarjeta"><span asp-validation-for="Resumen"></span></label>
- <label class="wide">Descripción y contenidos<textarea asp-for="Descripcion" rows="8" placeholder="Temario, materiales incluidos, requisitos y qué se lleva el alumno..."></textarea><span asp-validation-for="Descripcion"></span></label>
+ <label class="wide">Descripción de la experiencia<textarea asp-for="Descripcion" rows="6" placeholder="Contá qué hará el alumno y cuál es la propuesta del workshop."></textarea><span asp-validation-for="Descripcion"></span></label>
  <label>Modalidad<select asp-for="Modalidad"><option>Presencial</option><option>Online</option><option>Híbrido</option></select></label>
- <label>Ubicación o acceso<input asp-for="Ubicacion" placeholder="Taller, ciudad o información del acceso"><span asp-validation-for="Ubicacion"></span></label>
- <label>Fecha y hora<input asp-for="FechaInicio" type="datetime-local"><span asp-validation-for="FechaInicio"></span></label>
- <label>Duración (horas)<input asp-for="DuracionHoras" type="number" min="0.5" step="0.5"><span asp-validation-for="DuracionHoras"></span></label>
- <label>Cupos<input asp-for="Cupos" type="number" min="1"><span asp-validation-for="Cupos"></span></label>
- <label>Precio en USD<input asp-for="Precio" type="number" min="0.01" step="0.01"><span asp-validation-for="Precio"></span></label>
- <label class="wide">URL de imagen (opcional)<input asp-for="ImagenUrl" placeholder="https://..."><span asp-validation-for="ImagenUrl"></span></label>
+ <label>Ubicación o acceso<input asp-for="Ubicacion" placeholder="Taller, ciudad o información de acceso"><span asp-validation-for="Ubicacion"></span></label>
+ <label>Fecha de inicio<input asp-for="FechaInicio" type="datetime-local"><span asp-validation-for="FechaInicio"></span></label>
+ <label>Duración total (horas)<input asp-for="DuracionHoras" type="number" min="0.5" step="0.5"><span asp-validation-for="DuracionHoras"></span></label>
+ <label>Cupos por edición<input asp-for="Cupos" type="number" min="1"><span asp-validation-for="Cupos"></span></label>
+ <label>Precio completo en USD<input asp-for="Precio" type="number" min="0.01" step="0.01"><span asp-validation-for="Precio"></span></label>
+ <label>Cuotas máximas<input asp-for="CuotasMaximas" type="number" min="1" max="24"><span asp-validation-for="CuotasMaximas"></span></label>
+ <label>Descuento con acompañante (%)<input asp-for="DescuentoAcompanantePorcentaje" type="number" min="0" max="100" step="0.01"><span asp-validation-for="DescuentoAcompanantePorcentaje"></span></label>
+ <h2 class="course-form-title wide">Contenido y condiciones</h2>
+ <label class="wide">¿A quién está dirigido?<textarea asp-for="PublicoObjetivo" rows="5" placeholder="Una idea por línea."></textarea><span asp-validation-for="PublicoObjetivo"></span></label>
+ <label class="wide">¿Qué incluye?<textarea asp-for="Incluye" rows="6" placeholder="Materiales, herramientas, manual, acompañamiento posterior..."></textarea><span asp-validation-for="Incluye"></span></label>
+ <label class="wide">Requisitos<textarea asp-for="Requisitos" rows="3" placeholder="Ej.: No se necesita experiencia previa."></textarea><span asp-validation-for="Requisitos"></span></label>
+ <label>Enlace al cronograma<input asp-for="CronogramaUrl" placeholder="https://..."><span asp-validation-for="CronogramaUrl"></span></label>
+ <label>Contacto del workshop<input asp-for="Contacto" placeholder="WhatsApp, email o Instagram"><span asp-validation-for="Contacto"></span></label>
+ <label class="course-check wide"><input asp-for="HospedajeDisponible"> Ofrece opción de hospedaje</label>
+ <h2 class="course-form-title wide">Instructor</h2>
+ <label>Nombre del instructor<input asp-for="InstructorNombre" placeholder="Nombre y apellido"><span asp-validation-for="InstructorNombre"></span></label>
+ <label class="wide">Experiencia y presentación<textarea asp-for="InstructorBio" rows="5" placeholder="Trayectoria, especialidad y experiencia profesional."></textarea><span asp-validation-for="InstructorBio"></span></label>
+ <section class="course-modules wide"><div class="course-section-heading"><div><h2>Programa por módulos</h2><p>Agregá cada etapa, sus encuentros y el precio opcional por separado.</p></div><button type="button" id="add-module" class="course-secondary">+ Agregar módulo</button></div>
+  <div id="module-list">@for(int i=0;i<Model.Modulos.Count;i++){<article class="course-module-editor">
+   <input asp-for="Modulos[i].Id" type="hidden"><label>Nombre<input asp-for="Modulos[i].Nombre"><span asp-validation-for="Modulos[i].Nombre"></span></label>
+   <label>Encuentros<input asp-for="Modulos[i].Encuentros" type="number" min="1"></label><label>Horas<input asp-for="Modulos[i].DuracionHoras" type="number" min="0.5" step="0.5"></label>
+   <label>Precio individual USD<input asp-for="Modulos[i].Precio" type="number" min="0.01" step="0.01"><span asp-validation-for="Modulos[i].Precio"></span></label>
+   <label class="course-check"><input asp-for="Modulos[i].PermiteCompraIndividual"> Se vende por separado</label>
+   <label class="wide">Contenido<textarea asp-for="Modulos[i].Descripcion" rows="3"></textarea><span asp-validation-for="Modulos[i].Descripcion"></span></label>
+   <button type="button" class="remove-module">Quitar módulo</button>
+  </article>}</div>
+ </section>
+ <h2 class="course-form-title wide">Imágenes</h2>
+ <label class="wide">Imagen principal<input asp-for="ImagenUrl" placeholder="https://..."><span asp-validation-for="ImagenUrl"></span></label>
+ <label class="wide">Galería: una URL por línea<textarea asp-for="GaleriaUrls" rows="5" placeholder="https://...&#10;https://..."></textarea><span asp-validation-for="GaleriaUrls"></span></label>
  <label class="course-check wide"><input asp-for="Publicado"> Publicar y mostrar en mi página</label>
- <aside class="course-commission wide"><strong>Misma comisión que el catálogo</strong><p>Zephyr aplica automáticamente la misma comisión configurada para la venta de tablas y accesorios. El shaper no puede modificarla desde esta publicación.</p></aside>
- <div class="course-submit wide"><a asp-action="Index">Cancelar</a><button class="course-primary">@(editar?"Guardar cambios":"Publicar curso")</button></div>
-</form></main><partial name="_ValidationScriptsPartial" /><script src="~/js/navbar.js" asp-append-version="true"></script>
+ <aside class="course-commission wide"><strong>Misma comisión que el catálogo</strong><p>Zephyr aplica automáticamente la comisión configurada para tablas y accesorios, tanto al workshop completo como a cada módulo.</p></aside>
+ <div class="course-submit wide"><a asp-action="Index">Cancelar</a><button class="course-primary">@(editar?"Guardar cambios":"Publicar workshop")</button></div>
+</form></main>
+<template id="module-template"><article class="course-module-editor"><input name="Modulos[__INDEX__].Id" type="hidden" value="0"><label>Nombre<input name="Modulos[__INDEX__].Nombre" required></label><label>Encuentros<input name="Modulos[__INDEX__].Encuentros" type="number" min="1" value="1" required></label><label>Horas<input name="Modulos[__INDEX__].DuracionHoras" type="number" min="0.5" step="0.5" required></label><label>Precio individual USD<input name="Modulos[__INDEX__].Precio" type="number" min="0.01" step="0.01"></label><label class="course-check"><input name="Modulos[__INDEX__].PermiteCompraIndividual" type="checkbox" value="true"> Se vende por separado</label><label class="wide">Contenido<textarea name="Modulos[__INDEX__].Descripcion" rows="3" required></textarea></label><button type="button" class="remove-module">Quitar módulo</button></article></template>
+<partial name="_ValidationScriptsPartial" /><script src="~/js/navbar.js" asp-append-version="true"></script>
+<script>(()=>{const list=document.getElementById('module-list'),template=document.getElementById('module-template');const reindex=()=>[...list.children].forEach((card,i)=>card.querySelectorAll('[name]').forEach(input=>input.name=input.name.replace(/Modulos\[\d+\]/,`Modulos[${i}]`)));document.getElementById('add-module').addEventListener('click',()=>{const i=list.children.length;list.insertAdjacentHTML('beforeend',template.innerHTML.replaceAll('__INDEX__',i));});list.addEventListener('click',e=>{if(e.target.classList.contains('remove-module')&&list.children.length>1){e.target.closest('.course-module-editor').remove();reindex();}});})();</script>
